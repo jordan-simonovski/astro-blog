@@ -9,7 +9,7 @@ tags:
   - monitoring
   - logging
   - slos
-ogImage: "/assets//is-this-monitoring.jpg"
+ogImage: "/assets/is-this-monitoring.jpg"
 featured: false
 draft: false
 ---

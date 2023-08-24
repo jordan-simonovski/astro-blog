@@ -55,7 +55,7 @@ Otherwise known as distinct leadership styles. This was something that I wasn't 
 - **Pacesetting** - This is a style that I think gets misused, as many would think that it means going faster. In tech, it's incredibly easy to set the pace in a team by developing baseline metrics, and ensuring that we're continually hitting those targets or above. This doesn't mean using stupid vanity metrics like LoC committed or features completed. This can be as easy as setting the baseline for something like feature lead time, and working to improve that through investment in automation and process.
 - **Commanding** - This is another one that in my opinion gets ridiculously misused, as many would think that it means putting your foot down (which is my nice way of saying they think it's a justification for being a jerk). This is a style that should be used in situations like production outages when someone needs to take control as the incident leader and direct people to the right tasks to ensure things are resolved as efficiently as possible.
 
-![leadership behaviours](/assets//leadership-behaviour.png)
+![leadership behaviours](/assets/leadership-behaviour.png)
 
 ## Engagement
 
@@ -71,7 +71,7 @@ This is where Pink's _Autonomy, Mastery, Purpose_ Framework becomes invaluable.
 - **Mastery** - This is the desire to improve, and the software industry is built on the need for mastery. This means giving your team the right guidance and career progression path they need to develop their careers. Many companies fail to realise that this also means investing in a well thought out IC track. Give your engineers the ability to master their skills without having to switch careers and become managers.
 - **Purpose** - Give people an understanding of what "the bigger picture" actually is. Creating buy-in into your team's vision gives them a sense of purpose, but also helps them develop ideas of their own of how to get there. Embrace these ideas and take them onboard when they arise. Your team wants to head in the same direction as you.
 
-![mastery-autonomy-purpose](/assets//master-autonomy-purpose.jpg)
+![mastery-autonomy-purpose](/assets/master-autonomy-purpose.jpg)
 
 More on these methods of intrinsic motivation can be found in Daniel Pink's book, [Drive](https://www.amazon.com/Drive-Surprising-Truth-About-Motivates/dp/1594484805).
 
@@ -94,7 +94,7 @@ As a leader you need to understand that _extrinsic motivation_ (observable behav
 
 When helping your team set goals for themselves, many people use [SMART Goals](https://www.mindtools.com/pages/article/smart-goals.htm) which help people keep their goals on track. It's also worth keeping in mind the four P's when setting these goals: Personal, Positive, Possible, Prioritised. Think about where your team member is on their [hierarchy of needs](https://www.simplypsychology.org/maslow.html) and help them set their goals according to that.
 
-![Maslow's hierarchy of needs](/assets//maslow.webp)
+![Maslow's hierarchy of needs](/assets/maslow.webp)
 
 ## Setting a Vision
 
@@ -145,7 +145,7 @@ e.g. _"We need a platform for developers to be able to easily, quickly, and safe
 
 Taking the above into account, the team will use their accumulated expertise to develop a solution to the problem that will vastly exceed the expectations that you might have had of "configure a server onto an EC2". By having a say into the _how_ of achieving the vision, your engineers will have achieved that self-actualisation piece by making a meaningful contribution to the vision.
 
-![I do ass the to-do list guides](/assets//morty-todo-list.jpg)
+![I do ass the to-do list guides](/assets/morty-todo-list.jpg)
 
 ### How/When vs. What/Why
 
@@ -186,7 +186,7 @@ Google has the concept of 20% time regardless of your opinion of it was a great 
 
 Atlassian regularly runs [ShipIt Days](https://www.atlassian.com/blog/archives/case-study-six-feet-up-shipit-day) (previously known as FedEx days) that they see as something incredibly important for driving intrinsic motivation. It drives creativity, innovation, and gives employees the chance to work on things they think are important, but haven't had the time to do as part of their "day jobs".
 
-![Am I out of touch? No, it' the employees who are wrong](/assets//out-of-touch-manager.jpg)
+![Am I out of touch? No, it' the employees who are wrong](/assets/out-of-touch-manager.jpg)
 
 ---
 
