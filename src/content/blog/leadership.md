@@ -1,6 +1,6 @@
 ---
 title: TIL Leadership Fundamentals
-pubDatetime: 2017-02-25T18:30:00Z
+pubDatetime: 2020-02-25T18:30:00Z
 author: Jordan Simonovski
 description: "When jumping into the deep end of leading the team that I helped to build, I struggled to communicate a good vision to my team. This post covers a few thing leading up to vision like motivation, and what good leadership looks like - to me anyway."
 tags:

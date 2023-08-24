@@ -1,6 +1,6 @@
 ---
 title: On the Importance of Tooling
-pubDatetime: 2017-03-12T11:50:20Z
+pubDatetime: 2019-11-04T11:50:20Z
 author: Jordan Simonovski
 description: "Why is writing internal tooling for developers so important? How do businesses benefit from the upfront investment in robust tooling?"
 tags:
