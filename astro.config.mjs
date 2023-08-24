@@ -9,7 +9,7 @@ import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://blog.jordansimonov.ski/", // replace this with your deployed domain
+  site: "https://astro.jordansimonov.ski/", // replace this with your deployed domain
   integrations: [
     tailwind({
       config: {
