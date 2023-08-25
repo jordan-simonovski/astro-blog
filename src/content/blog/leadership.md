@@ -8,6 +8,7 @@ tags:
   - sre
   - developers
   - leadership
+ogImage: "/assets/lead-not-read.gif"
 featured: true
 draft: false
 ---

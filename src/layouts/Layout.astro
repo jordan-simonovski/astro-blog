@@ -10,6 +10,7 @@ export interface Props {
   description?: string;
   ogImage?: string;
   canonicalURL?: string;
+  readingTime?: string;
 }
 
 const {
@@ -18,12 +19,15 @@ const {
   description = SITE.desc,
   ogImage = SITE.ogImage,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  readingTime = "",
 } = Astro.props;
 
 const socialImageURL = new URL(
   ogImage ? ogImage : SITE.ogImage,
   Astro.url.origin
 ).href;
+
+const isHome = Astro.url.pathname === "/";
 ---
 
 <!DOCTYPE html>
@@ -54,6 +58,8 @@ const socialImageURL = new URL(
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={socialImageURL} />
+    {!isHome && <meta property="twitter:label1" content="Reading Time" />}
+    {!isHome && <meta property="twitter:data1" content={readingTime} />}
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
