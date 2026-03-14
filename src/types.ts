@@ -6,6 +6,9 @@ export type Site = {
   ogImage: string;
   lightAndDarkMode: boolean;
   postPerPage: number;
+  postPerIndex?: number;
+  showArchives?: boolean;
+  showBackButton?: boolean;
 };
 
 export type SocialObjects = {
@@ -21,6 +24,9 @@ export type SocialIcons = {
 
 export type SocialMedia =
   | "Github"
+  | "X"
+  | "Bluesky"
+  | "Threads"
   | "Facebook"
   | "Instagram"
   | "LinkedIn"

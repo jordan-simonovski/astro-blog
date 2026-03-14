@@ -12,6 +12,39 @@ const socialIcons: SocialIcons = {
       d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"
     ></path>
   </svg>`,
+  X: `<svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="icon-tabler"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 4l16 16"></path>
+    <path d="M20 4l-7 8"></path>
+    <path d="M11 14l-7 6"></path>
+  </svg>`,
+  Bluesky: `<svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="icon-tabler"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M8 11c-2.5 -3.5 -4.5 -4.5 -5 -4c-.7 .7 .2 2.6 1.4 4.1c1.5 1.9 3 2.4 4.2 2.4"></path>
+    <path d="M16 11c2.5 -3.5 4.5 -4.5 5 -4c.7 .7 -.2 2.6 -1.4 4.1c-1.5 1.9 -3 2.4 -4.2 2.4"></path>
+    <path d="M12 11v5"></path>
+    <path d="M9 17c.7 1.5 1.8 3 3 3s2.3 -1.5 3 -3"></path>
+  </svg>`,
+  Threads: `<svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="icon-tabler"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M7 12c0 -3 1.8 -5 5 -5c3 0 5 1.7 5 4.5c0 2.8 -1.8 4.5 -4.8 4.5c-2.6 0 -4.2 -1.3 -4.2 -3.3c0 -1.8 1.3 -2.9 3.2 -2.9c1.8 0 3 .9 3.8 2.2"></path>
+    <path d="M15.8 12.2c.5 1 .8 2.1 .8 3.3c0 2.8 -1.8 4.5 -4.6 4.5c-3.6 0 -6 -2.6 -6 -6.5c0 -4.2 2.6 -7 6.8 -7c3.7 0 6.2 2.4 6.2 6"></path>
+  </svg>`,
   Facebook: `<svg
     xmlns="http://www.w3.org/2000/svg"
     class="icon-tabler"

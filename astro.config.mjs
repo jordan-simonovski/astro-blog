@@ -1,17 +1,20 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import react from "@astrojs/react";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import sitemap from "@astrojs/sitemap";
+import { SITE } from "./src/config";
 
 import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs"; 
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://blog.jordansimonov.ski/", // replace this with your deployed domain
+  site: SITE.website,
   integrations: [
     react(),
-    sitemap(),
+    sitemap({
+      filter: page => (SITE.showArchives ?? true) || !page.endsWith("/archives"),
+    }),
   ],
   markdown: {
     remarkPlugins: [
@@ -33,6 +36,19 @@ export default defineConfig({
   vite: {
     optimizeDeps: {
       exclude: ["@resvg/resvg-js"],
+    },
+  },
+  image: {
+    responsiveStyles: true,
+    layout: "constrained",
+  },
+  env: {
+    schema: {
+      PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({
+        access: "public",
+        context: "client",
+        optional: true,
+      }),
     },
   },
 });

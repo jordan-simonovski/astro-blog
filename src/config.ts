@@ -8,6 +8,9 @@ export const SITE: Site = {
   ogImage: "https://i.imgur.com/we30L0p.gif",
   lightAndDarkMode: true,
   postPerPage: 5,
+  postPerIndex: 5,
+  showArchives: true,
+  showBackButton: true,
 };
 
 export const LOCALE = ["en-EN"]; // set to [] to use the environment default
@@ -25,6 +28,24 @@ export const SOCIALS: SocialObjects = [
     href: "https://github.com/jordan-simonovski",
     linkTitle: ` ${SITE.title} on Github`,
     active: true,
+  },
+  {
+    name: "X",
+    href: "https://x.com/username",
+    linkTitle: `${SITE.title} on X`,
+    active: false,
+  },
+  {
+    name: "Bluesky",
+    href: "https://bsky.app/profile/jordansimonov.ski",
+    linkTitle: `${SITE.title} on Bluesky`,
+    active: true,
+  },
+  {
+    name: "Threads",
+    href: "https://www.threads.net/@username",
+    linkTitle: `${SITE.title} on Threads`,
+    active: false,
   },
   {
     name: "Facebook",
