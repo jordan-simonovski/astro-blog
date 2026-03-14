@@ -1,0 +1,208 @@
+---
+export interface Props {
+  articleSelector?: string;
+  pageTitle: string;
+  pageUrl: string;
+}
+
+const {
+  articleSelector = "#article",
+  pageTitle,
+  pageUrl,
+} = Astro.props;
+---
+
+<div id="quote-share-widget" class="quote-share-widget" aria-live="polite">
+  <button
+    type="button"
+    class="focus-outline quote-share-btn"
+    data-action="bluesky"
+    aria-label="Share selected quote on Bluesky"
+  >
+    Bluesky
+  </button>
+  <button
+    type="button"
+    class="focus-outline quote-share-btn"
+    data-action="linkedin"
+    aria-label="Share selected quote on LinkedIn"
+  >
+    LinkedIn
+  </button>
+  <button
+    type="button"
+    class="focus-outline quote-share-btn"
+    data-action="copy"
+    aria-label="Copy selected quote"
+  >
+    Copy
+  </button>
+  <span class="quote-share-status" data-role="status"></span>
+</div>
+
+<style>
+  .quote-share-widget {
+    @apply fixed z-50 hidden items-center gap-2 rounded-md border border-skin-line bg-skin-fill p-2 text-sm text-skin-base shadow-md;
+    transform: translate(-50%, -120%);
+  }
+
+  .quote-share-widget.is-visible {
+    @apply flex;
+  }
+
+  .quote-share-widget.is-mobile {
+    @apply left-1/2 bottom-4 top-auto;
+    transform: translateX(-50%);
+  }
+
+  .quote-share-btn {
+    @apply rounded border border-skin-line px-2 py-1 text-xs font-medium transition-colors hover:border-skin-accent hover:text-skin-accent;
+  }
+
+  .quote-share-status {
+    @apply ml-1 hidden text-xs text-skin-accent;
+  }
+
+  .quote-share-status.is-visible {
+    @apply inline;
+  }
+</style>
+
+<script
+  is:inline
+  define:vars={{ articleSelector, pageTitle, pageUrl }}
+>
+  const widget = document.getElementById("quote-share-widget");
+  const statusEl = widget?.querySelector('[data-role="status"]');
+  const article = document.querySelector(articleSelector);
+  const actionButtons = widget?.querySelectorAll("[data-action]");
+  const mobileMediaQuery = window.matchMedia("(max-width: 768px), (pointer: coarse)");
+  let selectedQuote = "";
+  let hideStatusTimeout = 0;
+
+  if (!widget || !statusEl || !article || !actionButtons) {
+    // No-op if required elements are missing.
+  } else {
+    const MIN_QUOTE_LENGTH = 3;
+    const MAX_QUOTE_LENGTH = 260;
+
+    const normalizeQuote = quote =>
+      quote.replace(/\s+/g, " ").trim().slice(0, MAX_QUOTE_LENGTH);
+
+    const showStatus = message => {
+      statusEl.textContent = message;
+      statusEl.classList.add("is-visible");
+      clearTimeout(hideStatusTimeout);
+      hideStatusTimeout = window.setTimeout(() => {
+        statusEl.classList.remove("is-visible");
+      }, 2200);
+    };
+
+    const hideWidget = () => {
+      widget.classList.remove("is-visible");
+    };
+
+    const isSelectionInsideArticle = selection => {
+      if (!selection || selection.rangeCount === 0) return false;
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      return article.contains(container);
+    };
+
+    const positionWidget = selectionRect => {
+      const isMobile = mobileMediaQuery.matches;
+      widget.classList.toggle("is-mobile", isMobile);
+
+      if (isMobile) {
+        widget.style.left = "50%";
+        widget.style.top = "";
+        return;
+      }
+
+      const y = Math.max(window.scrollY + 12, window.scrollY + selectionRect.top - 12);
+      const x = window.scrollX + selectionRect.left + selectionRect.width / 2;
+      widget.style.left = `${x}px`;
+      widget.style.top = `${y}px`;
+    };
+
+    const toBlueskyIntent = quote => {
+      const text = `"${quote}"\n\n${pageTitle}\n${pageUrl}`;
+      return `https://bsky.app/intent/compose?text=${encodeURIComponent(text)}`;
+    };
+
+    const toLinkedInShare = () =>
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
+
+    const copyText = async text => {
+      await navigator.clipboard.writeText(text);
+      showStatus("Copied");
+    };
+
+    const updateFromSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || !isSelectionInsideArticle(selection)) {
+        hideWidget();
+        return;
+      }
+
+      const quote = normalizeQuote(selection.toString());
+      if (quote.length < MIN_QUOTE_LENGTH) {
+        hideWidget();
+        return;
+      }
+
+      const rect = selection.getRangeAt(0).getBoundingClientRect();
+      selectedQuote = quote;
+      positionWidget(rect);
+      widget.classList.add("is-visible");
+    };
+
+    actionButtons.forEach(button => {
+      button.addEventListener("click", async event => {
+        event.preventDefault();
+        if (!selectedQuote) return;
+        const action = button.getAttribute("data-action");
+        const shareText = `"${selectedQuote}"\n\n${pageTitle}\n${pageUrl}`;
+
+        if (action === "bluesky") {
+          window.open(toBlueskyIntent(selectedQuote), "_blank", "noopener,noreferrer");
+          return;
+        }
+
+        if (action === "linkedin") {
+          try {
+            await copyText(shareText);
+            showStatus("Copied quote. Paste into LinkedIn.");
+          } catch {
+            showStatus("Open LinkedIn and paste manually.");
+          }
+          window.open(toLinkedInShare(), "_blank", "noopener,noreferrer");
+          return;
+        }
+
+        if (action === "copy") {
+          try {
+            await copyText(shareText);
+          } catch {
+            showStatus("Clipboard blocked by browser.");
+          }
+        }
+      });
+    });
+
+    document.addEventListener("mouseup", () => setTimeout(updateFromSelection, 0));
+    document.addEventListener("keyup", () => setTimeout(updateFromSelection, 0));
+    document.addEventListener("touchend", () => setTimeout(updateFromSelection, 0));
+    window.addEventListener("scroll", hideWidget, { passive: true });
+    window.addEventListener("resize", hideWidget);
+    document.addEventListener("selectionchange", () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) {
+        hideWidget();
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") hideWidget();
+    });
+  }
+</script>

@@ -4,6 +4,7 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
+import QuoteShare from "@components/QuoteShare.astro";
 import { render, type CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
 
@@ -17,8 +18,10 @@ const { title, author, description, ogImage, canonicalURL, pubDatetime, tags, re
 
 const { Content } = await render(post);
 
-const ogUrl = new URL(ogImage ? ogImage : `${title}.png`, Astro.url.origin)
-  .href;
+const ogUrl = new URL(ogImage ? ogImage : `${title}.png`, Astro.url.origin).href;
+const pageUrl = canonicalURL
+  ? new URL(canonicalURL, Astro.url.origin).href
+  : Astro.url.href;
 ---
 
 <Layout title={title} author={author} description={description} ogImage={ogUrl} canonicalURL={canonicalURL} readingTime={readingTime} >
@@ -41,6 +44,7 @@ const ogUrl = new URL(ogImage ? ogImage : `${title}.png`, Astro.url.origin)
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
+    <QuoteShare pageTitle={title} pageUrl={pageUrl} />
 
     <ul class="tags-container">
       {tags.map(tag => <Tag name={slugifyStr(tag)} />)}
