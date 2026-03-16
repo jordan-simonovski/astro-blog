@@ -26,6 +26,7 @@ const socialImageURL = new URL(
   ogImage ? ogImage : SITE.ogImage,
   Astro.url.origin
 ).href;
+const socialImageAlt = `${SITE.author} social preview image`;
 
 const isHome = Astro.url.pathname === "/";
 ---
@@ -49,8 +50,10 @@ const isHome = Astro.url.pathname === "/";
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={socialImageURL} />
+    <meta property="og:image:alt" content={socialImageAlt} />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
