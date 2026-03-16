@@ -30,6 +30,7 @@ export type SocialMedia =
   | "Facebook"
   | "Instagram"
   | "LinkedIn"
+  | "CV"
   | "Mail"
   | "Twitter"
   | "Twitch"

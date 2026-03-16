@@ -66,6 +66,12 @@ export const SOCIALS: SocialObjects = [
     active: true,
   },
   {
+    name: "CV",
+    href: "https://cv.jordansimonov.ski",
+    linkTitle: `${SITE.title} CV`,
+    active: true,
+  },
+  {
     name: "Mail",
     href: "mailto:yourmail@gmail.com",
     linkTitle: `Send an email to ${SITE.title}`,

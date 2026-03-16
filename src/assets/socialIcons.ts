@@ -80,6 +80,18 @@ const socialIcons: SocialIcons = {
     <line x1="12" y1="16" x2="12" y2="11"></line>
     <path d="M16 16v-3a2 2 0 0 0 -4 0"></path>
   </svg>`,
+  CV: `<svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="icon-tabler"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M6 4h9l3 3v13a1 1 0 0 1 -1 1h-11a1 1 0 0 1 -1 -1v-15a1 1 0 0 1 1 -1"></path>
+    <path d="M14 4v4h4"></path>
+    <path d="M8 12h8"></path>
+    <path d="M8 16h8"></path>
+  </svg>`,
   Mail: `<svg
       xmlns="http://www.w3.org/2000/svg"
       class="icon-tabler"
