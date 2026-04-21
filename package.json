@@ -21,7 +21,7 @@
     "@astro-community/astro-embed-twitter": "^0.5.11",
     "@astrojs/rss": "^4.0.17",
     "@resvg/resvg-js": "^2.4.1",
-    "astro": "^6.0.4",
+    "astro": "^6.1.6",
     "fuse.js": "^6.6.2",
     "github-slugger": "^2.0.0",
     "mdast-util-to-string": "^4.0.0",
