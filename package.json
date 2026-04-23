@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.11",
-    "@astrojs/rss": "^4.0.17",
+    "@astrojs/rss": "^4.0.18",
     "@resvg/resvg-js": "^2.4.1",
     "astro": "^6.0.4",
     "fuse.js": "^6.6.2",
