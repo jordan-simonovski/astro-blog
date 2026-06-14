@@ -115,9 +115,21 @@
     @apply bg-skin-card-muted;
   }
 
+  /* Inline code: wrap and break long continuous strings so they don't
+     overflow the viewport on mobile. */
   code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  /* Block code keeps its single-line layout with horizontal scroll. */
+  pre code {
     white-space: pre;
-    overflow: scroll;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  pre {
+    overflow-x: auto;
   }
 }
 
