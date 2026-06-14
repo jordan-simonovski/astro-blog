@@ -9,7 +9,7 @@ tags:
   - embedded
   - esp32
   - coffee
-featured: false
+featured: true
 draft: false
 --- 
 
