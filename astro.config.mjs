@@ -52,6 +52,11 @@ export default defineConfig({
   vite: {
     optimizeDeps: {
       exclude: ["@resvg/resvg-js"],
+      // `Comments` is behind `client:visible`, so giscus isn't seen in Vite's
+      // initial dep scan. Pre-bundle it (and React) so Vite doesn't re-optimize
+      // at runtime, which would invalidate the dev-toolbar entrypoint and throw
+      // NS_ERROR_CORRUPTED_CONTENT / 504. See withastro/astro#16766.
+      include: ["@giscus/react", "react", "react-dom/client"],
     },
   },
   image: {

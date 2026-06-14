@@ -170,13 +170,13 @@ const {
         }
 
         if (action === "linkedin") {
+          window.open(toLinkedInShare(), "_blank", "noopener,noreferrer");
           try {
             await copyText(shareText);
             showStatus("Copied quote. Paste into LinkedIn.");
           } catch {
             showStatus("Open LinkedIn and paste manually.");
           }
-          window.open(toLinkedInShare(), "_blank", "noopener,noreferrer");
           return;
         }
 
