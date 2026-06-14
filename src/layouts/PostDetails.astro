@@ -58,7 +58,11 @@ const pageUrl = canonicalURL
     {
       GISCUS.enabled && (
         <section class="mt-8">
-          <Comments client:visible />
+          {/* giscus renders nothing on the server (it needs `document` and injects
+              its own iframe at runtime). client:visible observes the island's SSR
+              children to decide when to hydrate; with no children it never fires.
+              client:only skips SSR and hydrates on the client. */}
+          <Comments client:only="react" />
         </section>
       )
     }

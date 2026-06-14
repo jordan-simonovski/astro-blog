@@ -119,8 +119,10 @@ const {
         return;
       }
 
-      const y = Math.max(window.scrollY + 12, window.scrollY + selectionRect.top - 12);
-      const x = window.scrollX + selectionRect.left + selectionRect.width / 2;
+      // Widget is position:fixed, so it uses viewport coordinates. getBoundingClientRect()
+      // is already viewport-relative; adding scroll offsets pushes it off-screen as you scroll.
+      const y = Math.max(12, selectionRect.top - 12);
+      const x = selectionRect.left + selectionRect.width / 2;
       widget.style.left = `${x}px`;
       widget.style.top = `${y}px`;
     };
