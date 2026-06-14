@@ -15,10 +15,11 @@ draft: false
 
 import RepoCard from "@components/RepoCard.astro";
 
-I spend my working life telling people to instrument their systems. Percentiles over
-averages, traces over guesswork, actionable signals over a wall of dashboards nobody
-reads. So it was only a matter of time before I turned the same habit on the most
-business-critical system I own: the machine that makes my coffee.
+I spend my working life telling people to instrument their systems: measure percentiles
+instead of averages, pull up a trace before you start guessing, and ship signals you'll
+actually act on instead of yet another dashboard nobody opens. So it was only a matter of
+time before I turned the same habit on the most business-critical system I own: the machine
+that makes my coffee.
 
 The machine is a [GaggiMate](https://gaggimate.eu/), an ESP32 bolted onto a Gaggia. The
 traces are real, the shots are good (arguably), and the on-call rotation is me, standing in my
@@ -42,9 +43,9 @@ the weight climb. Every one of those is a number that changes over time.
 
 Every observability backend ever built is good at numbers that change over time, so rather
 than reinventing a charting stack, GaggiMate ships its telemetry to whatever OTLP collector
-you point it at and it hopefully ends up in an OLAP you can use to munge the data like ClickHouse or Honeycomb. None of them know it's coffee. 
-
-They just see metrics and spans and treat them like any other workload, which is exactly the point.
+you point it at, and it hopefully ends up in an OLAP you can actually query, like ClickHouse
+or Honeycomb. None of them know it's coffee; they see metrics and spans and treat them like
+any other workload, which is exactly the point.
 
 ## What I actually built
 
@@ -196,9 +197,9 @@ and a span queue that the brew thread drops finished spans into.
 
 The important bit: if that queue is full we drop the span rather than block the brew thread.
 Fail open, keep pulling shots. Nobody has ever wished their espresso machine would pause
-mid-extraction to retry a HTTP request. Telemetry serves the coffee; the coffee does not
-serve the telemetry. Get that backwards on a real system and you've built an observability
-stack that takes down the thing it was meant to watch.
+mid-extraction to retry an HTTP request. The telemetry is there to watch the coffee, not the
+other way around. Get that backwards on a real system and you've built an observability stack
+that takes down the thing it was meant to watch.
 
 ### Time is a lie until SNTP says otherwise
 
@@ -210,7 +211,7 @@ I have ever been about anything.
 
 ![Serial boot log showing the OpenTelemetry plugin starting and the exporter coming up with metrics=1 traces=1 once WiFi connects](/assets/firmware-update.jpeg)
 
-## The audit, or: don't let your telemetry brick the thing it watches
+## The audit: don't let your telemetry brick the thing it watches
 
 Once it built and shipped data, I made myself review it the way I'd review anyone else's
 change, because this code runs on the same silicon that drives a heater and a pump. The first
@@ -287,11 +288,12 @@ TL;DR; a dashboard of my morning espresso's pressure curve, a trace waterfall th
 shot into phases, and enough hard numbers that when the coffee's bad I can prove whose fault it
 was. (Mine. It's always the grind.)
 
-I do want to mention one thing, though. OpenTelemetry isn't magic and it isn't only for
-sprawling microservice fleets; it's a well-specified, vendor-neutral way of saying "here are
-some numbers and some spans." Strip away the kilograms of SDK people pile onto it, hand-roll
-the wire format, respect what the hardware can actually do, and a microcontroller becomes a
-first-class citizen of your observability stack. 
+I do want to mention one thing, though. People talk about OpenTelemetry like it's either
+magic or strictly for sprawling microservice fleets. It's neither: underneath, it's a
+well-specified, vendor-neutral way of saying "here are some numbers and some spans." Strip
+away the kilograms of SDK people pile onto it, hand-roll the wire format, respect what the
+hardware can actually do, and your microcontroller gets to sit in the same observability
+stack as everything else. 
 
 The instincts that make a production system debuggable carry straight over: 
 - Instrument your shit with intent.
