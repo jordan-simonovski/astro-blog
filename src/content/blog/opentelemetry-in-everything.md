@@ -23,6 +23,8 @@ traces are real, the shots are good (arguably), and the on-call rotation is me, 
 kitchen at 7am watching a dashboard while the milk steams. This is roughly the
 story of how I got there, and why you can do the same to basically anything with a CPU.
 
+![The setup: a Gaggia espresso machine with the GaggiMate ESP32 controller wired in, the thing that all of this telemetry comes out of](/assets/the-coffee-machine.jpg)
+
 <video controls muted loop playsinline preload="metadata" width="100%">
   <source src="/assets/dashboard-demo.mp4" type="video/mp4" />
   Your browser doesn't support embedded video. <a href="/assets/dashboard-demo.mp4">Download the dashboard demo</a> instead.
