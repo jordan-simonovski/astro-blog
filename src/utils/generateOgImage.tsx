@@ -136,7 +136,7 @@ const options: SatoriOptions = {
   ],
 };
 
-const generateOgImage = async (mytext = SITE.title) => {
+const generateOgImage = async (mytext = SITE.title, fileName = "og") => {
   const svg = await satori(ogImage(mytext), options);
 
   // render png in production mode
@@ -145,9 +145,9 @@ const generateOgImage = async (mytext = SITE.title) => {
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
 
-    console.info("Output PNG Image  :", `${mytext}.png`);
+    console.info("Output PNG Image  :", `${fileName}.png`);
 
-    await writeFile(`./dist/${mytext}.png`, pngBuffer);
+    await writeFile(`./dist/${fileName}.png`, pngBuffer);
   }
 
   return svg;

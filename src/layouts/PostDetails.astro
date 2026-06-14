@@ -6,7 +6,7 @@ import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
 import QuoteShare from "@components/QuoteShare.astro";
 import { render, type CollectionEntry } from "astro:content";
-import { slugifyStr } from "@utils/slugify";
+import slugify, { slugifyStr } from "@utils/slugify";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -18,7 +18,10 @@ const { title, author, description, ogImage, ogImageWidth, ogImageHeight, canoni
 
 const { Content } = await render(post);
 
-const ogUrl = new URL(ogImage ? ogImage : `${title}.png`, Astro.url.origin).href;
+const ogUrl = new URL(
+  ogImage ? ogImage : `${slugify(post.data)}.png`,
+  Astro.url.origin
+).href;
 const pageUrl = canonicalURL
   ? new URL(canonicalURL, Astro.url.origin).href
   : Astro.url.href;
