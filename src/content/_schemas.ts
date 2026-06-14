@@ -10,6 +10,8 @@ export const blogSchema = z
     draft: z.boolean().optional(),
     tags: z.array(z.string()).default(["others"]),
     ogImage: z.string().optional(),
+    ogImageWidth: z.number().optional(),
+    ogImageHeight: z.number().optional(),
     description: z.string(),
     canonicalURL: z.string().optional(),
     readingTime: z.string().optional(),

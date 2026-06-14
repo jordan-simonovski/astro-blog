@@ -8,7 +8,9 @@ tags:
   - devops
   - enterprise
   - culture
-ogImage: "https://cdn-images-1.medium.com/max/1600/1*XssIvsJiNPGxxeorIzpYPw.gif"
+ogImage: "/assets/devops-enterprise-one-og.png"
+ogImageWidth: 500
+ogImageHeight: 241
 featured: false
 draft: false
 ---

@@ -8,7 +8,9 @@ tags:
   - observability
   - monitoring
   - logging
-ogImage: "/assets/seinfield.web"
+ogImage: "/assets/seinfeld-og.jpg"
+ogImageWidth: 704
+ogImageHeight: 528
 featured: false
 draft: false
 ---
