@@ -10,6 +10,8 @@ tags:
   - logging
   - slos
 ogImage: "/assets/is-this-monitoring.jpg"
+ogImageWidth: 900
+ogImageHeight: 820
 featured: false
 draft: false
 ---

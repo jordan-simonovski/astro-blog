@@ -14,7 +14,7 @@ export interface Props {
 
 const { post } = Astro.props;
 
-const { title, author, description, ogImage, canonicalURL, pubDatetime, tags, readingTime } = post.data;
+const { title, author, description, ogImage, ogImageWidth, ogImageHeight, canonicalURL, pubDatetime, tags, readingTime } = post.data;
 
 const { Content } = await render(post);
 
@@ -24,7 +24,7 @@ const pageUrl = canonicalURL
   : Astro.url.href;
 ---
 
-<Layout title={title} author={author} description={description} ogImage={ogUrl} canonicalURL={canonicalURL} readingTime={readingTime} >
+<Layout title={title} author={author} description={description} ogImage={ogUrl} ogImageWidth={ogImageWidth} ogImageHeight={ogImageHeight} canonicalURL={canonicalURL} readingTime={readingTime} >
   <Header />
   <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
     <button

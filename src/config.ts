@@ -5,7 +5,7 @@ export const SITE: Site = {
   author: "Jordan Simonovski",
   desc: "Jordan Simonovski's personal blog.",
   title: "JordanSimonov.ski",
-  ogImage: "https://i.imgur.com/we30L0p.gif",
+  ogImage: "/og.png",
   lightAndDarkMode: true,
   postPerPage: 5,
   postPerIndex: 5,
