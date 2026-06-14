@@ -13,6 +13,8 @@ featured: true
 draft: false
 --- 
 
+import RepoCard from "@components/RepoCard.astro";
+
 I spend my working life telling people to instrument their systems. Percentiles over
 averages, traces over guesswork, actionable signals over a wall of dashboards nobody
 reads. So it was only a matter of time before I turned the same habit on the most
@@ -111,7 +113,7 @@ I'm aware of how this looks.
 
 The rest of those attributes are the interesting ones, and they're computed live on the
 device, sample by sample, while the shot is still pulling. There's no buffering the full timeseries
-(we don't have the RAM), just running aggregates behind the same mutex, reset at the start
+(we do not have the ~~RAM~~ capacity), just running aggregates behind the same mutex, reset at the start
 of each shot, summed in `double` so a few hundred samples don't drift. What each one tells
 me:
 
@@ -252,7 +254,8 @@ overflow, the export task isn't wired to the watchdog so a slow network can't tr
 if the buffer or mutex won't allocate at boot the plugin disables itself instead of limping
 along. 
 
-None of it is clever. Clever is how you get paged, or in this case it's how you end up debugging your coffee machine while trying to get started with your day.
+None of it is clever. Clever is how you get paged, or in this case it's how you end up debugging 
+your coffee machine while trying to get started with your day.
 
 ## Wiring it up
 
@@ -298,9 +301,10 @@ The instincts that make a production system debuggable carry straight over:
 You really can put OpenTelemetry in anything. The only question I had was whether the coffee
 would still come out. It does, and now it's traced.
 
-All of this lives in my GaggiMate fork on GitHub:
-[jordan-simonovski/gaggimate](https://github.com/jordan-simonovski/gaggimate). Flash it, point
-it at your collector, and trace your own bean water.
+All of this lives in my GaggiMate fork on GitHub. Flash it, point it at your collector, and
+trace your own bean water.
+
+<RepoCard repo="jordan-simonovski/gaggimate" />
 
 ---
 

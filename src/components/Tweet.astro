@@ -1,0 +1,93 @@
+---
+interface Props {
+  url: string;
+  author: string;
+  date?: string;
+}
+
+const { url, author, date } = Astro.props;
+
+const match = url.match(/(?:twitter|x)\.com\/([^/]+)\/status\/(\d+)/i);
+const handle = match?.[1] ?? "";
+const canonicalUrl = match
+  ? `https://x.com/${handle}/status/${match[2]}`
+  : url;
+
+const avatarUrl = handle
+  ? `https://unavatar.io/x/${handle}`
+  : "https://unavatar.io/fallback.png";
+
+let displayDate = date ?? "";
+if (date) {
+  const parsed = new Date(date);
+  if (!Number.isNaN(parsed.getTime())) {
+    displayDate = parsed.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+}
+---
+
+<a
+  class="tweet not-prose"
+  href={canonicalUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`Post on X by ${author}`}
+>
+  <div class="tweet__head">
+    <img
+      class="tweet__avatar"
+      src={avatarUrl}
+      alt=""
+      width="48"
+      height="48"
+      loading="lazy"
+      decoding="async"
+      referrerpolicy="no-referrer"
+    />
+    <div class="tweet__id">
+      <span class="tweet__author">{author}</span>
+      {handle && <span class="tweet__handle">@{handle}</span>}
+    </div>
+    <svg class="tweet__logo" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+    </svg>
+  </div>
+
+  <div class="tweet__body"><slot /></div>
+
+  {displayDate && <div class="tweet__date">{displayDate}</div>}
+</a>
+
+<style>
+  .tweet {
+    @apply my-6 block rounded-md border border-skin-line bg-skin-card p-4 no-underline transition-opacity hover:opacity-90;
+  }
+  .tweet__head {
+    @apply flex items-center gap-3;
+  }
+  .tweet__avatar {
+    @apply h-12 w-12 shrink-0 rounded-full bg-skin-fill object-cover;
+  }
+  .tweet__id {
+    @apply flex min-w-0 flex-col leading-tight;
+  }
+  .tweet__author {
+    @apply truncate font-semibold text-skin-base;
+  }
+  .tweet__handle {
+    @apply truncate text-sm text-skin-base opacity-60;
+  }
+  .tweet__logo {
+    @apply ml-auto shrink-0 self-start text-skin-base opacity-70;
+  }
+  .tweet__body {
+    @apply mt-3 whitespace-pre-line text-skin-base;
+  }
+  .tweet__date {
+    @apply mt-3 text-sm text-skin-base opacity-60;
+  }
+</style>

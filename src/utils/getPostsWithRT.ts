@@ -6,7 +6,7 @@ import type { CollectionEntry } from "astro:content";
 export const getReadingTime = async () => {
   // Get all posts using glob. This is to get the updated frontmatter
   const globPosts = import.meta.glob<MarkdownInstance<BlogFrontmatter>>(
-    "../content/blog/*.md"
+    "../content/blog/*.{md,mdx}"
   );
 
   // Then, set those frontmatter value in a JS Map with key value pair
