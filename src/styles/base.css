@@ -89,6 +89,12 @@
   .prose h2#table-of-contents + p {
     @apply hidden;
   }
+  /* expressive-code owns code-block styling. Stop the inline-code prose rules
+     (bg-skin-card, padding, rounded) from leaking into rendered code blocks. */
+  .prose .expressive-code code {
+    background-color: transparent !important;
+    padding: 0 !important;
+  }
 
   /* ===== scrollbar ===== */
   html {

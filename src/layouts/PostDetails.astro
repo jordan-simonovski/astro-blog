@@ -5,6 +5,8 @@ import Footer from "@components/Footer.astro";
 import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
 import QuoteShare from "@components/QuoteShare.astro";
+import Comments from "@components/Comments";
+import { GISCUS } from "@config";
 import { render, type CollectionEntry } from "astro:content";
 import slugify, { slugifyStr } from "@utils/slugify";
 
@@ -52,6 +54,14 @@ const pageUrl = canonicalURL
     <ul class="tags-container">
       {tags.map(tag => <Tag name={slugifyStr(tag)} />)}
     </ul>
+
+    {
+      GISCUS.enabled && (
+        <section class="mt-8">
+          <Comments client:visible />
+        </section>
+      )
+    }
   </main>
   <Footer />
 </Layout>

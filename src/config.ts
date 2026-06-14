@@ -13,6 +13,21 @@ export const SITE: Site = {
   showBackButton: true,
 };
 
+// GitHub Discussions-backed comments via giscus.
+// Generate the repoId / categoryId at https://giscus.app and paste them here.
+// `enabled` stays false until those are filled in (fail closed: no half-wired widget).
+export const GISCUS = {
+  enabled: true,
+  repo: "jordan-simonovski/astro-blog" as `${string}/${string}`,
+  repoId: "R_kgDOKJ2c_A",
+  category: "Announcements",
+  categoryId: "DIC_kwDOKJ2c_M4C_IX3",
+  mapping: "pathname" as const,
+  reactionsEnabled: "1" as const,
+  inputPosition: "top" as const,
+  lang: "en",
+};
+
 export const LOCALE = ["en-EN"]; // set to [] to use the environment default
 
 export const LOGO_IMAGE = {
