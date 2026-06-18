@@ -64,7 +64,11 @@ The point of all this isn't the buttons. It's that the numbers I was already
 exporting are now real, set-on-the-device values instead of guesses. The grinder
 model rides along as a resource attribute (`coffee.grinder.model`), the grind
 level and dose land on every shot span, and while a shot pulls the live gauges
-get tagged with the current grind level and phase. "Too sour" finally has a
+get tagged with the current grind level, phase, and a `coffee.shot.id` that *is*
+the shot's trace id. That last one is the join key: every boiler-temperature and
+pump-flow sample taken mid-shot carries the same id as the span it belongs to, so
+a gauge reading and the shot trace are one `WHERE coffee.shot.id = …` apart.
+"Too sour" finally has a
 grind setting attached to it, and "ran too much water through too little coffee"
 is now a ratio I can sort by. The instrumentation was always there; this is the
 half that makes it honest.
@@ -139,6 +143,18 @@ time-series for breakfast and lets me ask questions in SQL instead of a
 proprietary query language I'll forget by next week. The collector's ClickHouse
 exporter creates its own schema, one set of tables for metrics, one for logs, one
 for traces, and just writes to it.
+
+The high-cardinality part is what makes `coffee.shot.id` safe to attach in the
+first place. On a traditional TSDB, every distinct attribute value forks a new
+time series, so stamping a unique id onto a metric is the classic way to blow up
+your active series count and your bill. That's the cardinality bomb everyone warns
+you about. ClickHouse doesn't play that game: attributes are just columns in a
+`Map`, a new shot id is a few more rows and not a new series, and the engine is
+built to filter and group over exactly that kind of wide, high-cardinality data.
+So the constraint that would normally make a per-shot id a bad idea simply
+doesn't apply here. The id is one more value in a wide event, and the wide event
+is what OLAP was made for. (It helps that I pull maybe five shots a day, but the
+point stands at far larger volumes.)
 
 The result is the thing I actually wanted. My espresso shots and my house live in
 the same database, on the same clock, queryable in one join. I can line up a
