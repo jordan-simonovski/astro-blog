@@ -161,8 +161,73 @@ shot's `temp.stability_c` against the kitchen ambient temperature MQTT was
 reporting at 7am. I can check whether the grinder's circuit drew its usual spike
 right before a shot, or whether the board's WiFi disconnects correlate with the
 microwave. None of these are questions a coffee app would ever let me ask,
-because to the database none of it is coffee. It's just metrics and logs and
+So this is the follow-up, in three parts: the grind-and-dose UX that closes the loop
+on the device, a custom OpenTelemetry Collector running in Home Assistant that funnels
+both the Gaggia and the rest of my house into ClickHouse, and the export-path rework
+that finally makes the shot data fine-grained enough to trust.
 spans with a timestamp, which is the entire point.
+
+## Part three: ten seconds is a long time in a shot
+
+There was a lie of omission in the last post. Metrics exported on a fixed
+interval, ten seconds by default, and each tick shipped exactly one reading per
+gauge: whatever the latest value happened to be at that instant. For the boiler
+temperature idling around a setpoint, fine. For the scale weight during a shot,
+useless. A shot runs twenty-five to forty seconds and the weight ramps the whole
+way; three or four samples don't describe that curve, they caricature it. I was
+sorting shots by `final_weight_g` and pretending I understood the extraction.
+
+The honest fix is to stop conflating two different clocks. How often I *sample* a
+signal and how often I *ship* it have nothing to do with each other. So the
+export task now reads the live gauges every 500ms into a small ring buffer and
+flushes the whole batch every ten seconds. OTLP gauges happily carry many data
+points, each with its own timestamp, so one POST now holds twenty timestamped
+weight readings instead of one. Same single HTTPS round trip, twenty times the
+resolution. That round-trip count matters more than it sounds: TLS handshakes on
+an ESP32 are not free, and the entire reason to batch rather than just lower the
+interval is to avoid paying that tax twenty times as often.
+
+Then nanopb stopped me at the door.
+
+```
+#error Enable PB_FIELD_32BIT to support messages exceeding 64kB in size:
+       otlp_ScopeMetrics, otlp_ResourceMetrics, otlp_ExportMetricsServiceRequest
+```
+
+nanopb trades flexibility for determinism: every message is a statically-sized C
+struct, no heap, no surprises. Exactly what you want on a microcontroller, right
+up until you ask for twenty data points across fourteen metrics and the struct
+sails past a hard wall. Field offsets inside a message are encoded in sixteen
+bits, so a single message can't exceed 64KB, and mine now wanted around 115KB.
+There's a global flag, `PB_FIELD_32BIT`, that lifts the ceiling for the whole
+build. I didn't want it: a sledgehammer that fattens every struct and descriptor
+in the firmware to fix one message.
+
+The smaller hammer is to chunk. Keep the struct small (eight points per gauge)
+and emit the twenty-point batch as several `ResourceMetrics` messages
+concatenated into one request body. This works because of a quiet property of
+protobuf: concatenating two serialized messages of the same type *is* a valid
+serialized message, with repeated fields appended. So three small encodes
+back-to-back in the buffer decode, at the collector, as one request with three
+`ResourceMetrics`. The cumulative counters are written once, in the first chunk,
+so nothing double-counts. One POST, the struct stays at ~47KB, everyone's happy.
+
+The part I cared about most is that none of this can brick the machine mid-shot.
+The encoder writes into a fixed buffer, and nanopb's `pb_ostream_from_buffer`
+refuses to write past the end: the encode fails closed and drops that export
+rather than scribbling over memory. To prove that instead of asserting it, the
+encoder now compiles and runs on my laptop (it's portable C), so a host test
+builds the real thing against tiny shims, feeds it the worst case (every gauge
+full of in-shot points, attributes and exemplars and all), and checks two
+things: the worst-case batch is 30,339 of 40,960 buffer bytes, 74%, comfortably
+inside; and across every buffer size from zero upward, with a canary planted past
+the end, the encoder never once writes out of bounds. A compile-time
+`static_assert` guards the 64KB wall so the next time I add a metric I get a
+readable error instead of the one above.
+
+And the payoff lands right back in ClickHouse. Finer samples are just more rows:
+the one thing the entire back half of this post is built not to care about. The
+weight curve is finally a curve.
 
 ## What I've got now
 
