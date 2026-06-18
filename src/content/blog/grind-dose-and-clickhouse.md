@@ -60,10 +60,10 @@ table lives in the firmware (`Grinders.h`) and is mirrored byte-for-byte in the
 Web UI (`grinders.js`), same order so the index *is* the id. Pick "Niche Zero"
 in the browser, the firmware agrees on what "Niche Zero" means.
 
-The point of all this isn't the buttons. It's that the numbers I was already
+The buttons aren't the point. The numbers I was already
 exporting are now real, set-on-the-device values instead of guesses. The grinder
 model rides along as a resource attribute (`coffee.grinder.model`), the grind
-level and dose land on every shot span, and while a shot pulls the live gauges
+level and dose land on every shot span, and while a shot pulls, the live gauges
 get tagged with the current grind level, phase, and a `coffee.shot.id` that *is*
 the shot's trace id. That last one is the join key: every boiler-temperature and
 pump-flow sample taken mid-shot carries the same id as the span it belongs to, so
@@ -116,7 +116,7 @@ can sit in a metrics pipeline and a logs pipeline at once if you want your
 zigbee chatter as both numbers and audit trail.
 
 The whole thing builds in CI and publishes prebuilt multi-arch images to GHCR, so
-installing the add-on is a download, not a twenty-minute on-device Go build. Same
+installing the add-on is a quick download rather than a twenty-minute on-device Go build. Same
 principle as the firmware's OTA story: the user shouldn't have to compile anything
 to get a working thing.
 
@@ -124,8 +124,8 @@ to get a working thing.
 
 The pipeline is deliberately boring. Two sources feed in:
 
-- the **Gaggia**, over OTLP/HTTP, exactly as the last post described;
-- **Home Assistant's MQTT broker**, every sensor that publishes to it.
+- the Gaggia, over OTLP/HTTP, exactly as the last post described;
+- Home Assistant's MQTT broker, every sensor that publishes to it.
 
 Both run through a batch processor and a memory limiter (this is a Raspberry Pi,
 not a datacentre) and land in the same place:
@@ -151,8 +151,7 @@ your active series count and your bill. That's the cardinality bomb everyone war
 you about. ClickHouse doesn't play that game: attributes are just columns in a
 `Map`, a new shot id is a few more rows and not a new series, and the engine is
 built to filter and group over exactly that kind of wide, high-cardinality data.
-So the constraint that would normally make a per-shot id a bad idea simply
-doesn't apply here. The id is one more value in a wide event, and the wide event
+The id is one more value in a wide event, and the wide event
 is what OLAP was made for. (It helps that I pull maybe five shots a day, but the
 point stands at far larger volumes.)
 
