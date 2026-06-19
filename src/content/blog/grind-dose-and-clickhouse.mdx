@@ -554,6 +554,15 @@ test, drawn from the spread of the CV numbers across the dataset rather than one
 reading. Same channeling-from-variance trick as the first post, except now
 something else is doing the noticing.
 
+When a finding is worth keeping, it doesn't stay buried in a chat log. The agent
+has the Notion MCP wired up alongside ClickHouse, so I can tell it to write the
+investigation up as a page: each finding split out by cause, the query and the
+numbers that back it, and the fix. The boiler-thermal story and the wet-basket
+story land as two proper sections I can come back to, instead of scrolling for the
+message where it figured it out.
+
+![A Notion page the agent wrote up: "Finding 1 — Boiler Thermal Behaviour" comparing shot 1 and shot 2 boiler curves pulled via Attributes['coffee.shot.id'], and "Finding 2 — Wet Basket / Puck Formation" using time_to_first_flow to argue the second puck channels, each with a Why and a Fix](/assets/coffee2/notion-page-with-findings.png)
+
 I am aware of what I've built here.
 
 ![A black dad cap embroidered with "ever since i was young i wanted to transform unstructured data into actionable business insights"](/assets/coffee2/meme-insights.jpg)
