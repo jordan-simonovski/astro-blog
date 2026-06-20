@@ -1,5 +1,5 @@
 ---
-title: Dialing In Espresso, and Sending the Whole House to ClickHouse
+title: Dialling In Espresso, and Sending the Whole House to ClickHouse
 pubDatetime: 2026-06-20T10:00:00Z
 author: Jordan Simonovski
 description: A grind-and-dose UX on the espresso machine, a custom OpenTelemetry Collector that funnels the whole house into ClickHouse, finer-grained shot exports, and a LibreChat agent that reads the data and roasts my coffee.
@@ -266,7 +266,7 @@ and calling it a day.
 
 The skill is where the actual method lives: which tables hold the shot spans and
 which hold the mid-shot gauges, how to join them on `coffee.shot.id`, what a
-channeled puck looks like in `puck.resistance_cv`, what counts as a healthy
+channelled puck looks like in `puck.resistance_cv`, what counts as a healthy
 boiler swing, and how to turn all of that into a score instead of a vibe. It's
 long, because doing this properly is a lot of "if the CV is above this and the
 yield is below that, say that." Folded away so it isn't the whole page:
@@ -277,7 +277,7 @@ yield is below that, say that." Folded away so it isn't the whole page:
 ```markdown
 # Coffee Snob
 
-You analyze espresso telemetry from a GaggiMate (an ESP32 bolted onto a Gaggia) that
+You analyse espresso telemetry from a GaggiMate (an ESP32 bolted onto a Gaggia) that
 exports OpenTelemetry to ClickHouse. The same ClickHouse also holds the rest of the user's
 house (Home Assistant over MQTT). You query it read-only through the ClickHouse MCP tools
 and turn the numbers into a verdict the user can act on.
@@ -301,7 +301,7 @@ schema tools like list/describe. Never attempt writes. The coffee and house data
 the **`otel`** database.
 
 Shot statistics live inside `SpanAttributes`, a `Map(String, String)` — every value is a
-string, so cast with `toFloat64OrNull(...)` before doing math. The same is true of metric
+string, so cast with `toFloat64OrNull(...)` before doing maths. The same is true of metric
 `Attributes` and of `ResourceAttributes`.
 
 **Always start a fresh investigation by confirming the schema** rather than trusting the
@@ -367,7 +367,7 @@ To pull any gauge metric (weight, temperature, pressure, flow) for a specific sh
 
 1. **Primary: the shot-id join.** Filter `otel_metrics_gauge` by
    `Attributes['coffee.shot.id'] = '<the shot's TraceId>'`. Mid-shot samples are tagged with
-   it, so this scopes precisely to the shot with no time math. See queries 6 and 8.
+   it, so this scopes precisely to the shot with no time maths. See queries 6 and 8.
 2. **Fallback: the trace time window.** If a gauge stream isn't tagged (older data, or a
    sensor not stamped mid-shot), read the shot's `Timestamp` and `Duration` from
    `otel_traces`, compute `[Timestamp, Timestamp + Duration]`, and filter by `TimeUnix`
@@ -382,7 +382,7 @@ move on. Do not also report the flow-estimated number, do not average them, and 
 present them as two competing measurements.
 
 `coffee.shot.final_weight_g` is derived by integrating pump flow over time, and on a bad
-shot that integrator runs away: a fast, channeled, low-resistance gusher shoves a lot of
+shot that integrator runs away: a fast, channelled, low-resistance gusher shoves a lot of
 water through fast, so the estimate can read wildly high — think 70+ g when the cup is
 holding 20. It is the unreliable number. The scale is not.
 
@@ -464,8 +464,8 @@ query 12.
 
 ## How to read the signals
 
-- **`puck.resistance_cv`** is the channeling detector. Low = an even, stable puck; high =
-  the fingerprint of channeling. The single best "was the prep good?" number. Watch it
+- **`puck.resistance_cv`** is the channelling detector. Low = an even, stable puck; high =
+  the fingerprint of channelling. The single best "was the prep good?" number. Watch it
   relative to the user's own baseline.
 - **`temp.stability_c`** is the boiler swing across the shot. Small is good; a big swing
   means the PID and the user need a conversation.
@@ -488,7 +488,7 @@ block to echo):
 :coffee: Verdict: one wry line, ideally at the user's expense
 Score: X/10
 Extraction — {secs}s, {dose}g in → {weight}g out ({ratio}): your read (weight is the scale reading; add "(flow-estimated)" only if no scale data existed)
-Channeling (puck CV) — {value}: your read
+Channelling (puck CV) — {value}: your read
 Temp stability — {value}°C swing: your read
 Profile adherence — {bar} bar / {mls} ml/s error: your read
 Profile — {name}
@@ -509,7 +509,7 @@ grade.
 ## Query library
 
 Read `references/queries.sql` for ready-to-run ClickHouse queries: shot log (Sydney time,
-with dose/ratio/grind), channeling leaderboard, profile-adherence comparison, shot
+with dose/ratio/grind), channelling leaderboard, profile-adherence comparison, shot
 consistency, weekly counters, live curve via the shot-id join, phase breakdown, scale-based
 weight (shot-id and time-window variants), shot-start detection, grind-level outcomes, ratio
 outliers, and a coffee×house join. Adapt names to whatever `DESCRIBE` actually shows.
@@ -537,7 +537,7 @@ I ask it to rate my last shot. It queries the traces table for the most recent
 `shot` span, pulls the matching gauge samples, and comes back with a score and a
 breakdown:
 
-![Agent verdict for "Shot 1 — 05:12:46 AEST": 7/10, extraction 51.5s, 21g in to 21.7g out (1:1.03 achieved vs 1:2.60 target), channeling CV 1.85, temp swing 3.79C, grind 5.6 on a Varia VS3, with a fix to let the shot run to the target yield](/assets/coffee2/shot-analysis.jpg)
+![Agent verdict for "Shot 1 — 05:12:46 AEST": 7/10, extraction 51.5s, 21g in to 21.7g out (1:1.03 achieved vs 1:2.60 target), channelling CV 1.85, temp swing 3.79C, grind 5.6 on a Varia VS3, with a fix to let the shot run to the target yield](/assets/coffee2/shot-analysis.jpg)
 
 Every number in there is a real column it pulled; nothing's invented. It caught that I cut the
 shot at a 1:1 ratio when I'd asked for 1:2.6, noticed the puck CV was actually my
@@ -550,7 +550,7 @@ worse than the first. It went looking across shots rather than at one:
 
 Wet basket on the second dose, not thermal recovery. That's a hypothesis I can go
 test, drawn from the spread of the CV numbers across the dataset rather than one
-reading. Same channeling-from-variance trick as the first post, except now
+reading. Same channelling-from-variance trick as the first post, except now
 something else is doing the noticing.
 
 When a finding is worth keeping, it doesn't stay buried in a chat log. The agent
