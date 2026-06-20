@@ -16,14 +16,17 @@ draft: false
 import RepoCard from "@components/RepoCard.astro";
 
 Last time I bolted OpenTelemetry onto my espresso machine and called it a tiny
-industrial process worth instrumenting. The signals were good: gauges for the
-boiler and pump, a span per shot, exemplars stapling metrics back to traces.
+industrial process worth instrumenting. The signals were good. Gauges for the
+boiler and pump, a span per shot, exemplars linking metrics back to traces.
 What I didn't have was two things that turned out to matter more than any of the
-clever bits. A way to actually *set* the variables I was instrumenting, and
-somewhere durable to put all the data once it left the machine.
+clever bits. Dosage and grind size changes, so I needed a way of making that dynamic.
 
-So this is the follow-up, in four parts: the grind-and-dose UX that closes the
-loop on the device, a custom OpenTelemetry Collector running in Home Assistant
+As nice as it is to have all of these pretty graphs showing me things, I really did need
+a way to easily understand what I can improve. I know what channeling looks like when I pull a shot,
+but I still figured that it'd be fun to just add one more thing. 
+
+So this is the follow-up, in four parts: the grind-and-dose UX that make it easy to see what the settings are at 
+a glance as well as set them, a custom OpenTelemetry Collector running in Home Assistant
 that funnels both the Gaggia and the rest of my house into ClickHouse, an
 export-path rework that makes the shot data fine-grained enough to trust, and an
 agent sitting on top of ClickHouse that reads it all back and tells me what I did
@@ -31,9 +34,10 @@ wrong.
 
 ## Part one: the machine now knows what a grinder is
 
-The shot span always carried `coffee.grind.level`, `coffee.dose.weight_g` and
-`coffee.brew.ratio`. The embarrassing detail I glossed over is that there was no
-good way to enter those numbers. You'd dial the grinder on the grinder, scoop a
+I figured I'd add `coffee.grind.level`, `coffee.dose.weight_g` and
+`coffee.brew.ratio`. Brew ratio is obviously a pretty important metric to look at 
+when brewing coffee. Because I have a shitty analog grinder, though, there's no way to feed the 
+grind size or dose weight into the machine. You'd dial the grinder on the grinder, scoop a
 dose onto a scale, and the machine knew none of it. The most important inputs to
 a shot were the two it couldn't see.
 
@@ -52,7 +56,7 @@ Comandante C40                0–50,  step 1     clicks
 ```
 
 Each entry is just a min, a max, a step, and an optional unit suffix. That's the
-whole abstraction, and it's enough. The brew screen grows a grind/dose pane: two
+whole abstraction. The brew screen grows a grind/dose pane: two
 pairs of plus/minus buttons, one for grind level, one for dose. Grind nudges by
 the grinder's own step (so a Varia moves in `0.1`, an Encore in whole numbers)
 and snaps to that step relative to its minimum, clamped to the dial's range. Dose
@@ -60,7 +64,7 @@ moves in `0.5g` and clamps to a sane `0.1–60g`. Below them sits a live brew
 ratio, `1:2.0` and friends, computed from the target yield over the dose.
 
 The same controls exist in the Web UI, because squinting at a 2.4-inch screen
-is a punishment, not a workflow. There's one source of truth, though: the grinder
+is genuinely not a good time. There's one source of truth, though. The grinder
 table lives in the firmware (`Grinders.h`) and is mirrored byte-for-byte in the
 Web UI (`grinders.js`), same order so the index *is* the id. Pick "Niche Zero"
 in the browser, the firmware agrees on what "Niche Zero" means.
@@ -75,8 +79,8 @@ pump-flow sample taken mid-shot carries the same id as the span it belongs to, s
 a gauge reading and the shot trace are one `WHERE coffee.shot.id = …` apart.
 "Too sour" finally has a
 grind setting attached to it, and "ran too much water through too little coffee"
-is now a ratio I can sort by. The instrumentation was always there; this is the
-half that makes it honest.
+is now a ratio I can sort by. Given the relatively low volume of data and the fact that 
+I was feeding this into an OLAP database, cardinality wasn't a concern.
 
 ## Part two: where all the data actually goes
 
@@ -97,7 +101,7 @@ that can't see my house.
 
 The fix is the [OpenTelemetry Collector Builder](https://opentelemetry.io/docs/collector/extend/ocb/).
 You hand OCB a manifest of the components you want and it compiles a bespoke
-collector binary. Mine pulls the usual OTLP and Prometheus receivers, the batch
+collector binary. Mine pulls the usual OTLP receivers, the batch
 and memory-limiter processors, the ClickHouse / OTLP / file / debug exporters,
 and one component that isn't on the menu: a small in-repo Go MQTT receiver.
 
@@ -123,7 +127,11 @@ zigbee chatter as both numbers and audit trail.
 The whole thing builds in CI and publishes prebuilt multi-arch images to GHCR, so
 installing the add-on is a quick download rather than a twenty-minute on-device Go build. Same
 principle as the firmware's OTA story: the user shouldn't have to compile anything
-to get a working thing.
+to get a working thing. I've also got it working pretty seamlessly as a Home Assistant add-on,
+so you can easily consume any updates that I make.
+
+I did have an AppArmor profile configured, but I need to spend a bit more time poking holes in it
+in it to get it working properly.
 
 ![The Home Assistant add-on screen with the custom OpenTelemetry Collector ("Custom OpenTelemetry Collector with an MQTT receiver and multi-format") running alongside Grafana, InfluxDB and the rest](/assets/coffee2/otel-home-assistant.png)
 
@@ -154,16 +162,14 @@ for traces, and just writes to it.
 The high-cardinality part is what makes `coffee.shot.id` safe to attach in the
 first place. On a traditional TSDB, every distinct attribute value forks a new
 time series, so stamping a unique id onto a metric is the classic way to blow up
-your active series count and your bill. That's the cardinality bomb everyone warns
-you about. ClickHouse doesn't play that game: attributes are just columns in a
-`Map`, a new shot id is a few more rows and not a new series, and the engine is
-built to filter and group over exactly that kind of wide, high-cardinality data.
+your active series count and your bill. ClickHouse doesn't play that game: attributes 
+are just columns in a `Map`, a new shot id is a few more rows and not a new series, 
+and the engine is built to filter and group over exactly that kind of wide, high-cardinality data.
 The id is one more value in a wide event, and the wide event
-is what OLAP was made for. (It helps that I pull maybe five shots a day, but the
-point stands at far larger volumes.)
+is what OLAP was made for.
 
 The result is the thing I actually wanted. My espresso shots and my house live in
-the same database, on the same clock, queryable in one join. I can line up a
+the same database, queryable in one join. I can line up a
 shot's `temp.stability_c` against the kitchen ambient temperature MQTT was
 reporting at 7am. I can check whether the grinder's circuit drew its usual spike
 right before a shot, or whether the board's WiFi disconnects correlate with the
@@ -173,45 +179,45 @@ over. Here both are just rows with a timestamp, which is the entire point.
 
 ## Part three: ten seconds is a long time in a shot
 
-There was a lie of omission in the last post. Metrics exported on a fixed
-interval, ten seconds by default, and each tick shipped exactly one reading per
-gauge: whatever the latest value happened to be at that instant. For the boiler
+Metrics exported on a fixed interval, ten seconds by default, and each tick shipped exactly one reading per
+gauge, whatever the latest value happened to be at that instant. For the boiler
 temperature idling around a setpoint, fine. For the scale weight during a shot,
-useless. A shot runs twenty-five to forty seconds and the weight ramps the whole
-way; three or four samples don't describe that curve, they caricature it. I was
-sorting shots by `final_weight_g` and pretending I understood the extraction.
+useless. 
 
-The honest fix is to stop conflating two different clocks. How often I *sample* a
+A shot runs twenty-five to forty seconds and the weight ramps the whole
+way; three or four samples don't describe that curve, they caricature it. I was
+sorting shots by `final_weight_g` and I wasn't getting a full picture of what was happening.
+
+The honest fix is to stop conflating two different things. How often I *sample* a
 signal and how often I *ship* it have nothing to do with each other. So the
 export task now reads the live gauges every 500ms into a small ring buffer and
 flushes the whole batch every ten seconds. OTLP gauges happily carry many data
 points, each with its own timestamp, so one POST now holds twenty timestamped
 weight readings instead of one. Same single HTTPS round trip, twenty times the
-resolution. That round-trip count matters more than it sounds: TLS handshakes on
+resolution. That round-trip count matters more than it sounds. TLS handshakes on
 an ESP32 are not free, and the entire reason to batch rather than just lower the
-interval is to avoid paying that tax twenty times as often.
+interval is to avoid unecessarily noisy handshakes on a resource constrained device.
 
-Then nanopb stopped me at the door.
+Then nanopb happened.
 
 ```
 #error Enable PB_FIELD_32BIT to support messages exceeding 64kB in size:
        otlp_ScopeMetrics, otlp_ResourceMetrics, otlp_ExportMetricsServiceRequest
 ```
 
-nanopb trades flexibility for determinism: every message is a statically-sized C
-struct, no heap, no surprises. Exactly what you want on a microcontroller, right
+nanopb trades flexibility for determinism. Every message is a statically-sized C
+struct. Exactly what you want on a microcontroller, right
 up until you ask for twenty data points across fourteen metrics and the struct
-sails past a hard wall. Field offsets inside a message are encoded in sixteen
+shits itself. Field offsets inside a message are encoded in sixteen
 bits, so a single message can't exceed 64KB, and mine now wanted around 115KB.
 There's a global flag, `PB_FIELD_32BIT`, that lifts the ceiling for the whole
-build. I didn't want it: a sledgehammer that fattens every struct and descriptor
-in the firmware to fix one message.
+build. I didn't want it.
 
-The smaller hammer is to chunk. Keep the struct small (eight points per gauge)
+A way to optimise this is to keep the struct small (eight points per gauge)
 and emit the twenty-point batch as several `ResourceMetrics` messages
 concatenated into one request body. This works because of a quiet property of
-protobuf: concatenating two serialized messages of the same type *is* a valid
-serialized message, with repeated fields appended. So three small encodes
+protobuf: concatenating two serialised messages of the same type *is* a valid
+serialised message, with repeated fields appended. So three small encodes
 back-to-back in the buffer decode, at the collector, as one request with three
 `ResourceMetrics`. The cumulative counters are written once, in the first chunk,
 so nothing double-counts. One POST, the struct stays at ~47KB, everyone's happy.
@@ -220,7 +226,7 @@ The part I cared about most is that none of this can brick the machine mid-shot.
 The encoder writes into a fixed buffer, and nanopb's `pb_ostream_from_buffer`
 refuses to write past the end: the encode fails closed and drops that export
 rather than scribbling over memory. To prove that instead of asserting it, the
-encoder now compiles and runs on my laptop (it's portable C), so a host test
+encoder now compiles and runs on my laptop, so a host test
 builds the real thing against tiny shims, feeds it the worst case (every gauge
 full of in-shot points, attributes and exemplars and all), and checks two
 things: the worst-case batch is 30,339 of 40,960 buffer bytes, 74%, comfortably
@@ -240,7 +246,7 @@ any question I can phrase in SQL, but at 7am I don't want to write a windowed
 aggregate over my own espresso. I want something to look at the last shot and tell
 me what I did wrong.
 
-ClickHouse Cloud ships a hosted [LibreChat](https://www.librechat.ai/) wired to
+ClickHouse Cloud ships a hosted [LibreChat](https://clickhouse.com/blog/clickhouse-acquires-librechat) wired to
 the database over the [ClickHouse MCP server](https://github.com/ClickHouse/mcp-clickhouse).
 An agent there gets read-only MCP tools, `list_tables` and `run_select_query`, and
 I point them at the same `otel` database the collector writes to. No new pipeline
@@ -267,7 +273,7 @@ and calling it a day.
 The skill is where the actual method lives: which tables hold the shot spans and
 which hold the mid-shot gauges, how to join them on `coffee.shot.id`, what a
 channelled puck looks like in `puck.resistance_cv`, what counts as a healthy
-boiler swing, and how to turn all of that into a score instead of a vibe. It's
+boiler swing, and how to turn all of that into a score. It's
 long, because doing this properly is a lot of "if the CV is above this and the
 yield is below that, say that." Folded away so it isn't the whole page:
 
@@ -526,8 +532,7 @@ outliers, and a coffee×house join. Adapt names to whatever `DESCRIBE` actually 
 
 </details>
 
-With the skill loaded, the agent stops describing the shot and starts diagnosing
-it.
+With the skill loaded, the agent stops describing the shot and starts diagnosing it.
 
 ![LibreChat chat screen for the Hoff Jamesman agent, "Rates my coffee based on metrics and traces from my Gaggimate", with an empty message box ready for a shot to analyse](/assets/coffee2/agent-chat-screen.jpg)
 
@@ -569,7 +574,7 @@ I am aware of what I've built here.
 ## What I've got now
 
 A machine that knows my grinder and my dose, so the data it ships is grounded in
-real settings instead of vibes. A custom collector that reads both OTLP and the
+real settings. A custom collector that reads both OTLP and the
 MQTT firehose that runs my house. And one ClickHouse instance where a shot of
 espresso and a temperature sensor are the same kind of row, finally sitting close
 enough together that I can blame the right one.
@@ -583,7 +588,7 @@ and faintly judgmental. The point of instrumenting the machine was never the
 dashboard; it was getting told something I couldn't easily work out myself, in
 time to do something about it.
 
-The grind is still usually the problem. But now I can prove it with a `JOIN`.
+I think I'm beginning to understand that I've been the problem this whole time.
 
 ---
 
