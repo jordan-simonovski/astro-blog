@@ -14,9 +14,9 @@ draft: false
 
 Before I start, I might as well address some of the acronyms here for people who may be unfamiliar with AWS Services, or some other internet concepts:
 
-*   **Why S3?** S3 or _Simple Storage Service_ is exactly that. A simple way of storing anything you want on something called a _bucket._ Where S3 excels is the fact that it’s essentially serverless (this doesn’t mean it doesn’t run on servers. Just that as far as you’re concerned there are no servers to manage), meaning that all operational headaches like patching, upgrading, and maintaining uptime are not your responsibility. This way you can focus on the important stuff like writing awesome apps!
-*   **What is CloudFront?** CloudFront is a [Content Distribution Network](https://en.wikipedia.org/wiki/Content_delivery_network) or CDN for short. This is particularly useful when running an app, as any outage you may have won’t affect it’s availability to your users (as far as just serving content is concerned).
-*   **What is a WAF (**[**Web Application Firewall**](https://en.wikipedia.org/wiki/Web_application_firewall)**)?** This is great for filtering, monitoring, and blocking traffic to your HTTP application. In our case, we’re blocking everything _except_ a whitelisted IP.
+- **Why S3?** S3 or _Simple Storage Service_ is exactly that. A simple way of storing anything you want on something called a _bucket._ Where S3 excels is the fact that it’s essentially serverless (this doesn’t mean it doesn’t run on servers. Just that as far as you’re concerned there are no servers to manage), meaning that all operational headaches like patching, upgrading, and maintaining uptime are not your responsibility. This way you can focus on the important stuff like writing awesome apps!
+- **What is CloudFront?** CloudFront is a [Content Distribution Network](https://en.wikipedia.org/wiki/Content_delivery_network) or CDN for short. This is particularly useful when running an app, as any outage you may have won’t affect it’s availability to your users (as far as just serving content is concerned).
+- **What is a WAF (**[**Web Application Firewall**](https://en.wikipedia.org/wiki/Web_application_firewall)**)?** This is great for filtering, monitoring, and blocking traffic to your HTTP application. In our case, we’re blocking everything _except_ a whitelisted IP.
 
 ![Bilbo](https://cdn-images-1.medium.com/max/1600/1*YsTv59tGk_vctpF5qgeVOg.jpeg)
 

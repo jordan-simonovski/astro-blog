@@ -15,7 +15,7 @@ featured: false
 draft: false
 ---
 
-Observability is still a relatively novel concept to many organisations. While it's easy to say that you want to do "observability", it is in fact a state that your systems are in. Monitoring, logging, and tracing of systems are things that we should do in order to achieve *observable systems*.
+Observability is still a relatively novel concept to many organisations. While it's easy to say that you want to do "observability", it is in fact a state that your systems are in. Monitoring, logging, and tracing of systems are things that we should do in order to achieve _observable systems_.
 
 This is the first post I'll be making in a series of post centred around observability practices, and will be covering the basics of practices to help you achieve more observable systems. The next post in this series will be covering observability as code, and how I've used Terraform to make setting up DataDog a breeze for new applications.
 Something I'll also want to cover is SLIs, and how they should be determined when making applications production-ready.
@@ -61,7 +61,6 @@ We should aspire to look to expand the reach of our testing. The following diagr
 
 {{< figure src="/img/testing.webp" alt="Testing" position="center" style="border-radius: 8px;" caption="Figure 3-1 from Distributed Systems Observability by Cindy Sridharan" >}}
 
-
 ## What Should We Be Monitoring?
 
 Observability is a superset of both monitoring and testing. It provides information about unpredictable failure modes that couldn't be monitored or tested.
@@ -89,7 +88,7 @@ It is also worth noting that good monitoring means metrics are being shipped out
   - Some system resources, such as hard disks, cannot be interrupted during an operation, even for higher-priority work. Once their utilisation is over 70%, queueing delays can become more frequent and noticeable. Compare this to CPUs, which can be interrupted ("preempted") at almost any moment.
 - **Saturation:** any degree of saturation can be a problem (non-zero). This may be measured as the length of a wait queue, or time spent waiting on the queue.
 - **Errors:** non-zero error counters are worth investigating, especially if they are still increasing while performance is poor.
-  
+
 **RED Metrics (Rate, Errors, Duration):**
 
 - **Request Rate** - the number of requests, per second, you services are serving.
@@ -97,7 +96,7 @@ It is also worth noting that good monitoring means metrics are being shipped out
 - **Request Duration** - distributions of the amount of time each request takes.
 
 Application tracing works its way into this setup as well, as traces give us some valuable information that could otherwise be lost with basic USE or RED metrics.
-One thing to look out for is not jumping onto the easiest thing to measure, which is often the _mean of some quantity_. 
+One thing to look out for is not jumping onto the easiest thing to measure, which is often the _mean of some quantity_.
 We can't necessarily monitor and alert on the mean usage of something like CPU utilisation, as it can be utilised in a very imbalanced way. The same can be said about latency.
 
 Example:
@@ -123,7 +122,7 @@ When writing our own applications, we must consider what we could use the logs f
 - **Personally Identifiable Information (PII) should be obfuscated or removed from log messages** - logging should never include PCI or PII. If we need some kind of audits in place, references to information should be used instead (think transaction ID, application ID, etc). Many companies fall into this trap including [Twitter](https://arstechnica.com/information-technology/2018/05/twitter-advises-users-to-reset-passwords-after-bug-posts-passwords-to-internal-log/).
 - **Logging every major entry and exit point of a request** - Which is helpful when identifying any potential failures when executing particular types of requests. Depending on the observability platform you're working with, injecting trace IDs into these logs can prove to be incredibly useful. By injecting trace IDs into your logs, you're able to get a direct correlation between a log event and trace event which can prove to be incredibly useful when debugging issues in production.
 - **Log every decision point of a request** - This should give us more information about the codepath taken with a request, and where a potential failure may have occured. Grafana's [Loki](https://grafana.com/loki) has made tracing log events to metrics and vice-versa incredibly useful.
-- **Log with Intent** - When logging, ask yourself if ```Connected to service: x``` is really a useful log to be throwing in with everything else. Does this signal a healthy system? Can we get the same information out of a trace event? If so, should we limit the amount of noise we're producing in our logs?
+- **Log with Intent** - When logging, ask yourself if `Connected to service: x` is really a useful log to be throwing in with everything else. Does this signal a healthy system? Can we get the same information out of a trace event? If so, should we limit the amount of noise we're producing in our logs?
 
 For the last two points (logging major entry, exit, and decision points), the idea is to have them all semantically linked in a way (request ID), that allows us to:
 
@@ -152,7 +151,7 @@ There are two common events that may be sent as alerts: Warnings and Breaches:
 The human cost of alerting is something that should come into consideration when creating alerting policies. A lot of the time, these alerts are "paging events" which either disrupt someone's day-to-day work or their sleep schedules. As mentioned in Google's SRE Book (paraphrasing):
 
 > ...a balanced on-call work distribution limits potential drawbacks of excessive on-call work, such as burnout or inadequate time for project work.
-([Chapter 11. Being On-Call](https://landing.google.com/sre/sre-book/chapters/being-on-call/) - _Andrea Spadaccini_)
+> ([Chapter 11. Being On-Call](https://landing.google.com/sre/sre-book/chapters/being-on-call/) - _Andrea Spadaccini_)
 
 ## Some Notes
 

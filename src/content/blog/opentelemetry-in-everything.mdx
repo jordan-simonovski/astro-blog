@@ -11,9 +11,10 @@ tags:
   - coffee
 featured: true
 draft: false
---- 
+---
 
 import RepoCard from "@components/RepoCard.astro";
+import Figure from "@components/Figure.astro";
 
 I spend my working life telling people to instrument their systems: measure percentiles
 instead of averages, pull up a trace before you start guessing, and ship signals you'll
@@ -26,11 +27,18 @@ traces are real, the shots are good (arguably), and the on-call rotation is me, 
 kitchen at 7am watching a dashboard while the milk steams. This is roughly the
 story of how I got there, and why you can do the same to basically anything with a CPU.
 
-![The setup: a Gaggia espresso machine with the GaggiMate ESP32 controller wired in, the thing that all of this telemetry comes out of](/assets/the-coffee-machine.jpg)
+<Figure
+  src="the-coffee-machine.jpg"
+  eager
+  alt={
+    "The setup: a Gaggia espresso machine with the GaggiMate ESP32 controller wired in, the thing that all of this telemetry comes out of"
+  }
+/>
 
 <video controls muted loop playsinline preload="metadata" width="100%">
   <source src="/assets/dashboard-demo.mp4" type="video/mp4" />
-  Your browser doesn't support embedded video. <a href="/assets/dashboard-demo.mp4">Download the dashboard demo</a> instead.
+  Your browser doesn't support embedded video.{" "}
+  <a href="/assets/dashboard-demo.mp4">Download the dashboard demo</a> instead.
 </video>
 
 ## Why would you do this?
@@ -68,8 +76,12 @@ timestamp so the backend can compute rates instead of making me eyeball a counte
 - `coffee.water.total` (`ml`), pump flow integrated over time, flushes and all
 - `coffee.wifi.disconnects.total` / `coffee.bluetooth.disconnects.total` (`{event}`)
 
-
-![GaggiMate Espresso dashboard showing boiler temperature, pressure, pump flow, scale weight, disconnect counters and recent shots](/assets/coffee-dashboard.png)
+<Figure
+  src="coffee-dashboard.png"
+  alt={
+    "GaggiMate Espresso dashboard showing boiler temperature, pressure, pump flow, scale weight, disconnect counters and recent shots"
+  }
+/>
 
 **Traces**, because a shot of espresso is, if you squint, a request with a strict latency
 budget. Every shot becomes a parent span named `shot`, with child spans per brew phase
@@ -104,11 +116,21 @@ pressure and flow annotated per phase. A channeled shot looks exactly as broken 
 view as it tastes, which is more than I can say for half the production incidents I've
 debugged.
 
-![A trace waterfall for a single shot: the parent `shot` span with child spans for pre-infusion, bloom, ramp, hold and decline phases](/assets/coffee-trace.png)
+<Figure
+  src="coffee-trace.png"
+  alt={
+    "A trace waterfall for a single shot: the parent `shot` span with child spans for pre-infusion, bloom, ramp, hold and decline phases"
+  }
+/>
 
 I'm aware of how this looks.
 
-![STOP DOING FIRMWARE meme: phase changes were not meant to be emitted; statements dreamed up by the utterly deranged, "I need to emit a child span per phase for the brew"](/assets/stop-doing-firmware.jpeg)
+<Figure
+  src="stop-doing-firmware.jpeg"
+  alt={
+    'STOP DOING FIRMWARE meme: phase changes were not meant to be emitted; statements dreamed up by the utterly deranged, "I need to emit a child span per phase for the brew"'
+  }
+/>
 
 ### The derived numbers, computed live on-device
 
@@ -142,7 +164,7 @@ signal, on a microcontroller, and it actually works.
 
 ## Exemplars, or: the bit that ties it all together
 
-A metric tells you something spiked; a trace tells you why. 
+A metric tells you something spiked; a trace tells you why.
 The annoying gap is getting from one to the other: you spot an ugly pressure reading
 at 7:04am and then go hunting for the shot it belongs to. Exemplars close that gap by
 stapling a representative `trace_id` and `span_id` straight onto a metric data point, so you can jump straight from a squiggly line to jumping into the trace and understanding what's going on.
@@ -162,7 +184,7 @@ RAM and strong opinions about being interrupted.
 
 The real OTLP schema is spread across a dozen `.proto` files under
 `opentelemetry/proto/{common,resource,metrics,trace,collector}/v1`, all cross-importing
-each other. `nanopb`, the protobuf library for people whose chips are measured in kilobytes, 
+each other. `nanopb`, the protobuf library for people whose chips are measured in kilobytes,
 takes one look at that include graph and gives up.
 
 The fix feels illegal but isn't. The protobuf wire format only cares about field numbers and
@@ -181,7 +203,12 @@ old budget, so the per-span attribute cap went from 8 to 20, paid for in proper 
 fashion by dropping the span-event budget from 4 to 2. Nobody was using span events. That's
 capacity planning when your entire RAM budget would fit inside a single JPEG.
 
-![a pixelated image of Hank Hill saying, "do I look like I know what a jay peg is?"](/assets/jaypeg.jpg)
+<Figure
+  src="jaypeg.jpg"
+  alt={
+    'a pixelated image of Hank Hill saying, "do I look like I know what a jay peg is?"'
+  }
+/>
 
 ### TLS handshakes like to rudely interrupt things
 
@@ -209,7 +236,12 @@ you'll never look. So there's a guard: nothing exports until the wall clock is p
 Until then the task just sits and waits, which is the correct thing to do and the most patient
 I have ever been about anything.
 
-![Serial boot log showing the OpenTelemetry plugin starting and the exporter coming up with metrics=1 traces=1 once WiFi connects](/assets/firmware-update.jpeg)
+<Figure
+  src="firmware-update.jpeg"
+  alt={
+    "Serial boot log showing the OpenTelemetry plugin starting and the exporter coming up with metrics=1 traces=1 once WiFi connects"
+  }
+/>
 
 ## The audit: don't let your telemetry brick the thing it watches
 
@@ -253,9 +285,9 @@ Everything else came out bounded and boring, which is what you want from this la
 queue is fixed at 16 and drops on full, the encode buffer is a fixed 8KB that fails closed on
 overflow, the export task isn't wired to the watchdog so a slow network can't trip a reset, and
 if the buffer or mutex won't allocate at boot the plugin disables itself instead of limping
-along. 
+along.
 
-None of it is clever. Clever is how you get paged, or in this case it's how you end up debugging 
+None of it is clever. Clever is how you get paged, or in this case it's how you end up debugging
 your coffee machine while trying to get started with your day.
 
 ## Wiring it up
@@ -270,7 +302,12 @@ auth header is user-hostile and I refuse:
   demands;
 - pick the metric export interval.
 
-![GaggiMate settings page with the OpenTelemetry section: toggles to export metrics and per-shot trace spans](/assets/gaggimate-config.JPG)
+<Figure
+  src="gaggimate-config.JPG"
+  alt={
+    "GaggiMate settings page with the OpenTelemetry section: toggles to export metrics and per-shot trace spans"
+  }
+/>
 
 `https://` endpoints just work off the same baked-in mbedTLS CA bundle the OTA updater already
 trusts. The plugin only registers itself if you've enabled a signal, so disabled means no task,
@@ -293,9 +330,10 @@ magic or strictly for sprawling microservice fleets. It's neither: underneath, i
 well-specified, vendor-neutral way of saying "here are some numbers and some spans." Strip
 away the kilograms of SDK people pile onto it, hand-roll the wire format, respect what the
 hardware can actually do, and your microcontroller gets to sit in the same observability
-stack as everything else. 
+stack as everything else.
 
-The instincts that make a production system debuggable carry straight over: 
+The instincts that make a production system debuggable carry straight over:
+
 - Instrument your shit with intent.
 - Keep your signals actionable.
 - Never let the instrumentation endanger the workload.
@@ -310,4 +348,4 @@ trace your own bean water.
 
 ---
 
-*Next time: hooking in an agent which "roasts" my coffee with the data it reads.*
+_Next time: hooking in an agent which "roasts" my coffee with the data it reads._

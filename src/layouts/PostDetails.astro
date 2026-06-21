@@ -7,6 +7,7 @@ import Datetime from "@components/Datetime";
 import QuoteShare from "@components/QuoteShare.astro";
 import Lightbox from "@components/Lightbox.astro";
 import Comments from "@components/Comments";
+import TableOfContents from "@components/TableOfContents.astro";
 import { GISCUS } from "@config";
 import { render, type CollectionEntry } from "astro:content";
 import slugify, { slugifyStr } from "@utils/slugify";
@@ -17,9 +18,20 @@ export interface Props {
 
 const { post } = Astro.props;
 
-const { title, author, description, ogImage, ogImageWidth, ogImageHeight, canonicalURL, pubDatetime, tags, readingTime } = post.data;
+const {
+  title,
+  author,
+  description,
+  ogImage,
+  ogImageWidth,
+  ogImageHeight,
+  canonicalURL,
+  pubDatetime,
+  tags,
+  readingTime,
+} = post.data;
 
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const ogUrl = new URL(
   ogImage ? ogImage : `${slugify(post.data)}.png`,
@@ -30,7 +42,16 @@ const pageUrl = canonicalURL
   : Astro.url.href;
 ---
 
-<Layout title={title} author={author} description={description} ogImage={ogUrl} ogImageWidth={ogImageWidth} ogImageHeight={ogImageHeight} canonicalURL={canonicalURL} readingTime={readingTime} >
+<Layout
+  title={title}
+  author={author}
+  description={description}
+  ogImage={ogUrl}
+  ogImageWidth={ogImageWidth}
+  ogImageHeight={ogImageHeight}
+  canonicalURL={canonicalURL}
+  readingTime={readingTime}
+>
   <Header />
   <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
     <button
@@ -44,10 +65,16 @@ const pageUrl = canonicalURL
       </svg><span>Go back</span>
     </button>
   </div>
+  <TableOfContents headings={headings} />
   <main id="main-content">
     <h1 class="post-title">{title}</h1>
-    <Datetime datetime={pubDatetime} size="lg" className="my-2" readingTime={readingTime} />
-    <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
+    <Datetime
+      datetime={pubDatetime}
+      size="lg"
+      className="my-2"
+      readingTime={readingTime}
+    />
+    <article id="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
     <QuoteShare pageTitle={title} pageUrl={pageUrl} />
@@ -60,11 +87,12 @@ const pageUrl = canonicalURL
     {
       GISCUS.enabled && (
         <section class="mt-8">
-          {/* giscus renders nothing on the server (it needs `document` and injects
-              its own iframe at runtime). client:visible observes the island's SSR
-              children to decide when to hydrate; with no children it never fires.
-              client:only skips SSR and hydrates on the client. */}
-          <Comments client:only="react" />
+          {/* Comments sit below the fold, so keep them off the initial critical
+              path: client:visible defers the island runtime and the giscus chunk
+              until the reader scrolls near here. The island SSRs a sized
+              placeholder (see Comments.tsx) so the observer has something to fire
+              on; giscus itself injects its iframe at runtime. */}
+          <Comments client:visible />
         </section>
       )
     }

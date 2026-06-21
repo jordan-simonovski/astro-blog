@@ -21,8 +21,8 @@ We'll be covering three key concepts:
 
 - Service Level Indicators (SLIs)
 - Service Level Obejctives (SLOs)
-- Error Budgets 
-  
+- Error Budgets
+
 ## Service Level Indicators
 
 Many organisations fall into the trap of monitoring everything in their systems in a bid to try and work out how healthy they might be. What usually ends up happening as a result is noisy alerting that many will eventually stop caring about, missing the point of good observability altogether.
@@ -46,9 +46,9 @@ What we should instead be using instead of averages is percentile measurements.
 
 Statistically speaking, any averages that we do measure are heavily influenced (or dragged) by the heavy outliers to those systems (the 90th percentiles), rather than the bulk of the requests in our system.
 
-We can easily wrap our heads around percentiles by thinking of them as points along a distribution of numbers. The 50th percentile in this case represents the median, which tells us that 50% of the requests are above, and 50% of the requests are below the distribution of latencies. 
+We can easily wrap our heads around percentiles by thinking of them as points along a distribution of numbers. The 50th percentile in this case represents the median, which tells us that 50% of the requests are above, and 50% of the requests are below the distribution of latencies.
 The 10th percentile represents the requests being made to our service with the lowest latencies (likely one of the dozens of people who have the NBN).
-The 90th percentile tells us who the really bad performers are, or the requests being made suffering from the highest latency. 
+The 90th percentile tells us who the really bad performers are, or the requests being made suffering from the highest latency.
 
 The below is a little TL;DR; of [Dynatraces percentile explanation](https://www.dynatrace.com/news/blog/why-averages-suck-and-percentiles-are-great/):
 
@@ -96,7 +96,7 @@ If we go over an example of a public facing system:
 
 ### What Do We Get out of an Error Budget
 
-What error budgets give us is a very clear indication of how much risk we can accept within a certain period of time. While the budget is large, product development teams are able to take more risks, such as skimping on testing to increase feature delivery velocity. 
+What error budgets give us is a very clear indication of how much risk we can accept within a certain period of time. While the budget is large, product development teams are able to take more risks, such as skimping on testing to increase feature delivery velocity.
 Once the error budget is close to being drained, the development teams themselves will push for more testing or slowing down their release velocity. This effectively makes teams self-policing in terms of the amount of risk they are willing to accept without causing tensions between teams.
 
 That being said, SLOs aren't set in stone. If a team is struggling to deploy new features they may elect to loosen their SLO, giving them more wriggle room with availability.
@@ -116,8 +116,8 @@ In part three I'll _actually_ be covering setting up monitoring in IaC, particul
 
 ## References
 
-- https://blog.newrelic.com/engineering/best-practices-for-setting-slos-and-slis-for-modern-complex-systems/
-- https://landing.google.com/sre/sre-book/chapters/embracing-risk/
-- https://landing.google.com/sre/sre-book/chapters/service-level-objectives/
-- https://www.dynatrace.com/news/blog/why-averages-suck-and-percentiles-are-great/
-- https://www.elastic.co/blog/averages-can-dangerous-use-percentile
+- <https://blog.newrelic.com/engineering/best-practices-for-setting-slos-and-slis-for-modern-complex-systems/>
+- <https://landing.google.com/sre/sre-book/chapters/embracing-risk/>
+- <https://landing.google.com/sre/sre-book/chapters/service-level-objectives/>
+- <https://www.dynatrace.com/news/blog/why-averages-suck-and-percentiles-are-great/>
+- <https://www.elastic.co/blog/averages-can-dangerous-use-percentile>

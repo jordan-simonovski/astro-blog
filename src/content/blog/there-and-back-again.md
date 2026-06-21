@@ -40,15 +40,15 @@ The introduction of DevOps to your organisation doesn’t suddenly mean that eve
 
 In my experience as an infrastructure guy, here’s what skills I think developers should have to build a healthy DevOps culture:
 
-*   **You should know how to build and deploy a production version of your app.** If you use Docker, you should be able to build your own container.This is especially important if you’re willing to invest in developing with docker locally. If you use something else, that’s fine, as long as you know the steps to build a production version of the app, and all of the runtime deployment dependencies.
-*   **You should have some kind of understanding of the CI systems in place.** Know how to pipeline your build, and how to add steps to it. You should also know how to debug build issues.
+- **You should know how to build and deploy a production version of your app.** If you use Docker, you should be able to build your own container.This is especially important if you’re willing to invest in developing with docker locally. If you use something else, that’s fine, as long as you know the steps to build a production version of the app, and all of the runtime deployment dependencies.
+- **You should have some kind of understanding of the CI systems in place.** Know how to pipeline your build, and how to add steps to it. You should also know how to debug build issues.
 
 ![Have a bad time](https://cdn-images-1.medium.com/max/1600/1*-ssg-aIlk6BC23nuJUxqTA.png)
 
-*   **Help operations when outages occur.** While they may be building and maintaining the supporting infrastructure, breakages often occur when changes happen. The apathetic mentality of _Not my problem_ is unacceptable. Every problem is _our_ problem.
-*   **Take collective ownership of cost.** This one is relevant if you’re working with public cloud offerings. Be careful what you run!
-*   **Understand how you can build robustness into your applications.** While it may not always be the most interesting type of work, doing things like improving your health check endpoint to include connectivity checking of your dependencies (databases, caches, etc), changing the way you host static files (moving to S3), and many more quality of life improvements make apps easier to debug when things go downhill.
-*   **You should be on-call for the applications you write/maintain.** While this may be a bit more contentious one, this remains my opinion. It’s unfair to expect the ops guy to know how to debug Node, Java, PHP, and C# applications. This falls into the bucket of every problem being _our problem._
+- **Help operations when outages occur.** While they may be building and maintaining the supporting infrastructure, breakages often occur when changes happen. The apathetic mentality of _Not my problem_ is unacceptable. Every problem is _our_ problem.
+- **Take collective ownership of cost.** This one is relevant if you’re working with public cloud offerings. Be careful what you run!
+- **Understand how you can build robustness into your applications.** While it may not always be the most interesting type of work, doing things like improving your health check endpoint to include connectivity checking of your dependencies (databases, caches, etc), changing the way you host static files (moving to S3), and many more quality of life improvements make apps easier to debug when things go downhill.
+- **You should be on-call for the applications you write/maintain.** While this may be a bit more contentious one, this remains my opinion. It’s unfair to expect the ops guy to know how to debug Node, Java, PHP, and C# applications. This falls into the bucket of every problem being _our problem._
 
 ![Worked fine in dev](https://cdn-images-1.medium.com/max/1600/1*YdlvdLe-CJgCZD4stt__rw.jpeg)
 

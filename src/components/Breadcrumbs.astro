@@ -8,8 +8,9 @@ const breadcrumbList = currentUrlPath.split("/").slice(1);
 
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
-breadcrumbList[0] === "posts" &&
+if (breadcrumbList[0] === "posts") {
   breadcrumbList.splice(0, 2, `Posts (page ${breadcrumbList[1] || 1})`);
+}
 ---
 
 <nav class="breadcrumb" aria-label="breadcrumb">
@@ -49,7 +50,7 @@ breadcrumbList[0] === "posts" &&
     @apply inline;
   }
   .breadcrumb ul li a {
-    @apply capitalize opacity-70;
+    @apply capitalize underline underline-offset-2 opacity-70;
   }
   .breadcrumb ul li span {
     @apply opacity-70;

@@ -19,6 +19,7 @@ As someone that maintains and sets up the infrastructure that an organisation _n
 ## 1) Do You Understand the State of Everything in the Existence of Everything That You've Made?
 
 Convoluted sub-title aside, what I'm trying to say is that we should give a 💩 about knowing exactly what we're running within the ecosystem that we maintain. i.e.:
+
 - How many servers are we running?
 - Where are they running?
 - How are they running?
@@ -30,7 +31,7 @@ What gives us this kind of visibility is the investment in centralised observabi
 
 ## 2) Invest in Great Tooling
 
-As most organisations begin to grow, the scripts that we once used to deploy our applications no longer fit the complexity of the ecosystem that we have gradually created over the years. 
+As most organisations begin to grow, the scripts that we once used to deploy our applications no longer fit the complexity of the ecosystem that we have gradually created over the years.
 Whether this is with a team setting up the tooling that allows development teams the flexibility to work within a more standardised platform, there needs to be a sense of complete ownership of the platform that the devs are interacting with.
 
 ## 3) Trimming the Fat
@@ -53,6 +54,7 @@ Give a 💩 about making reliability a requirement. If your engineers are spendi
 
 One often forgotten thing to focus on in most organisations is making security the easy thing to do. If you're requiring developers to fill out some kind of spreadsheet and update data flow diagrams with every release they try to make, you're doing it wrong.
 Invest in automating security controls like:
+
 - container scanning
 - port scanning
 - dynamic/static code analysis

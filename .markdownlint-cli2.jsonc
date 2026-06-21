@@ -1,0 +1,11 @@
+{
+  // Prose, not API docs: long lines and inline HTML are expected.
+  "config": {
+    "default": true,
+    "MD013": false, // line length
+    "MD033": false, // inline HTML
+    "MD041": false, // first line need not be a top-level heading (frontmatter)
+    "MD024": { "siblings_only": true } // duplicate headings ok across sections
+  },
+  "ignores": ["node_modules", "dist", ".astro", "**/*.mdx"]
+}

@@ -47,8 +47,19 @@ const showOwnStats =
 ---
 
 <div class="repo-card not-prose">
-  <a class="repo-card__title" href={data.url} target="_blank" rel="noopener noreferrer">
-    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor">
+  <a
+    class="repo-card__title"
+    href={data.url}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <svg
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      fill="currentColor"
+    >
       <path d={REPO_ICON}></path>
     </svg>
     <span>{name}</span>
@@ -62,7 +73,13 @@ const showOwnStats =
         target="_blank"
         rel="noopener noreferrer"
       >
-        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="currentColor">
+        <svg
+          viewBox="0 0 16 16"
+          width="13"
+          height="13"
+          aria-hidden="true"
+          fill="currentColor"
+        >
           <path d={FORK_ICON} />
         </svg>
         Forked from {parent.fullName}
@@ -74,7 +91,11 @@ const showOwnStats =
 
   {
     showOwnStats && (
-      <RepoStats language={data.language} stars={data.stars} forks={data.forks} />
+      <RepoStats
+        language={data.language}
+        stars={data.stars}
+        forks={data.forks}
+      />
     )
   }
 
@@ -87,7 +108,13 @@ const showOwnStats =
         rel="noopener noreferrer"
       >
         <span class="repo-card__quote-title">
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor">
+          <svg
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            aria-hidden="true"
+            fill="currentColor"
+          >
             <path d={REPO_ICON} />
           </svg>
           {parent.fullName}
@@ -110,7 +137,7 @@ const showOwnStats =
     @apply my-6 rounded-md border border-skin-line bg-skin-card p-4;
   }
   .repo-card__title {
-    @apply flex items-center gap-2 text-base font-semibold text-skin-accent no-underline;
+    @apply flex items-center gap-2 text-base font-semibold text-skin-base no-underline;
   }
   .repo-card__title svg {
     @apply shrink-0 opacity-70;
@@ -119,7 +146,7 @@ const showOwnStats =
     @apply underline;
   }
   .repo-card__forked {
-    @apply mt-1 flex items-center gap-1 text-xs text-skin-base no-underline opacity-60 hover:opacity-90;
+    @apply mt-1 flex items-center gap-1 text-xs text-skin-base no-underline opacity-80 hover:opacity-100;
   }
   .repo-card__desc {
     @apply my-2 text-sm leading-relaxed text-skin-base opacity-80;

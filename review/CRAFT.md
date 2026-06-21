@@ -13,6 +13,7 @@ the best version of the author's own writing.
 ## Severity
 
 Use three levels in the report:
+
 - slop: a trope from the rubric that cleared the density bar. Worth removing.
 - craft: a real weakness in clarity, mechanics, argument, or concision. Worth
   considering. The author decides.
@@ -25,6 +26,7 @@ point" is a craft note, not a verdict.
 ## What to check
 
 ### Clarity and structure
+
 - Buried lede: the most interesting sentence is in paragraph four. Flag it and
   say where it might move.
 - Weak opening: the first line is throat-clearing or context-setting that delays
@@ -36,6 +38,7 @@ point" is a craft note, not a verdict.
   setup.
 
 ### Mechanics
+
 - Grammar and agreement errors. These are real, flag them plainly.
 - Unintentional word repetition: the same distinctive word three times in a
   paragraph when it was not for effect. The earlier espresso review caught a
@@ -48,6 +51,7 @@ point" is a craft note, not a verdict.
   and finishes another.
 
 ### Argument quality
+
 - Unsupported claims: an assertion that wants a reason, a number, or an example
   and does not have one. Note where the support is missing. Do not invent it.
 - Weak transitions: two paragraphs that sit next to each other without the logic
@@ -59,6 +63,7 @@ point" is a craft note, not a verdict.
   part. Point at it.
 
 ### Concision
+
 - Cuttable words: qualifiers, hedges, and throat-clearing that add nothing
   ("basically", "essentially", "in order to", "the fact that"). Propose the cut.
 - Redundancy: saying the same thing twice in one sentence or across two adjacent
