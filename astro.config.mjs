@@ -79,6 +79,14 @@ export default defineConfig({
       styles: ["normal", "italic"],
       fallbacks: ["monospace"],
     },
+    {
+      provider: fontProviders.google(),
+      name: "Literata",
+      cssVariable: "--font-content",
+      weights: [400, 500, 600, 700],
+      styles: ["normal", "italic"],
+      fallbacks: ["Georgia", "Cambria", "serif"],
+    },
   ],
   env: {
     schema: {

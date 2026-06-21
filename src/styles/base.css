@@ -5,7 +5,7 @@
 @layer base {
   :root,
   html[data-theme="light"] {
-    --color-fill: 251, 254, 251;
+    --color-fill: 250, 249, 245;
     --color-text-base: 40, 39, 40;
     --color-accent: 0, 108, 172;
     --color-card: 230, 230, 230;
@@ -29,7 +29,7 @@
     display: block;
   }
   body {
-    @apply flex min-h-screen flex-col bg-skin-fill font-mono text-skin-base 
+    @apply flex min-h-screen flex-col bg-skin-fill font-content text-skin-base 
     selection:bg-skin-accent selection:bg-opacity-70 selection:text-skin-inverted;
   }
   section,
@@ -49,7 +49,7 @@
     sm:scale-110;
   }
   .prose {
-    @apply prose-headings:!mb-3 prose-headings:!text-skin-base 
+    @apply font-content prose-headings:!mb-3 prose-headings:!text-skin-base 
     prose-h3:italic prose-p:!text-skin-base 
     prose-a:!text-skin-base prose-a:!decoration-dashed prose-a:underline-offset-8
     hover:prose-a:text-skin-accent prose-blockquote:!border-l-skin-accent
@@ -71,6 +71,22 @@
   }
   .prose a {
     @apply hover:!text-skin-accent;
+  }
+  /* Body defaults to the reading serif; code stays mono everywhere.
+     expressive-code uses codeFontFamily: "inherit", so without this it would
+     inherit the serif. */
+  :is(code, kbd, samp, pre) {
+    @apply font-mono;
+  }
+  /* Book measure: cap the line length of running text (~68 chars) for
+     comfortable reading, but leave code blocks, images, and tables on the full
+     column so wide content still breathes. Slightly looser leading on body
+     copy for a paperback feel. */
+  .prose :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+    max-width: 68ch;
+  }
+  .prose :is(p, li) {
+    line-height: 1.8;
   }
   .prose thead th:first-child,
   tbody td:first-child,
