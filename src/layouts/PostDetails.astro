@@ -5,6 +5,7 @@ import Footer from "@components/Footer.astro";
 import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
 import QuoteShare from "@components/QuoteShare.astro";
+import Lightbox from "@components/Lightbox.astro";
 import Comments from "@components/Comments";
 import { GISCUS } from "@config";
 import { render, type CollectionEntry } from "astro:content";
@@ -50,6 +51,7 @@ const pageUrl = canonicalURL
       <Content />
     </article>
     <QuoteShare pageTitle={title} pageUrl={pageUrl} />
+    <Lightbox />
 
     <ul class="tags-container">
       {tags.map(tag => <Tag name={slugifyStr(tag)} />)}

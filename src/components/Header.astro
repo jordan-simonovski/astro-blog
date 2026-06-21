@@ -1,6 +1,5 @@
 ---
 import { LOGO_IMAGE, SITE } from "@config";
-import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
 
 const logoPNG = "/assets/logo.png";
@@ -17,22 +16,64 @@ const { activeNav } = Astro.props;
   <a id="skip-to-content" href="#main-content">Skip to content</a>
   <div class="nav-container">
     <div class="top-nav-wrap">
-      <a href="/" class="logo">
+      <div class="top-row">
+        <a href="/" class="logo">
+          {
+            LOGO_IMAGE.enable ? (
+              <img
+                src={LOGO_IMAGE.svg ? logoSVG : logoPNG}
+                alt="AstroPaper Logo"
+                width={LOGO_IMAGE.width}
+                height={LOGO_IMAGE.height}
+              />
+            ) : (
+              SITE.title
+            )
+          }
+        </a>
+        <button
+          class="hamburger-menu focus-outline"
+          aria-label="Open Menu"
+          aria-expanded="false"
+          aria-controls="menu-items"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" id="menu-icon">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            id="close-icon"
+            class="display-none"
+          >
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+          </svg>
+        </button>
         {
-          LOGO_IMAGE.enable ? (
-            <img
-              src={LOGO_IMAGE.svg ? logoSVG : logoPNG}
-              alt="AstroPaper Logo"
-              width={LOGO_IMAGE.width}
-              height={LOGO_IMAGE.height}
-            />
-          ) : (
-            SITE.title
+          SITE.lightAndDarkMode && (
+            <button
+              class="theme-btn theme-btn-mobile focus-outline"
+              title="Toggles light & dark"
+              aria-label="auto"
+              aria-live="polite"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="moon-svg">
+                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="sun-svg">
+                <path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.993c1.658 0 3.007 1.349 3.007 3.007S13.658 15.007 12 15.007 8.993 13.658 8.993 12 10.342 8.993 12 8.993zM10.998 19h2v3h-2zm0-17h2v3h-2zm-9 9h3v2h-3zm17 0h3v2h-3zM4.219 18.363l2.12-2.122 1.415 1.414-2.12 2.122zM16.24 6.344l2.122-2.122 1.414 1.414-2.122 2.122zM6.342 7.759 4.22 5.637l1.415-1.414 2.12 2.122zm13.434 10.605-1.414 1.414-2.122-2.122 1.414-1.414z" />
+              </svg>
+            </button>
           )
         }
-      </a>
+      </div>
       <nav id="nav-menu">
-        <ul id="menu-items">
+        <ul
+          id="menu-items"
+          class="hidden w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex sm:w-auto sm:justify-end sm:gap-x-5"
+        >
           <li>
             <a href="/posts" class={activeNav === "posts" ? "active" : ""}>
               Posts
@@ -71,20 +112,19 @@ const { activeNav } = Astro.props;
               </svg>
             </LinkButton>
           </li>
-          <li>
+          <li class="theme-menu-item">
             {
               SITE.lightAndDarkMode && (
                 <button
-                  id="theme-btn"
-                  class="focus-outline"
+                  class="theme-btn focus-outline"
                   title="Toggles light & dark"
                   aria-label="auto"
                   aria-live="polite"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" id="moon-svg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="moon-svg">
                     <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z" />
                   </svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" id="sun-svg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="sun-svg">
                     <path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.993c1.658 0 3.007 1.349 3.007 3.007S13.658 15.007 12 15.007 8.993 13.658 8.993 12 10.342 8.993 12 8.993zM10.998 19h2v3h-2zm0-17h2v3h-2zm-9 9h3v2h-3zm17 0h3v2h-3zM4.219 18.363l2.12-2.122 1.415 1.414-2.12 2.122zM16.24 6.344l2.122-2.122 1.414 1.414-2.122 2.122zM6.342 7.759 4.22 5.637l1.415-1.414 2.12 2.122zm13.434 10.605-1.414 1.414-2.122-2.122 1.414-1.414z" />
                   </svg>
                 </button>
@@ -95,31 +135,52 @@ const { activeNav } = Astro.props;
       </nav>
     </div>
   </div>
-  <Hr />
 </header>
 
 <style>
   #skip-to-content {
     @apply absolute -top-full left-16 z-50 bg-skin-accent px-3 py-2 text-skin-inverted transition-all focus:top-4;
   }
+
+  header {
+    @apply sticky top-0 z-40;
+  }
   .nav-container {
-    @apply mx-auto flex max-w-3xl flex-col items-center justify-between sm:flex-row;
+    @apply mx-auto max-w-3xl px-4 pt-3 sm:pt-4;
   }
   .top-nav-wrap {
-    @apply relative flex w-full flex-col items-start gap-1 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:py-8;
+    @apply relative flex w-full flex-col gap-y-2 rounded-xl border border-skin-line bg-skin-fill/80 px-4 py-3 shadow-md backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:gap-y-0 sm:px-6 sm:py-4;
+  }
+  .top-row {
+    @apply relative flex w-full items-center justify-center sm:w-auto sm:justify-start;
   }
   .logo {
-    @apply py-1 text-xl font-semibold sm:text-2xl;
+    @apply whitespace-nowrap py-1 text-lg font-semibold sm:text-2xl;
+  }
+
+  .hamburger-menu {
+    @apply absolute left-0 top-1/2 -translate-y-1/2 p-1 sm:hidden;
+  }
+  .hamburger-menu svg {
+    @apply h-6 w-6 scale-110 fill-transparent stroke-current stroke-2;
+  }
+  .theme-btn-mobile {
+    @apply absolute right-0 top-1/2 -translate-y-1/2 sm:hidden;
+  }
+  .theme-btn-mobile svg {
+    @apply h-6 w-6 fill-skin-base hover:fill-skin-accent;
   }
 
   nav {
-    @apply flex w-full flex-row flex-wrap items-center justify-center gap-x-1 gap-y-1 bg-skin-fill sm:ml-2 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-x-4;
-  }
-  nav ul {
-    @apply flex flex-wrap items-center justify-center gap-x-1 gap-y-1 sm:flex-nowrap sm:gap-x-5;
+    @apply w-full sm:w-auto;
   }
   nav ul li {
     @apply flex items-center justify-center;
+  }
+  /* Theme lives next to the title on mobile, so hide the menu copy there.
+     Needs class-level specificity to beat the scoped `nav ul li` rule. */
+  nav ul li.theme-menu-item {
+    @apply hidden sm:flex;
   }
   nav ul li a {
     @apply px-2 py-2 text-center font-medium hover:text-skin-accent sm:px-2 sm:py-1;
@@ -137,10 +198,32 @@ const { activeNav } = Astro.props;
   nav button svg {
     @apply h-6 w-6 fill-skin-base hover:fill-skin-accent;
   }
-  #theme-btn {
+  .theme-btn {
     @apply p-2 sm:p-1;
   }
-  #theme-btn svg {
+  .theme-btn svg {
     @apply scale-110 hover:rotate-12 sm:scale-100;
   }
 </style>
+
+<script>
+  function setupMobileMenu() {
+    const btn = document.querySelector<HTMLButtonElement>(".hamburger-menu");
+    const items = document.querySelector<HTMLUListElement>("#menu-items");
+    const menuIcon = document.querySelector("#menu-icon");
+    const closeIcon = document.querySelector("#close-icon");
+    if (!btn || !items) return;
+
+    btn.addEventListener("click", () => {
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!expanded));
+      btn.setAttribute("aria-label", expanded ? "Open Menu" : "Close Menu");
+      items.classList.toggle("hidden");
+      items.classList.toggle("flex");
+      menuIcon?.classList.toggle("display-none");
+      closeIcon?.classList.toggle("display-none");
+    });
+  }
+
+  document.addEventListener("astro:page-load", setupMobileMenu);
+</script>
