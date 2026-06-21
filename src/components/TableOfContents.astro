@@ -28,6 +28,7 @@ const toc = headings.filter(
                 data-toc-link
                 data-target={h.slug}
                 data-depth={h.depth}
+                aria-label={h.text}
               >
                 <span class="toc-text">{h.text}</span>
                 <span class="toc-dash" aria-hidden="true" />
