@@ -84,7 +84,7 @@ While many LinkedIn recruiters would have you think otherwise, DevOps isn’t kn
 
 ![devops](https://i.imgur.com/sx1CWq5.png)
 
-Not a method, or framework, or body of knowledge, or even ***shudders***a vendor platform.
+Not a method, or framework, or body of knowledge, or even ***shudders*** a vendor platform.
 
 DevOps is a philosophy of unifying development and Operations at the culture, practice, and tools levels to achieve accelerated and more frequent deployment of changes to production.
 
