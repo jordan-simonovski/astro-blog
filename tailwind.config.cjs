@@ -58,6 +58,7 @@ module.exports = {
     },
     fontFamily: {
       mono: ["var(--font-mono)", "monospace"],
+      content: ["var(--font-content)", "Georgia", "Cambria", "serif"],
     },
     // },
   },
