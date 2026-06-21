@@ -26,7 +26,9 @@ function setPreference() {
 function reflectPreference() {
   document.firstElementChild.setAttribute("data-theme", themeValue);
 
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeValue);
+  document
+    .querySelectorAll(".theme-btn")
+    .forEach(btn => btn.setAttribute("aria-label", themeValue));
 }
 
 // set early so no page flashes / CSS is made aware
@@ -37,11 +39,14 @@ window.onload = () => {
     // set on load so screen readers can get the latest value on the button
     reflectPreference();
 
-    // now this script can find and listen for clicks on the control
-    document.querySelector("#theme-btn")?.addEventListener("click", () => {
-      themeValue = themeValue === "light" ? "dark" : "light";
-      setPreference();
-    });
+    // now this script can find and listen for clicks on the control(s).
+    // Mobile and desktop each render their own button, hence querySelectorAll.
+    document.querySelectorAll(".theme-btn").forEach(btn =>
+      btn.addEventListener("click", () => {
+        themeValue = themeValue === "light" ? "dark" : "light";
+        setPreference();
+      })
+    );
   }
 
   setThemeFeature();

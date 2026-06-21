@@ -1,0 +1,337 @@
+---
+export interface Props {
+  articleSelector?: string;
+}
+
+const { articleSelector = "#article" } = Astro.props;
+---
+
+<div
+  class="lb"
+  data-lightbox
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+  aria-hidden="true"
+>
+  <div class="lb-backdrop" data-stage>
+    <img class="lb-img" data-img alt="" draggable="false" />
+  </div>
+  <div class="lb-toolbar" role="toolbar" aria-label="Image controls">
+    <button type="button" class="lb-btn" data-zoom-out aria-label="Zoom out">
+      &minus;
+    </button>
+    <span class="lb-pct" data-pct aria-live="polite">100%</span>
+    <button type="button" class="lb-btn" data-zoom-in aria-label="Zoom in">
+      &plus;
+    </button>
+    <button type="button" class="lb-btn lb-btn-text" data-reset>Reset</button>
+    <button
+      type="button"
+      class="lb-btn"
+      data-close
+      aria-label="Close image viewer"
+    >
+      &times;
+    </button>
+  </div>
+  <p class="lb-caption" data-caption></p>
+</div>
+
+<style>
+  .lb {
+    @apply fixed inset-0 z-[100] hidden;
+  }
+  .lb.is-open {
+    @apply block;
+  }
+  .lb-backdrop {
+    @apply absolute inset-0 flex items-center justify-center overflow-hidden;
+    background-color: rgba(0, 0, 0, 0.92);
+    touch-action: none;
+  }
+  .lb-img {
+    max-width: 96vw;
+    max-height: 92vh;
+    transform-origin: center center;
+    will-change: transform;
+    cursor: zoom-out;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .lb-img.is-zoomed {
+    cursor: grab;
+  }
+  .lb-img.is-panning {
+    cursor: grabbing;
+  }
+  .lb-toolbar {
+    @apply fixed right-3 top-3 flex items-center gap-2 rounded-md border border-skin-line p-1.5 text-skin-base shadow-md;
+    background-color: rgb(var(--color-fill));
+  }
+  .lb-btn {
+    @apply flex h-8 min-w-[2rem] items-center justify-center rounded border border-skin-line px-2 text-lg leading-none transition-colors hover:border-skin-accent hover:text-skin-accent;
+  }
+  .lb-btn-text {
+    @apply text-xs font-medium;
+  }
+  .lb-pct {
+    @apply min-w-[3.5rem] select-none text-center text-xs tabular-nums opacity-80;
+  }
+  .lb-caption {
+    @apply fixed inset-x-0 bottom-3 mx-auto max-w-2xl px-4 text-center text-sm text-skin-base opacity-80;
+  }
+  .lb-caption:empty {
+    @apply hidden;
+  }
+</style>
+
+<script is:inline define:vars={{ articleSelector }}>
+  (() => {
+    // A fresh page load is never "open"; clear any scroll lock left over from
+    // navigating away (view transitions swap <body> but keep <html>).
+    document.documentElement.classList.remove("lb-open");
+
+    const root = document.querySelector("[data-lightbox]");
+    const article = document.querySelector(articleSelector);
+    if (!root || !article) return;
+
+    const stage = root.querySelector("[data-stage]");
+    const img = root.querySelector("[data-img]");
+    const pctEl = root.querySelector("[data-pct]");
+    const captionEl = root.querySelector("[data-caption]");
+
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 8;
+    const STEP = 1.4;
+
+    let scale = 1;
+    let tx = 0;
+    let ty = 0;
+    let baseW = 0;
+    let baseH = 0;
+    let lastFocused = null;
+
+    // Active pointers for unified mouse/touch panning + pinch-zoom.
+    const pointers = new Map();
+    let panLast = null;
+    let pinchPrevDist = 0;
+    let pinchPrevMid = null;
+    let moved = false;
+    let lastTap = 0;
+
+    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+
+    const clampPan = () => {
+      // Keep the scaled image from drifting entirely out of view.
+      const maxX = Math.max(0, (baseW * scale - window.innerWidth) / 2 + 40);
+      const maxY = Math.max(0, (baseH * scale - window.innerHeight) / 2 + 40);
+      tx = clamp(tx, -maxX, maxX);
+      ty = clamp(ty, -maxY, maxY);
+    };
+
+    const apply = () => {
+      if (scale <= MIN_SCALE + 0.001) {
+        scale = MIN_SCALE;
+        tx = 0;
+        ty = 0;
+      }
+      clampPan();
+      img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      img.classList.toggle("is-zoomed", scale > MIN_SCALE);
+      if (pctEl) pctEl.textContent = `${Math.round(scale * 100)}%`;
+    };
+
+    // Zoom toward a viewport point so it stays fixed under the cursor/fingers.
+    const zoomTo = (target, px, py) => {
+      const next = clamp(target, MIN_SCALE, MAX_SCALE);
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      const f = next / scale;
+      tx = (px - cx) * (1 - f) + tx * f;
+      ty = (py - cy) * (1 - f) + ty * f;
+      scale = next;
+      apply();
+    };
+
+    const measureBase = () => {
+      const prev = img.style.transform;
+      img.style.transform = "none";
+      const rect = img.getBoundingClientRect();
+      baseW = rect.width;
+      baseH = rect.height;
+      img.style.transform = prev;
+    };
+
+    const open = source => {
+      lastFocused = document.activeElement;
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      img.src = source.currentSrc || source.src;
+      const alt = source.getAttribute("alt") || "";
+      img.alt = alt;
+      if (captionEl) captionEl.textContent = alt;
+
+      const ready = () => {
+        measureBase();
+        apply();
+      };
+      if (img.complete && img.naturalWidth) ready();
+      else img.addEventListener("load", ready, { once: true });
+
+      root.classList.add("is-open");
+      root.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("lb-open");
+      document.addEventListener("keydown", onKeydown);
+      const closeBtn = root.querySelector("[data-close]");
+      if (closeBtn) closeBtn.focus();
+    };
+
+    const close = () => {
+      root.classList.remove("is-open");
+      root.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("lb-open");
+      document.removeEventListener("keydown", onKeydown);
+      pointers.clear();
+      panLast = null;
+      pinchPrevDist = 0;
+      img.classList.remove("is-panning");
+      if (lastFocused && typeof lastFocused.focus === "function") {
+        lastFocused.focus();
+      }
+    };
+
+    const onKeydown = e => {
+      if (e.key === "Escape") close();
+      else if (e.key === "+" || e.key === "=") zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2);
+      else if (e.key === "-" || e.key === "_") zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2);
+      else if (e.key === "0") { scale = 1; apply(); }
+    };
+
+    // --- Open triggers: every content image becomes clickable. ---
+    article.querySelectorAll("img").forEach(el => {
+      if (el.closest("a")) return; // linked images keep their link
+      el.style.cursor = "zoom-in";
+      el.addEventListener("click", e => {
+        e.preventDefault();
+        open(el);
+      });
+    });
+
+    // --- Toolbar controls ---
+    root.querySelector("[data-zoom-in]")?.addEventListener("click", () =>
+      zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2)
+    );
+    root.querySelector("[data-zoom-out]")?.addEventListener("click", () =>
+      zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2)
+    );
+    root.querySelector("[data-reset]")?.addEventListener("click", () => {
+      scale = 1;
+      apply();
+    });
+    root.querySelectorAll("[data-close]").forEach(btn =>
+      btn.addEventListener("click", close)
+    );
+
+    // --- Wheel / trackpad zoom toward cursor ---
+    stage.addEventListener(
+      "wheel",
+      e => {
+        e.preventDefault();
+        const factor = Math.exp(-e.deltaY * 0.0015);
+        zoomTo(scale * factor, e.clientX, e.clientY);
+      },
+      { passive: false }
+    );
+
+    // --- Pointer panning + pinch zoom ---
+    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+    stage.addEventListener("pointerdown", e => {
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      stage.setPointerCapture(e.pointerId);
+      moved = false;
+      if (pointers.size === 1) {
+        panLast = { x: e.clientX, y: e.clientY };
+      } else if (pointers.size === 2) {
+        const pts = [...pointers.values()];
+        pinchPrevDist = dist(pts[0], pts[1]);
+        pinchPrevMid = mid(pts[0], pts[1]);
+        panLast = null;
+      }
+    });
+
+    stage.addEventListener("pointermove", e => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size >= 2) {
+        const pts = [...pointers.values()];
+        const d = dist(pts[0], pts[1]);
+        const m = mid(pts[0], pts[1]);
+        if (pinchPrevDist > 0) {
+          zoomTo(scale * (d / pinchPrevDist), m.x, m.y);
+          if (pinchPrevMid) {
+            tx += m.x - pinchPrevMid.x;
+            ty += m.y - pinchPrevMid.y;
+            apply();
+          }
+        }
+        pinchPrevDist = d;
+        pinchPrevMid = m;
+        moved = true;
+        return;
+      }
+
+      if (panLast && scale > MIN_SCALE) {
+        tx += e.clientX - panLast.x;
+        ty += e.clientY - panLast.y;
+        panLast = { x: e.clientX, y: e.clientY };
+        img.classList.add("is-panning");
+        moved = true;
+        apply();
+      }
+    });
+
+    const endPointer = e => {
+      pointers.delete(e.pointerId);
+      img.classList.remove("is-panning");
+      if (pointers.size < 2) {
+        pinchPrevDist = 0;
+        pinchPrevMid = null;
+      }
+      if (pointers.size === 1) {
+        const p = [...pointers.values()][0];
+        panLast = { x: p.x, y: p.y };
+      } else if (pointers.size === 0) {
+        panLast = null;
+      }
+    };
+    stage.addEventListener("pointerup", endPointer);
+    stage.addEventListener("pointercancel", endPointer);
+
+    // --- Click empty area to close; double-tap/click to toggle zoom ---
+    stage.addEventListener("click", e => {
+      if (moved) return;
+      if (e.target !== img) {
+        close();
+        return;
+      }
+      const now = Date.now();
+      if (now - lastTap < 300) {
+        // double interaction: toggle between fit and 2.5x at the point
+        if (scale > MIN_SCALE) {
+          scale = 1;
+          apply();
+        } else {
+          zoomTo(2.5, e.clientX, e.clientY);
+        }
+        lastTap = 0;
+      } else {
+        lastTap = now;
+      }
+    });
+  })();
+</script>
