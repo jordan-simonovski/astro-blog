@@ -1,6 +1,7 @@
 ---
 import { SITE } from "@config";
 import { ClientRouter } from "astro:transitions";
+import { Font } from "astro:assets";
 import "@styles/base.css";
 
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -36,7 +37,11 @@ const socialImageAlt = `${SITE.author} social preview image`;
 // Derive the MIME type from the file extension so consumers (Slack, Facebook)
 // don't have to guess. Animated GIF / WebP are intentionally avoided because
 // LinkedIn, Facebook, X and Slack do not render them reliably as og:image.
-const ogImageExt = socialImageURL.split(/[?#]/)[0].split(".").pop()?.toLowerCase();
+const ogImageExt = socialImageURL
+  .split(/[?#]/)[0]
+  .split(".")
+  .pop()
+  ?.toLowerCase();
 const ogImageType =
   ogImageExt === "jpg" || ogImageExt === "jpeg"
     ? "image/jpeg"
@@ -51,7 +56,7 @@ const ogImageType =
 const isHome = Astro.url.pathname === "/";
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -75,8 +80,16 @@ const isHome = Astro.url.pathname === "/";
     <meta property="og:image" content={socialImageURL} />
     <meta property="og:image:secure_url" content={socialImageURL} />
     {ogImageType && <meta property="og:image:type" content={ogImageType} />}
-    {ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
-    {ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
+    {
+      ogImageWidth && (
+        <meta property="og:image:width" content={String(ogImageWidth)} />
+      )
+    }
+    {
+      ogImageHeight && (
+        <meta property="og:image:height" content={String(ogImageHeight)} />
+      )
+    }
     <meta property="og:image:alt" content={socialImageAlt} />
 
     <!-- Twitter -->
@@ -88,13 +101,8 @@ const isHome = Astro.url.pathname === "/";
     {!isHome && <meta property="twitter:label1" content="Reading Time" />}
     {!isHome && <meta property="twitter:data1" content={readingTime} />}
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Self-hosted IBM Plex Mono via Astro's Fonts API -->
+    <Font cssVariable="--font-mono" preload />
 
     {
       // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,

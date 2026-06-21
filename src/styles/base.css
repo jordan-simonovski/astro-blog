@@ -96,13 +96,24 @@
     padding: 0 !important;
   }
 
+  /* Anchor jumps (e.g. the table-of-contents navigator) clear the sticky header. */
+  #article :is(h2, h3, h4) {
+    scroll-margin-top: 6rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   /* ===== scrollbar ===== */
   html {
     overflow-y: scroll;
   }
 
-  /* Lock page scroll while the image lightbox is open. */
-  html.lb-open {
+  /* Lock page scroll while the image lightbox or TOC sheet is open. */
+  html.lb-open,
+  html.toc-sheet-open {
     overflow: hidden;
   }
 

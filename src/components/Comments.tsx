@@ -27,20 +27,25 @@ export default function Comments() {
     return () => observer.disconnect();
   }, []);
 
+  // Sized wrapper gives the `client:visible` island a non-zero SSR box to
+  // observe; without it the intersection observer has nothing to trigger on and
+  // giscus never hydrates.
   return (
-    <Giscus
-      id="comments"
-      repo={GISCUS.repo}
-      repoId={GISCUS.repoId}
-      category={GISCUS.category}
-      categoryId={GISCUS.categoryId}
-      mapping={GISCUS.mapping}
-      reactionsEnabled={GISCUS.reactionsEnabled}
-      emitMetadata="0"
-      inputPosition={GISCUS.inputPosition}
-      theme={theme}
-      lang={GISCUS.lang}
-      loading="lazy"
-    />
+    <div className="giscus-wrapper min-h-[148px]">
+      <Giscus
+        id="comments"
+        repo={GISCUS.repo}
+        repoId={GISCUS.repoId}
+        category={GISCUS.category}
+        categoryId={GISCUS.categoryId}
+        mapping={GISCUS.mapping}
+        reactionsEnabled={GISCUS.reactionsEnabled}
+        emitMetadata="0"
+        inputPosition={GISCUS.inputPosition}
+        theme={theme}
+        lang={GISCUS.lang}
+        loading="lazy"
+      />
+    </div>
   );
 }

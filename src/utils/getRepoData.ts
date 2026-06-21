@@ -14,6 +14,18 @@ export interface RepoData extends RepoRef {
   degraded: boolean;
 }
 
+/** Subset of the GitHub repo API response we actually read. */
+interface GitHubRepoJson {
+  full_name?: string;
+  description?: string | null;
+  language?: string | null;
+  stargazers_count?: number;
+  forks_count?: number;
+  html_url?: string;
+  fork?: boolean;
+  parent?: GitHubRepoJson | null;
+}
+
 const cache = new Map<string, Promise<RepoData>>();
 
 function degraded(repo: string): RepoData {
@@ -29,7 +41,7 @@ function degraded(repo: string): RepoData {
   };
 }
 
-function toRef(json: any, fallbackName: string): RepoRef {
+function toRef(json: GitHubRepoJson, fallbackName: string): RepoRef {
   return {
     fullName: json?.full_name ?? fallbackName,
     description: json?.description ?? null,
@@ -64,7 +76,7 @@ async function fetchRepoData(repo: string): Promise<RepoData> {
     return degraded(repo);
   }
 
-  const json = await res.json();
+  const json = (await res.json()) as GitHubRepoJson;
   return {
     ...toRef(json, repo),
     parent: json.fork && json.parent ? toRef(json.parent, repo) : null,

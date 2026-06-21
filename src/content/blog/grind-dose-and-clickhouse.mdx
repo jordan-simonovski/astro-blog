@@ -11,9 +11,10 @@ tags:
   - coffee
 featured: true
 draft: false
---- 
+---
 
 import RepoCard from "@components/RepoCard.astro";
+import Figure from "@components/Figure.astro";
 
 Last time I bolted OpenTelemetry onto my espresso machine and called it a tiny
 industrial process worth instrumenting. The signals were good. Gauges for the
@@ -23,9 +24,9 @@ clever bits. Dosage and grind size changes, so I needed a way of making that dyn
 
 As nice as it is to have all of these pretty graphs showing me things, I really did need
 a way to easily understand what I can improve. I know what channeling looks like when I pull a shot,
-but I still figured that it'd be fun to just add one more thing. 
+but I still figured that it'd be fun to just add one more thing.
 
-So this is the follow-up, in four parts: the grind-and-dose UX that make it easy to see what the settings are at 
+So this is the follow-up, in four parts: the grind-and-dose UX that make it easy to see what the settings are at
 a glance as well as set them, a custom OpenTelemetry Collector running in Home Assistant
 that funnels both the Gaggia and the rest of my house into ClickHouse, an
 export-path rework that makes the shot data fine-grained enough to trust, and an
@@ -35,8 +36,8 @@ wrong.
 ## Part one: the machine now knows what a grinder is
 
 I figured I'd add `coffee.grind.level`, `coffee.dose.weight_g` and
-`coffee.brew.ratio`. Brew ratio is obviously a pretty important metric to look at 
-when brewing coffee. Because I have a shitty analog grinder, though, there's no way to feed the 
+`coffee.brew.ratio`. Brew ratio is obviously a pretty important metric to look at
+when brewing coffee. Because I have a shitty analog grinder, though, there's no way to feed the
 grind size or dose weight into the machine. You'd dial the grinder on the grinder, scoop a
 dose onto a scale, and the machine knew none of it. The most important inputs to
 a shot were the two it couldn't see.
@@ -66,20 +67,20 @@ ratio, `1:2.0` and friends, computed from the target yield over the dose.
 The same controls exist in the Web UI, because squinting at a 2.4-inch screen
 is genuinely not a good time. There's one source of truth, though. The grinder
 table lives in the firmware (`Grinders.h`) and is mirrored byte-for-byte in the
-Web UI (`grinders.js`), same order so the index *is* the id. Pick "Niche Zero"
+Web UI (`grinders.js`), same order so the index _is_ the id. Pick "Niche Zero"
 in the browser, the firmware agrees on what "Niche Zero" means.
 
 The buttons aren't the point. The numbers I was already
 exporting are now real, set-on-the-device values instead of guesses. The grinder
 model rides along as a resource attribute (`coffee.grinder.model`), the grind
 level and dose land on every shot span, and while a shot pulls, the live gauges
-get tagged with the current grind level, phase, and a `coffee.shot.id` that *is*
+get tagged with the current grind level, phase, and a `coffee.shot.id` that _is_
 the shot's trace id. That last one is the join key: every boiler-temperature and
 pump-flow sample taken mid-shot carries the same id as the span it belongs to, so
 a gauge reading and the shot trace are one `WHERE coffee.shot.id = …` apart.
 "Too sour" finally has a
 grind setting attached to it, and "ran too much water through too little coffee"
-is now a ratio I can sort by. Given the relatively low volume of data and the fact that 
+is now a ratio I can sort by. Given the relatively low volume of data and the fact that
 I was feeding this into an OLAP database, cardinality wasn't a concern.
 
 ## Part two: where all the data actually goes
@@ -108,7 +109,7 @@ and one component that isn't on the menu: a small in-repo Go MQTT receiver.
 ```yaml
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver
-  - gomod: github.com/local/mqttreceiver v0.0.0   # in-repo, replaced locally
+  - gomod: github.com/local/mqttreceiver v0.0.0 # in-repo, replaced locally
 exporters:
   - gomod: .../exporter/clickhouseexporter
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter
@@ -133,7 +134,12 @@ so you can easily consume any updates that I make.
 I did have an AppArmor profile configured, but I need to spend a bit more time poking holes in it
 in it to get it working properly.
 
-![The Home Assistant add-on screen with the custom OpenTelemetry Collector ("Custom OpenTelemetry Collector with an MQTT receiver and multi-format") running alongside Grafana, InfluxDB and the rest](/assets/coffee2/otel-home-assistant.png)
+<Figure
+  src="coffee2/otel-home-assistant.png"
+  alt={
+    'The Home Assistant add-on screen with the custom OpenTelemetry Collector ("Custom OpenTelemetry Collector with an MQTT receiver and multi-format") running alongside Grafana, InfluxDB and the rest'
+  }
+/>
 
 ### Two streams, one database
 
@@ -162,8 +168,8 @@ for traces, and just writes to it.
 The high-cardinality part is what makes `coffee.shot.id` safe to attach in the
 first place. On a traditional TSDB, every distinct attribute value forks a new
 time series, so stamping a unique id onto a metric is the classic way to blow up
-your active series count and your bill. ClickHouse doesn't play that game: attributes 
-are just columns in a `Map`, a new shot id is a few more rows and not a new series, 
+your active series count and your bill. ClickHouse doesn't play that game: attributes
+are just columns in a `Map`, a new shot id is a few more rows and not a new series,
 and the engine is built to filter and group over exactly that kind of wide, high-cardinality data.
 The id is one more value in a wide event, and the wide event
 is what OLAP was made for.
@@ -182,14 +188,14 @@ over. Here both are just rows with a timestamp, which is the entire point.
 Metrics exported on a fixed interval, ten seconds by default, and each tick shipped exactly one reading per
 gauge, whatever the latest value happened to be at that instant. For the boiler
 temperature idling around a setpoint, fine. For the scale weight during a shot,
-useless. 
+useless.
 
 A shot runs twenty-five to forty seconds and the weight ramps the whole
 way; three or four samples don't describe that curve, they caricature it. I was
 sorting shots by `final_weight_g` and I wasn't getting a full picture of what was happening.
 
-The honest fix is to stop conflating two different things. How often I *sample* a
-signal and how often I *ship* it have nothing to do with each other. So the
+The honest fix is to stop conflating two different things. How often I _sample_ a
+signal and how often I _ship_ it have nothing to do with each other. So the
 export task now reads the live gauges every 500ms into a small ring buffer and
 flushes the whole batch every ten seconds. OTLP gauges happily carry many data
 points, each with its own timestamp, so one POST now holds twenty timestamped
@@ -216,7 +222,7 @@ build. I didn't want it.
 A way to optimise this is to keep the struct small (eight points per gauge)
 and emit the twenty-point batch as several `ResourceMetrics` messages
 concatenated into one request body. This works because of a quiet property of
-protobuf: concatenating two serialised messages of the same type *is* a valid
+protobuf: concatenating two serialised messages of the same type _is_ a valid
 serialised message, with repeated fields appended. So three small encodes
 back-to-back in the buffer decode, at the collector, as one request with three
 `ResourceMetrics`. The cumulative counters are written once, in the first chunk,
@@ -257,7 +263,12 @@ coffee authority, and its whole job is to pull my shot traces and metrics out of
 ClickHouse and tell me, in the dry voice of a man who has tasted more espresso
 than is wise, how I ruined breakfast.
 
-![LibreChat agent config for "Hoff Jamesman": name, description "Rates my coffee based on metrics and traces from my Gaggimate", and the ROLE instructions wiring it to the ClickHouse MCP tools](/assets/coffee2/agent-config.jpg)
+<Figure
+  src="coffee2/agent-config.jpg"
+  alt={
+    'LibreChat agent config for "Hoff Jamesman": name, description "Rates my coffee based on metrics and traces from my Gaggimate", and the ROLE instructions wiring it to the ClickHouse MCP tools'
+  }
+/>
 
 The role prompt is short: you are a coffee analyst for a GaggiMate, you query
 ClickHouse read-only over MCP, you turn what you find into a verdict the user can
@@ -313,7 +324,7 @@ string, so cast with `toFloat64OrNull(...)` before doing maths. The same is true
 **Always start a fresh investigation by confirming the schema** rather than trusting the
 names below blindly — the exporter can suffix tables differently and the firmware evolves.
 Run `list_tables`, `DESCRIBE` the tables, and `SELECT DISTINCT MetricName FROM
-otel_metrics_gauge` to see what is actually present (coffee *and* house metrics share it).
+otel_metrics_gauge` to see what is actually present (coffee _and_ house metrics share it).
 
 ## The data
 
@@ -329,23 +340,23 @@ ramp, hold, decline). Useful columns: `Timestamp` (span start, UTC), `Duration`
 
 Shot-level attribute keys in `SpanAttributes` (all strings):
 
-| Key | Meaning |
-| --- | --- |
-| `coffee.shot.duration_ms` | total shot time, ms |
-| `coffee.shot.peak_pressure_bar` | peak pressure |
-| `coffee.shot.peak_flow_mls` | peak flow, ml/s |
-| `coffee.shot.final_weight_g` | final weight — **flow-estimated** on volumetric shots (see weight section) |
-| `coffee.shot.volumetric` | whether it was a volumetric (weight-targeted) shot |
-| `coffee.shot.target_temperature_c` | target brew temp |
-| `coffee.shot.time_to_first_flow_ms` | time until liquid crosses the puck |
-| `coffee.dose.weight_g` | dose in, grams (now set on the device) |
-| `coffee.brew.ratio` | target brew ratio (yield ÷ dose), e.g. "1:2.0" |
-| `coffee.grind.level` | grinder setting, snapped to that grinder's own step |
-| `coffee.pressure.avg_bar` / `coffee.flow.avg_mls` | shot averages |
-| `coffee.pressure.adherence_bar` / `coffee.flow.adherence_mls` | mean abs error vs the profile target |
-| `coffee.temp.avg_c` / `coffee.temp.stability_c` | mean temp / peak-to-trough swing |
-| `coffee.puck.avg_resistance` / `coffee.puck.resistance_cv` | puck resistance and its coefficient of variation |
-| `coffee.profile.name` / `coffee.profile.type` | brew profile used |
+| Key                                                           | Meaning                                                                    |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `coffee.shot.duration_ms`                                     | total shot time, ms                                                        |
+| `coffee.shot.peak_pressure_bar`                               | peak pressure                                                              |
+| `coffee.shot.peak_flow_mls`                                   | peak flow, ml/s                                                            |
+| `coffee.shot.final_weight_g`                                  | final weight — **flow-estimated** on volumetric shots (see weight section) |
+| `coffee.shot.volumetric`                                      | whether it was a volumetric (weight-targeted) shot                         |
+| `coffee.shot.target_temperature_c`                            | target brew temp                                                           |
+| `coffee.shot.time_to_first_flow_ms`                           | time until liquid crosses the puck                                         |
+| `coffee.dose.weight_g`                                        | dose in, grams (now set on the device)                                     |
+| `coffee.brew.ratio`                                           | target brew ratio (yield ÷ dose), e.g. "1:2.0"                             |
+| `coffee.grind.level`                                          | grinder setting, snapped to that grinder's own step                        |
+| `coffee.pressure.avg_bar` / `coffee.flow.avg_mls`             | shot averages                                                              |
+| `coffee.pressure.adherence_bar` / `coffee.flow.adherence_mls` | mean abs error vs the profile target                                       |
+| `coffee.temp.avg_c` / `coffee.temp.stability_c`               | mean temp / peak-to-trough swing                                           |
+| `coffee.puck.avg_resistance` / `coffee.puck.resistance_cv`    | puck resistance and its coefficient of variation                           |
+| `coffee.profile.name` / `coffee.profile.type`                 | brew profile used                                                          |
 
 Phase (child) spans carry `coffee.phase.avg_pressure_bar` and `coffee.phase.avg_flow_mls`.
 
@@ -420,7 +431,7 @@ Rules:
   the idle offset as the start of the shot**: use it as t0 when aligning a live curve, and
   you can detect shots straight from the scale stream by finding these tare-to-zero
   transitions if a span is ever missing.
-- **Final weight** is the last *sane* reading during the shot — filter implausible values,
+- **Final weight** is the last _sane_ reading during the shot — filter implausible values,
   then `argMax(Value, TimeUnix)`. See queries 8 and 9.
 
 ## Grind & dose — the input variables
@@ -527,14 +538,18 @@ outliers, and a coffee×house join. Adapt names to whatever `DESCRIBE` actually 
 - If a query returns nothing, say so plainly and check the schema before guessing — don't
   fabricate a shot.
 - Report units. "9.1" is meaningless; "9.1 bar peak" is a reading.
-
 ```
 
 </details>
 
 With the skill loaded, the agent stops describing the shot and starts diagnosing it.
 
-![LibreChat chat screen for the Hoff Jamesman agent, "Rates my coffee based on metrics and traces from my Gaggimate", with an empty message box ready for a shot to analyse](/assets/coffee2/agent-chat-screen.jpg)
+<Figure
+  src="coffee2/agent-chat-screen.jpg"
+  alt={
+    'LibreChat chat screen for the Hoff Jamesman agent, "Rates my coffee based on metrics and traces from my Gaggimate", with an empty message box ready for a shot to analyse'
+  }
+/>
 
 ### What it actually says
 
@@ -542,7 +557,12 @@ I ask it to rate my last shot. It queries the traces table for the most recent
 `shot` span, pulls the matching gauge samples, and comes back with a score and a
 breakdown:
 
-![Agent verdict for "Shot 1 — 05:12:46 AEST": 7/10, extraction 51.5s, 21g in to 21.7g out (1:1.03 achieved vs 1:2.60 target), channelling CV 1.85, temp swing 3.79C, grind 5.6 on a Varia VS3, with a fix to let the shot run to the target yield](/assets/coffee2/shot-analysis.jpg)
+<Figure
+  src="coffee2/shot-analysis.jpg"
+  alt={
+    'Agent verdict for "Shot 1 — 05:12:46 AEST": 7/10, extraction 51.5s, 21g in to 21.7g out (1:1.03 achieved vs 1:2.60 target), channelling CV 1.85, temp swing 3.79C, grind 5.6 on a Varia VS3, with a fix to let the shot run to the target yield'
+  }
+/>
 
 Every number in there is a real column it pulled; nothing's invented. It caught that I cut the
 shot at a 1:1 ratio when I'd asked for 1:2.6, noticed the puck CV was actually my
@@ -551,7 +571,12 @@ best in the dataset, and flagged a 3.79C boiler swing as the thing to fix next.
 The part that sold me was when I asked why my second shot of the morning is always
 worse than the first. It went looking across shots rather than at one:
 
-![Agent diagnosis explaining the most likely cause is a wet portafilter basket from the previous shot changing how grounds settle, with fixes (dry the basket, flush the group, do a WDT stir) and a TL;DR that the CV gap between first and second shot is a wet basket, not boiler recovery](/assets/coffee2/portafilter-findings.jpg)
+<Figure
+  src="coffee2/portafilter-findings.jpg"
+  alt={
+    "Agent diagnosis explaining the most likely cause is a wet portafilter basket from the previous shot changing how grounds settle, with fixes (dry the basket, flush the group, do a WDT stir) and a TL;DR that the CV gap between first and second shot is a wet basket, not boiler recovery"
+  }
+/>
 
 Wet basket on the second dose, not thermal recovery. That's a hypothesis I can go
 test, drawn from the spread of the CV numbers across the dataset rather than one
@@ -565,11 +590,21 @@ numbers that back it, and the fix. The boiler-thermal story and the wet-basket
 story land as two proper sections I can come back to, instead of scrolling for the
 message where it figured it out.
 
-![A Notion page the agent wrote up: "Finding 1 — Boiler Thermal Behaviour" comparing shot 1 and shot 2 boiler curves pulled via Attributes['coffee.shot.id'], and "Finding 2 — Wet Basket / Puck Formation" using time_to_first_flow to argue the second puck channels, each with a Why and a Fix](/assets/coffee2/notion-page-with-findings.png)
+<Figure
+  src="coffee2/notion-page-with-findings.png"
+  alt={
+    'A Notion page the agent wrote up: "Finding 1 — Boiler Thermal Behaviour" comparing shot 1 and shot 2 boiler curves pulled via Attributes[\'coffee.shot.id\'], and "Finding 2 — Wet Basket / Puck Formation" using time_to_first_flow to argue the second puck channels, each with a Why and a Fix'
+  }
+/>
 
 I am aware of what I've built here.
 
-![A black dad cap embroidered with "ever since i was young i wanted to transform unstructured data into actionable business insights"](/assets/coffee2/meme-insights.jpg)
+<Figure
+  src="coffee2/meme-insights.jpg"
+  alt={
+    'A black dad cap embroidered with "ever since i was young i wanted to transform unstructured data into actionable business insights"'
+  }
+/>
 
 ## What I've got now
 
@@ -598,5 +633,4 @@ I think I'm beginning to understand that I've been the problem this whole time.
 
 <RepoCard repo="jordan-simonovski/ha-otelcol" />
 
-
-*Previously: [I Put OpenTelemetry in My Espresso Machine (and You Can Too)](opentelemetry-in-everything.md).*
+_Previously: [I Put OpenTelemetry in My Espresso Machine (and You Can Too)](opentelemetry-in-everything.md)._

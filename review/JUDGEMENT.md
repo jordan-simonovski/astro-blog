@@ -6,6 +6,7 @@ catalogue; these rules govern when a pattern is actually worth flagging.
 ## Scope
 
 Review prose only. Ignore everything inside:
+
 - Fenced code blocks (```), inline code (backticks)
 - YAML frontmatter
 - Blockquotes that quote source material
@@ -19,6 +20,7 @@ and similar. None of that is prose. Do not flag it.
 ## Density over presence
 
 Any single trope used once is usually fine. Flag a trope only when:
+
 1. It is used repeatedly (three or more times for most patterns), OR
 2. It is one of the high-signal tells that is rarely acceptable even once:
    negative parallelism, "The X? A Y." rhetorical-question-answer, "Here's the
@@ -33,6 +35,7 @@ repeated patterns, cite each occurrence with its line.
 
 Jordan's voice has specific markers that are NOT violations and must be
 preserved untouched:
+
 - Profanity and dry self-deprecation
 - Parenthetical asides
 - Strong opinions stated flatly

@@ -12,24 +12,23 @@ featured: false
 draft: false
 ---
 
-
 I know, I probably offended some people by saying that I don’t particularly agree with configuration management scripts being used for infrastructure provisioning, middleware installations, and code deployment. That’s because I see certain places where this could potentially fit, but in others adds complexity.
 
 ![offence taken](https://cdn-images-1.medium.com/max/1600/1*XxOLwjH2eu13sATwysIqsA.gif)
 
 To begin, I wanted to run over a couple of scenarios of using static infrastructure, and configuration management tools the wrong way.
 
-### Let’s Run over a Couple of Scenarios
+## Let’s Run over a Couple of Scenarios
 
 If we’re to run this design over a couple of scenarios we can easily see where this might all go wrong.
 
-#### Scenario #1:
+### Scenario #1
 
-It’s 2am. Your on-call person has just been paged with a severity one issue in production. An AWS availability zone has gone down due to a catastrophic power outage in their data centre. 
+It’s 2am. Your on-call person has just been paged with a severity one issue in production. An AWS availability zone has gone down due to a catastrophic power outage in their data centre.
 Your on-call person realises that they are now running on one server, and that server is beginning to get hit by a large number of customers who probably want to book last minute tickets to that concert everyone has been talking about. “_Shit, shit, shit. Where was that Ansible script to provision a new server and deploy the application?”_ they ask themselves.
 
-The on-call person manages to find the Jenkins job that deploys to these servers, and finds the source code which has been deployed directly from the Jenkins box and not stored on an artefact repository. It’ll have to do! 
-He then manually logs into the server and runs the app. _“What were the JVM options? Fuck it, we’re going with default!”_ he says and runs the app. The default spring profile is now pointing to a test database, and customer data will now be freely available to the QAs. Excellent. 
+The on-call person manages to find the Jenkins job that deploys to these servers, and finds the source code which has been deployed directly from the Jenkins box and not stored on an artefact repository. It’ll have to do!
+He then manually logs into the server and runs the app. _“What were the JVM options? Fuck it, we’re going with default!”_ he says and runs the app. The default spring profile is now pointing to a test database, and customer data will now be freely available to the QAs. Excellent.
 Now that the app is up and running, he needs to add it into the load balancer. “_Shit, which load balancer did this sit in?”_ The on-call guy now puts the new server in the load balancer and watches traffic even out.
 
 While he thinks he might have succeeded, 40 minutes have now passed, AWS restored their availability zone 15 minutes prior to that, and the server that was running on its own shut down.
@@ -38,12 +37,12 @@ While he thinks he might have succeeded, 40 minutes have now passed, AWS restore
 
 To add further insult, a server has been manually provisioned (running a script yourself doesn’t make it automated). This server was provisioned on a script which was 20 commits older than the server that had been originally provisioned. What’s the difference? Well, the new server is unsurprisingly running on an older AMI, no monitoring has been set up, and the hosts file wasn’t updated in all of this mess. Tomorrow, the development team will find themselves no being able to deploy to their second server in AZB because it no longer exists. I’d call this a complete an utter failure which has introduced instability, and has operationally regressed. If this server is to go down for whatever reason, nobody is going to know because there is no monitoring.
 
-#### Scenario #2:
+### Scenario #2
 
-Your team has just found out that the prod deployment SSH key has been sent to a partnering team via email (this happens more often than you’d think). It’s now safe to assume that this key is compromised, but you have no idea which servers it has been used on. You also have no idea which other keys might have been sent in an email. 
+Your team has just found out that the prod deployment SSH key has been sent to a partnering team via email (this happens more often than you’d think). It’s now safe to assume that this key is compromised, but you have no idea which servers it has been used on. You also have no idea which other keys might have been sent in an email.
 After raising this with management, they tell you that all of the keys in production will need to be replaced. This doesn’t seem too hard until you realise that you’re running 800 servers, and will also need the development teams to update the SSH keys that their deployment boxes use. This becomes a big, stupid, non-value adding task which takes teams weeks to complete while also not resolving the core problem.
 
-#### Scenario #3:
+### Scenario #3
 
 The smelly monkey vulnerability has just been announced, and all of your servers in production will need to be updated to the newest AWS AMI or manually patched.
 With the amount of servers running on AWS, patching this zero-day vulnerability will take weeks of planning and orchestration. This is mostly due to the fact that the organisation is operating with static infrastructure. There is another team altogether which will need to patch every server individually while having another representative from each application verify that the change has been successful and hasn’t broken their production server.
@@ -52,7 +51,7 @@ With the amount of servers running on AWS, patching this zero-day vulnerability 
 
 Working with these kinds of scenarios helped us determine what it was that we wanted to combat and change.
 
-### Working within the Constraints of the Organisation — Understanding Conway’s Law
+## Working within the Constraints of the Organisation — Understanding Conway’s Law
 
 ![conway's law](https://cdn-images-1.medium.com/max/1600/1*FvDN5AH15F8v3W2ylS3KkA.png)
 
@@ -63,17 +62,17 @@ Most organisations will take on a _command-and-control_ mindset, instead of an _
 
 As a result of this, you realise that you need to work within constraints at certain times, as you probably can’t have all of the things that you’d like. For instance, we ran into a few things that we had no power to change. This also affected the architecture of our app, but we didn’t let this stop us from building the system to be as resilient as it could be within its constraints. Some of our constraints were:
 
-*   **AMI Creation was owned by another team.** Since we didn’t have the power to create AMIs with our middleware installation on them, we needed to think of another way to replicate the same kind of functionality. We worked around this by using EBS Snapshots.
-*   **Networking was owned by another team.** This meant that using something like Route53 was out of the question since the organisation used another solution to expose services to the public. This affected our blue/green deployment strategy, but we decided to use static ELBs and do the blue/green deployment via an attach/detach of our AutoScaling Groups to our ELBs.
+- **AMI Creation was owned by another team.** Since we didn’t have the power to create AMIs with our middleware installation on them, we needed to think of another way to replicate the same kind of functionality. We worked around this by using EBS Snapshots.
+- **Networking was owned by another team.** This meant that using something like Route53 was out of the question since the organisation used another solution to expose services to the public. This affected our blue/green deployment strategy, but we decided to use static ELBs and do the blue/green deployment via an attach/detach of our AutoScaling Groups to our ELBs.
 
-Understanding the constraints of the organisation you are in really helps, especially in larger organisation. Consultants will usually come into an organisation promoting an architecture, deployment pattern, or a technology stack that isn’t feasible either due to the organisational structure, or the technical limitations that the organisation imposes. 
+Understanding the constraints of the organisation you are in really helps, especially in larger organisation. Consultants will usually come into an organisation promoting an architecture, deployment pattern, or a technology stack that isn’t feasible either due to the organisational structure, or the technical limitations that the organisation imposes.
 Spending time understanding the constraints of the organisation can be a tedious and time consuming effort, but ultimately pays off when designing a system.
 
-### Change Management
+## Change Management
 
 ![changes](https://cdn-images-1.medium.com/max/1600/1*PWIWIAwOX6k-4XDT5qWJTg.gif)
 
-Change management plays a very big part in any organisation. Now matter how good your implementation may be, and no matter how risk averse your new set of automation provides you, you’re not going to make very significant progress unless you get the Change Management Team involved in what you’re doing. 
+Change management plays a very big part in any organisation. Now matter how good your implementation may be, and no matter how risk averse your new set of automation provides you, you’re not going to make very significant progress unless you get the Change Management Team involved in what you’re doing.
 The philosophy of DevOps emphasises the need to minimise the batch sizes in your changes in order to minimise the risk that a particular change introduces (Continuous Delivery). However, what you’ll see in larger organisations is that changes are orchestrated by a larger committee or board which tries to ensure that a particular change will not affect other applications.
 
 That being said, while this board is able to see what the changes are that are being made, it still does not mean that a particular change will be successful. The mistake that most larger organisations make is that the approval that a Change Board gives ensures that a change will not break. So, when things do break, the assumption is that there aren’t enough risk controls in the change management process. And so, the extra controls are put in place, which increases the complexity of a change.
@@ -81,19 +80,19 @@ While this may seem like it may fix some problems associated with change, it als
 
 While this may not be the most fun part of any piece of work, you’ll need to spend some time with the Change Management team in order to understand why certain steps exist in the change management process in order for you to influence the process.
 
-**Understand the Change Management Process — **What are the risk controls that they’ve added into their process? Are you able to automate this in order to minimise the likelihood of a particular risk?
+**Understand the Change Management Process —**What are the risk controls that they’ve added into their process? Are you able to automate this in order to minimise the likelihood of a particular risk?
 
-**Understand what risks are being introduced with each manual step in the process — **Once you understand the risk controls, you’ll also be able to understand why they are there. A lot of the time, it’s to do with the risk associated with manual steps that teams make. This could be anything from schema changes in a database, to new servers being created in the cloud.
+**Understand what risks are being introduced with each manual step in the process —**Once you understand the risk controls, you’ll also be able to understand why they are there. A lot of the time, it’s to do with the risk associated with manual steps that teams make. This could be anything from schema changes in a database, to new servers being created in the cloud.
 
-**Automate as much as you can — **Now that you know what the risks are with certain steps in the process, you also know what you need to automate. This isn’t just about automating a certain thing to happen. You also need to automate the testing once that change has been applied, and the rollback if the change isn’t successful.
+**Automate as much as you can —**Now that you know what the risks are with certain steps in the process, you also know what you need to automate. This isn’t just about automating a certain thing to happen. You also need to automate the testing once that change has been applied, and the rollback if the change isn’t successful.
 
-**Define and Measure Failed Changes — **In most traditional organisations, IT teams making a change will potentially spend hours making that change. A lot of it is to do with the fact that during the testing of that change, something might have gone wrong, devs might have had to deploy a hotfix, or schema updates to a database were not successful. The team eventually does make the change after applying all of these extra changes on top of their initial change, and calls it a successful production release. I’d call this a failed change.
+**Define and Measure Failed Changes —**In most traditional organisations, IT teams making a change will potentially spend hours making that change. A lot of it is to do with the fact that during the testing of that change, something might have gone wrong, devs might have had to deploy a hotfix, or schema updates to a database were not successful. The team eventually does make the change after applying all of these extra changes on top of their initial change, and calls it a successful production release. I’d call this a failed change.
 
-**Make Failed Changes Visible — **In order to build trust, you need to have transparency over your work and what it is that your team is doing. Using metrics to measure the amount of failed changes you make is indicative of processes that you need to improve. Knowing why a change failed identifies what needs to be automated or improved.
+**Make Failed Changes Visible —**In order to build trust, you need to have transparency over your work and what it is that your team is doing. Using metrics to measure the amount of failed changes you make is indicative of processes that you need to improve. Knowing why a change failed identifies what needs to be automated or improved.
 
 Keeping the Change Board involved in these steps you’re taking in minimising risk end-to-end helps to build confidence in the team and the changes that the team is making. Being transparent with your failures helps the Change Board gain trust in your team. If your organisation has the concept of _pre-approved changes_ in the change process, find out what it is that you need to do to get to this point.
 
-### What did we Build?
+## What did we Build?
 
 We set out to not only build infrastructure, but also try to solve as many of the operational problems as we could within the constraints and deadlines that we had on the project.
 
@@ -101,10 +100,10 @@ We decided to use CloudFormation as a deployment tool. I’d love to hear your o
 
 One of the powerful things we found with CloudFormation was that we could script our deployments using AWS API commands. As part of our deployments we would:
 
-1.  Create a new AWS stack running the newest version of the app.
-2.  A smoke test would run on the app ensuring that it can hit all of it’s dependent service endpoints.
-3.  It would get attached to the ELB running the current production version of the app. This means that we are running 2 versions of our app at the same time (see [BlueGreenDeployment](https://martinfowler.com/bliki/BlueGreenDeployment.html)).
-4.  The old AutoScaling Group would be detached. The deletion of this stack would be a manual step in-case we need to roll back.
+1. Create a new AWS stack running the newest version of the app.
+2. A smoke test would run on the app ensuring that it can hit all of it’s dependent service endpoints.
+3. It would get attached to the ELB running the current production version of the app. This means that we are running 2 versions of our app at the same time (see [BlueGreenDeployment](https://martinfowler.com/bliki/BlueGreenDeployment.html)).
+4. The old AutoScaling Group would be detached. The deletion of this stack would be a manual step in-case we need to roll back.
 
 We used an AutoScaling Group to create our EC2s because we wanted to ensure that we weren’t pushing out any configuration, but were depending on our infrastructure to configure itself. We used CloudFormation to ensure that we were just defining what we wanted it to look like, and let AWS do the rest.
 
@@ -115,7 +114,7 @@ The only Ansible we ended up using was to create our EBS snapshots. We found Ans
 
 While this solution isn’t exactly _ideal_, as many of you would likely have more to your disposal when architecting your applications in the cloud. But it gives us a lot that we didn’t previously have before, which is a great start to getting more available.
 
-### So, What does this Give us?
+## So, What does this Give us?
 
 ![A whole new world](https://cdn-images-1.medium.com/max/1600/1*N51F_zvylKNaFx_vB68IhQ.gif)
 
@@ -133,7 +132,7 @@ Deployment being an API call means that the development team is in control of ho
 
 Monitoring criteria changes. Because our AutoScaling Group is now monitoring our CPU usage and using it to either scale out or scale in our infrastructure, we no longer need to monitor this per EC2\. Our ELBs also do health checks on particular pages, and use this to determine whether or not load is to be balanced to those EC2s. This means that one of our critical alerts now becomes “EC2 count in ELB”.
 
-### What Cultural Changes did we see in the team?
+## What Cultural Changes did we see in the team?
 
 When talking with the developers and telling them that we were going to work towards fully automated deployments from QA all the way to Prod, it seemed to pique a bit of interest.
 
@@ -147,7 +146,7 @@ We also saw discussions begin in the team about feedback loops of our deployment
 
 In our case, what we noticed was that the easier and more automated operational issues such as monitoring, deployment strategies, production outages and rollbacks became, the more willing the team was to enhance them. Being able to constantly tweak your monitoring to ensure that no one would be getting false positives greatly increases the criticality that someone perceives when a monitoring alert is actually triggered.
 
-### How will this battle win over The Organisation?
+## How will this battle win over The Organisation?
 
 If you work in an enterprise environment, you would have noticed that consultants will come in and give you a suggestion on what you could potentially be doing. Sometimes they even have a little demo to show off. Being able to actually achieve it within the organisation while also taking its constraints into consideration, you can win over a lot more people.
 
@@ -157,7 +156,7 @@ Keeping other teams that enforce constraints as well as involving management in 
 
 Have something great to show them. Maybe get approval to kill off a production server as part of your presentation and show off the resiliency of a system they already have running in production. The most powerful thing you can do is show them that this is possible, and that it’s already being done.
 
-### In Conclusion
+## In Conclusion
 
 Quite honestly, it doesn’t matter what kind of technological approach you take. We went with CloudFormation as it was our _path of least resistance._ It gave us the flexibility to approach deployments with our own set of tools, and it gave us the visibility we were missing with conventional configuration management tools.
 
@@ -169,11 +168,11 @@ Once your organisation is sold on the value that DevOps culture and practices br
 
 So, if you’re finding yourself in a similar position, you might want to do a couple of things before trying to sell the organisation on DevOps.
 
-1.  Map your dependencies. If your infrastructure hits multiple internal endpoints, it’s best to find this out ahead of time.
-2.  Form relationships with people who are in these teams. Taking them on this journey with you will help them understand the kind of work they need to drive in their teams.
-3.  Understand your constraints. You might not have certain things available to you such as Docker, or AMI creation, or full access to AWS services which lets you use Netflix OSS. Sometimes doing some of the hard work is necessary if you need to win people over in additional improvements you can make.
-4.  Take your team on this journey with you. In order to get buy-in from other teams, you’ll need buy-in from the rest of the team first. Ultimately, you want to be benefitting your team by giving them less to do.
-5.  Talk to other teams, and find out what their pain points are. Take this into consideration when architecting a solution. You want it to be easy enough for teams other than your own to pick up. Also, if you address some of their pain points directly, you’ve already won over some very important people.
+1. Map your dependencies. If your infrastructure hits multiple internal endpoints, it’s best to find this out ahead of time.
+2. Form relationships with people who are in these teams. Taking them on this journey with you will help them understand the kind of work they need to drive in their teams.
+3. Understand your constraints. You might not have certain things available to you such as Docker, or AMI creation, or full access to AWS services which lets you use Netflix OSS. Sometimes doing some of the hard work is necessary if you need to win people over in additional improvements you can make.
+4. Take your team on this journey with you. In order to get buy-in from other teams, you’ll need buy-in from the rest of the team first. Ultimately, you want to be benefitting your team by giving them less to do.
+5. Talk to other teams, and find out what their pain points are. Take this into consideration when architecting a solution. You want it to be easy enough for teams other than your own to pick up. Also, if you address some of their pain points directly, you’ve already won over some very important people.
 
 I hope these short ramblings were at least a bit informative for you. I’m not saying that this is essentially a surefire way to introduce DevOps to your organisation, but I think that I have at least given you a good place to start. Enterprise Organisations are a bit of a beast, and I hope you enjoy the challenge of trying to change it as much as I did.
 

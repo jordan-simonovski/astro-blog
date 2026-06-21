@@ -29,7 +29,7 @@ Questions you should be asking yourself are things like:
 - Can I give them an easy-to-understand way of interfacing with the infrastructure we've been building?
 - How am I vendoring my tooling? Is it easy for developers to download and use? How do they pick up the updates we're making to tooling?
 
-By focusing on building a great DX into your tooling, you're also fostering a better buy-in into the ecosystem that you're building. As you're building more and more complexity into your infrastructure, you want your developers to be able to consume your changes for free. 
+By focusing on building a great DX into your tooling, you're also fostering a better buy-in into the ecosystem that you're building. As you're building more and more complexity into your infrastructure, you want your developers to be able to consume your changes for free.
 
 ## Not Everyone Needs to Care About Implementation Detail
 
@@ -50,16 +50,16 @@ Both of the above mentioned steps require developers to have to understand the i
 
 Let's look at a simple example of abstracting this away from the developers into a tooling configuration.
 
-```
+```yaml
 routes:
   - path: /ping
-    authUsers: ['public']
+    authUsers: ["public"]
     container: service
   - path: /service
-    authUsers: ['customers']
+    authUsers: ["customers"]
     container: service
   - path: /admin
-    authUsers: ['admins']
+    authUsers: ["admins"]
     container: service
 
 containers:
@@ -90,17 +90,16 @@ Another example of completely abstracting away the implementation detail is the 
 
 ## How Can We Make It Easier for Dev Teams to Own Their Apps?
 
-One concern with writing tooling that abstracts so much from developers is the potential to make everything too much of a black box that makes it hard to debug applications. 
+One concern with writing tooling that abstracts so much from developers is the potential to make everything too much of a black box that makes it hard to debug applications.
 What our tooling also needs to give the developers is an easy way to set up instrumentation of some kind on their applications that allows them to debug things without needing to jump into boxes. If the need to SSH into a box to debug a problem arises, you should be investing more time in instrumenting more of your infrastructure and applications so you can easily find issues on a platform like DataDog or Honeycomb when things _do_ come up.
 
-Helping teams own their applications is not something tooling alone can fix. We can help them put the pieces of the puzzle together to be able to have some kind of instrumentation on their applications, but the rest of it comes down to communication with other teams, usually in the form of a workshop or brownbag. 
+Helping teams own their applications is not something tooling alone can fix. We can help them put the pieces of the puzzle together to be able to have some kind of instrumentation on their applications, but the rest of it comes down to communication with other teams, usually in the form of a workshop or brownbag.
 
-I won't cover too much of that in this post, but a TL;DR; of that would be to help them understand: 
+I won't cover too much of that in this post, but a TL;DR; of that would be to help them understand:
 
 - How to diagnose a problem using the tools provided
 - How good instrumentation can give us a better indication of what is going wrong instead of logs
 - How to set up good monitors to notify us when something _is_ going wrong.
-
 
 ## Value for Infrastructure Teams
 

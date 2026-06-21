@@ -168,7 +168,9 @@ const { articleSelector = "#article" } = Astro.props;
       scale = 1;
       tx = 0;
       ty = 0;
-      img.src = source.currentSrc || source.src;
+      // Display <img> downloads a downscaled srcset variant; the lightbox wants
+      // the full-resolution original carried in data-full (set by <Figure>).
+      img.src = source.dataset.full || source.currentSrc || source.src;
       const alt = source.getAttribute("alt") || "";
       img.alt = alt;
       if (captionEl) captionEl.textContent = alt;
@@ -204,9 +206,14 @@ const { articleSelector = "#article" } = Astro.props;
 
     const onKeydown = e => {
       if (e.key === "Escape") close();
-      else if (e.key === "+" || e.key === "=") zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2);
-      else if (e.key === "-" || e.key === "_") zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2);
-      else if (e.key === "0") { scale = 1; apply(); }
+      else if (e.key === "+" || e.key === "=")
+        zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2);
+      else if (e.key === "-" || e.key === "_")
+        zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2);
+      else if (e.key === "0") {
+        scale = 1;
+        apply();
+      }
     };
 
     // --- Open triggers: every content image becomes clickable. ---
@@ -220,19 +227,23 @@ const { articleSelector = "#article" } = Astro.props;
     });
 
     // --- Toolbar controls ---
-    root.querySelector("[data-zoom-in]")?.addEventListener("click", () =>
-      zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2)
-    );
-    root.querySelector("[data-zoom-out]")?.addEventListener("click", () =>
-      zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2)
-    );
+    root
+      .querySelector("[data-zoom-in]")
+      ?.addEventListener("click", () =>
+        zoomTo(scale * STEP, window.innerWidth / 2, window.innerHeight / 2)
+      );
+    root
+      .querySelector("[data-zoom-out]")
+      ?.addEventListener("click", () =>
+        zoomTo(scale / STEP, window.innerWidth / 2, window.innerHeight / 2)
+      );
     root.querySelector("[data-reset]")?.addEventListener("click", () => {
       scale = 1;
       apply();
     });
-    root.querySelectorAll("[data-close]").forEach(btn =>
-      btn.addEventListener("click", close)
-    );
+    root
+      .querySelectorAll("[data-close]")
+      .forEach(btn => btn.addEventListener("click", close));
 
     // --- Wheel / trackpad zoom toward cursor ---
     stage.addEventListener(

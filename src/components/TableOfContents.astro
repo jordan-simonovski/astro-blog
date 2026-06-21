@@ -1,0 +1,456 @@
+---
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// Only surface section headings. Depth 1 is the post title; the auto-generated
+// "Table of contents" heading (remark-toc) would duplicate this navigator.
+const toc = headings.filter(
+  h => h.depth >= 2 && h.depth <= 4 && h.slug !== "table-of-contents"
+);
+---
+
+{
+  toc.length > 0 && (
+    <>
+      {/* Desktop: Notion-style hover rail pinned to the right edge. */}
+      <nav class="toc-rail group/toc" aria-label="On this page">
+        <ul class="toc-list">
+          {toc.map(h => (
+            <li>
+              <a
+                href={`#${h.slug}`}
+                class="toc-link"
+                data-toc-link
+                data-target={h.slug}
+                data-depth={h.depth}
+              >
+                <span class="toc-text">{h.text}</span>
+                <span class="toc-dash" aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Mobile / narrow: floating button that opens a bottom sheet. */}
+      <div class="toc-mobile">
+        <button
+          type="button"
+          class="toc-fab"
+          data-toc-toggle
+          aria-expanded="false"
+          aria-controls="toc-sheet"
+          aria-label="On this page"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="6" width="12" height="2" rx="1" />
+            <rect x="4" y="11" width="16" height="2" rx="1" />
+            <rect x="4" y="16" width="9" height="2" rx="1" />
+          </svg>
+        </button>
+
+        <div id="toc-sheet" class="toc-sheet" data-toc-sheet hidden>
+          <div class="toc-sheet-backdrop" data-toc-close />
+          <div
+            class="toc-sheet-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="On this page"
+          >
+            <div class="toc-sheet-header">
+              <span>On this page</span>
+              <button
+                type="button"
+                class="toc-sheet-close"
+                data-toc-close
+                aria-label="Close"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6.4 5 12.6 12.6-1.4 1.4L5 6.4 6.4 5Z" />
+                  <path d="M19 6.4 6.4 19 5 17.6 17.6 5 19 6.4Z" />
+                </svg>
+              </button>
+            </div>
+            <ul class="toc-sheet-list">
+              {toc.map(h => (
+                <li>
+                  <a
+                    href={`#${h.slug}`}
+                    class="toc-sheet-link"
+                    data-toc-link
+                    data-target={h.slug}
+                    data-depth={h.depth}
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+<style>
+  /* ===== Desktop rail ===== */
+  .toc-rail {
+    position: fixed;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: none;
+  }
+
+  /* Only show when the viewport is wide enough to sit clear of the 3xl column. */
+  @media (min-width: 1280px) {
+    .toc-rail {
+      display: block;
+    }
+  }
+
+  .toc-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.5rem;
+    list-style: none;
+    max-width: 3rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    transition:
+      max-width 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .toc-rail:hover .toc-list,
+  .toc-rail:focus-within .toc-list {
+    align-items: stretch;
+    max-width: 18rem;
+    background-color: rgb(var(--color-fill));
+    border-color: rgba(var(--color-border), 0.6);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+  }
+
+  .toc-list li {
+    margin: 0;
+  }
+
+  .toc-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-decoration: none;
+    border-radius: 0.25rem;
+  }
+
+  .toc-rail:hover .toc-link,
+  .toc-rail:focus-within .toc-link {
+    justify-content: flex-start;
+    padding: 0.15rem 0.35rem;
+  }
+
+  .toc-dash {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background-color: rgba(var(--color-text-base), 0.35);
+    transition:
+      width 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .toc-link[data-depth="2"] .toc-dash {
+    width: 1.4rem;
+  }
+  .toc-link[data-depth="3"] .toc-dash {
+    width: 1rem;
+  }
+  .toc-link[data-depth="4"] .toc-dash {
+    width: 0.7rem;
+  }
+
+  .toc-link.is-active .toc-dash {
+    width: 1.6rem;
+    background-color: rgb(var(--color-accent));
+  }
+
+  /* Hide the dashes once the panel is open; labels take over. */
+  .toc-rail:hover .toc-dash,
+  .toc-rail:focus-within .toc-dash {
+    display: none;
+  }
+
+  .toc-text {
+    display: none;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: rgba(var(--color-text-base), 0.75);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+  }
+
+  .toc-rail:hover .toc-text,
+  .toc-rail:focus-within .toc-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .toc-link[data-depth="3"] .toc-text {
+    padding-left: 0.85rem;
+  }
+  .toc-link[data-depth="4"] .toc-text {
+    padding-left: 1.7rem;
+  }
+
+  .toc-link:hover .toc-text {
+    color: rgb(var(--color-accent));
+  }
+
+  .toc-link.is-active .toc-text {
+    color: rgb(var(--color-accent));
+    font-weight: 600;
+  }
+
+  /* ===== Mobile FAB + bottom sheet ===== */
+  .toc-mobile {
+    display: block;
+  }
+  @media (min-width: 1280px) {
+    .toc-mobile {
+      display: none;
+    }
+  }
+
+  .toc-fab {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgba(var(--color-border), 0.6);
+    box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+  }
+  .toc-fab svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: rgb(var(--color-text-base));
+  }
+
+  .toc-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+  }
+  .toc-sheet[hidden] {
+    display: none;
+  }
+
+  .toc-sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .toc-sheet.is-open .toc-sheet-backdrop {
+    opacity: 1;
+  }
+
+  .toc-sheet-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(var(--color-fill));
+    border-top: 1px solid rgba(var(--color-border), 0.6);
+    border-radius: 0.75rem 0.75rem 0 0;
+    box-shadow: 0 -10px 30px -10px rgba(0, 0, 0, 0.45);
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .toc-sheet.is-open .toc-sheet-panel {
+    transform: translateY(0);
+  }
+
+  .toc-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(var(--color-border), 0.4);
+  }
+  .toc-sheet-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .toc-sheet-close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: rgb(var(--color-text-base));
+  }
+
+  .toc-sheet-list {
+    margin: 0;
+    padding: 0.5rem 0.5rem 1rem;
+    list-style: none;
+    overflow-y: auto;
+  }
+  .toc-sheet-list li {
+    margin: 0;
+  }
+  .toc-sheet-link {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.4rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+    color: rgb(var(--color-text-base));
+  }
+  .toc-sheet-link[data-depth="3"] {
+    padding-left: 1.6rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  .toc-sheet-link[data-depth="4"] {
+    padding-left: 2.4rem;
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+  .toc-sheet-link.is-active {
+    color: rgb(var(--color-accent));
+    font-weight: 600;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc-list,
+    .toc-dash,
+    .toc-text,
+    .toc-sheet-backdrop,
+    .toc-sheet-panel {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initToc() {
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]")
+    );
+    if (links.length === 0) return;
+
+    // A slug can map to multiple links (desktop rail + mobile sheet).
+    const linksBySlug = new Map<string, HTMLAnchorElement[]>();
+    const targets: HTMLElement[] = [];
+    const seen = new Set<string>();
+
+    for (const link of links) {
+      const slug = link.dataset.target;
+      if (!slug) continue;
+      const heading = document.getElementById(slug);
+      if (!heading) continue;
+      if (!linksBySlug.has(slug)) linksBySlug.set(slug, []);
+      linksBySlug.get(slug)!.push(link);
+      if (!seen.has(slug)) {
+        seen.add(slug);
+        targets.push(heading);
+      }
+    }
+
+    if (targets.length > 0) {
+      let activeSlug: string | null = null;
+      const setActive = (slug: string) => {
+        if (slug === activeSlug) return;
+        activeSlug = slug;
+        for (const link of links) link.classList.remove("is-active");
+        for (const link of linksBySlug.get(slug) ?? [])
+          link.classList.add("is-active");
+      };
+
+      const observer = new IntersectionObserver(
+        entries => {
+          const visible = entries
+            .filter(e => e.isIntersecting)
+            .sort(
+              (a, b) => a.boundingClientRect.top - b.boundingClientRect.top
+            );
+          if (visible.length > 0) setActive(visible[0].target.id);
+        },
+        { rootMargin: "0px 0px -70% 0px", threshold: 0 }
+      );
+
+      for (const target of targets) observer.observe(target);
+      document.addEventListener(
+        "astro:before-swap",
+        () => observer.disconnect(),
+        { once: true }
+      );
+    }
+
+    // ===== Bottom-sheet open/close wiring =====
+    const sheet = document.querySelector<HTMLElement>("[data-toc-sheet]");
+    const toggle =
+      document.querySelector<HTMLButtonElement>("[data-toc-toggle]");
+    if (!sheet || !toggle) return;
+
+    const open = () => {
+      sheet.hidden = false;
+      // Next frame so the transition runs from the hidden state.
+      requestAnimationFrame(() => sheet.classList.add("is-open"));
+      toggle.setAttribute("aria-expanded", "true");
+      document.documentElement.classList.add("toc-sheet-open");
+    };
+    const close = () => {
+      sheet.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+      document.documentElement.classList.remove("toc-sheet-open");
+      const onEnd = () => {
+        sheet.hidden = true;
+        sheet.removeEventListener("transitionend", onEnd);
+      };
+      sheet.addEventListener("transitionend", onEnd);
+    };
+
+    toggle.addEventListener("click", () =>
+      sheet.classList.contains("is-open") ? close() : open()
+    );
+    for (const el of sheet.querySelectorAll("[data-toc-close]"))
+      el.addEventListener("click", close);
+    // Tapping a heading closes the sheet; the anchor handles the jump.
+    for (const link of sheet.querySelectorAll("[data-toc-link]"))
+      link.addEventListener("click", close);
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && sheet.classList.contains("is-open")) close();
+    });
+  }
+
+  initToc();
+  document.addEventListener("astro:page-load", initToc);
+</script>

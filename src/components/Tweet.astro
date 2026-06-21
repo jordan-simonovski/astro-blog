@@ -9,9 +9,7 @@ const { url, author, date } = Astro.props;
 
 const match = url.match(/(?:twitter|x)\.com\/([^/]+)\/status\/(\d+)/i);
 const handle = match?.[1] ?? "";
-const canonicalUrl = match
-  ? `https://x.com/${handle}/status/${match[2]}`
-  : url;
+const canonicalUrl = match ? `https://x.com/${handle}/status/${match[2]}` : url;
 
 const avatarUrl = handle
   ? `https://unavatar.io/x/${handle}`
@@ -52,8 +50,17 @@ if (date) {
       <span class="tweet__author">{author}</span>
       {handle && <span class="tweet__handle">@{handle}</span>}
     </div>
-    <svg class="tweet__logo" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+    <svg
+      class="tweet__logo"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      <path
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+      ></path>
     </svg>
   </div>
 
@@ -79,7 +86,7 @@ if (date) {
     @apply truncate font-semibold text-skin-base;
   }
   .tweet__handle {
-    @apply truncate text-sm text-skin-base opacity-60;
+    @apply truncate text-sm text-skin-base opacity-80;
   }
   .tweet__logo {
     @apply ml-auto shrink-0 self-start text-skin-base opacity-70;
@@ -88,6 +95,6 @@ if (date) {
     @apply mt-3 whitespace-pre-line text-skin-base;
   }
   .tweet__date {
-    @apply mt-3 text-sm text-skin-base opacity-60;
+    @apply mt-3 text-sm text-skin-base opacity-80;
   }
 </style>

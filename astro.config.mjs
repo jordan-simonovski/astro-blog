@@ -1,4 +1,5 @@
-import { defineConfig, envField } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import react from "@astrojs/react";
 import expressiveCode from "astro-expressive-code";
 import mdx from "@astrojs/mdx";
@@ -8,7 +9,7 @@ import sitemap from "@astrojs/sitemap";
 import compress from "astro-compress";
 import { SITE } from "./src/config";
 
-import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs"; 
+import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,7 +31,8 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: page => (SITE.showArchives ?? true) || !page.endsWith("/archives"),
+      filter: page =>
+        (SITE.showArchives ?? true) || !page.endsWith("/archives"),
     }),
     // Must run last so it minifies the final emitted output. Image is left to
     // Astro's own image service (and the satori OG PNGs); re-compressing them
@@ -38,16 +40,18 @@ export default defineConfig({
     compress({ Image: false }),
   ],
   markdown: {
-    remarkPlugins: [
-      remarkToc,
-      remarkReadingTime,
-      [
-        remarkCollapse,
-        {
-          test: "Table of contents",
-        },
+    processor: unified({
+      remarkPlugins: [
+        remarkToc,
+        remarkReadingTime,
+        [
+          remarkCollapse,
+          {
+            test: "Table of contents",
+          },
+        ],
       ],
-    ],
+    }),
   },
   vite: {
     optimizeDeps: {
@@ -63,6 +67,19 @@ export default defineConfig({
     responsiveStyles: true,
     layout: "constrained",
   },
+  // Self-hosted, preloaded, with auto-generated fallback metrics. Replaces the
+  // hand-rolled Google Fonts <link> in Layout.astro (no extra DNS/connect, no
+  // FOUT). OG image generation fetches its own font and is unaffected.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: "IBM Plex Mono",
+      cssVariable: "--font-mono",
+      weights: [400, 500, 600, 700],
+      styles: ["normal", "italic"],
+      fallbacks: ["monospace"],
+    },
+  ],
   env: {
     schema: {
       PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({

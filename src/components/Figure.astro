@@ -1,0 +1,55 @@
+---
+import { Image, getImage } from "astro:assets";
+
+export interface Props {
+  /** Path relative to `src/assets/blog`, e.g. "coffee2/shot-analysis.jpg". */
+  src: string;
+  alt: string;
+  /** Eager-load the in-view hero image; everything else stays lazy. */
+  eager?: boolean;
+}
+
+const { src, alt, eager = false } = Astro.props;
+
+// Eager glob so the lookup is a static map, resolved at build time. Keys are
+// absolute project paths: "/src/assets/blog/<src>".
+const assets = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/blog/**/*.{jpeg,jpg,png,webp,gif,JPG,JPEG,PNG}",
+  { eager: true }
+);
+
+const key = `/src/assets/blog/${src}`;
+const mod = assets[key];
+if (!mod) {
+  throw new Error(
+    `<Figure src="${src}"> not found at ${key}. Put the file under src/assets/blog/.`
+  );
+}
+const image = mod.default;
+
+// Article column is max-w-3xl (768px). Cap the display srcset at 2x that so we
+// never ship the multi-megapixel original into the page. getImage() builds a
+// single full-resolution WebP for the lightbox, generated but not downloaded
+// until the user clicks.
+const displayMax = Math.min(image.width, 1536);
+const widths = [360, 540, 768, 1100, 1536].filter(w => w < displayMax);
+widths.push(displayMax);
+
+const full = await getImage({
+  src: image,
+  width: image.width,
+  format: "webp",
+  quality: 82,
+});
+---
+
+<Image
+  src={image}
+  alt={alt}
+  layout="constrained"
+  widths={widths}
+  sizes="(max-width: 768px) 100vw, 768px"
+  loading={eager ? "eager" : "lazy"}
+  decoding="async"
+  data-full={full.src}
+/>
