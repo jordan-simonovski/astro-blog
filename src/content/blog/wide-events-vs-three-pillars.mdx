@@ -13,7 +13,14 @@ featured: true
 draft: true
 ---
 
+import RepoCard from "@components/RepoCard.astro";
+import Figure from "@components/Figure.astro";
+
 I went into this convinced of the wrong thing.
+
+I recently gave a talk evangelising wide events, and while I did mention that while I had a hunch
+that wide events made agentic RCA easier, I was quite upfront about the fact that I hadn't yet proven it.
+So, I decided to spend my weekend setting up an eval harness to do just that.
 
 The pitch for wide events is that you put everything about a request (latency, status,
 and every scrap of high-cardinality context) into a single fat row, so investigating an
@@ -31,6 +38,11 @@ Every AI SRE vendor will quote you an accuracy figure. Almost none of them will 
 rubric. So this is the benchmark I wish they'd publish, including the part where it embarrassed
 me.
 
+<Figure
+  src="milhouse-wide-events.gif"
+  alt="Milhouse in a treehouse saying that what they don't want us to know is that wide events are better for agentic RCA. We're through the looking glass here, people."
+/>
+
 ## What I was actually trying to solve
 
 Agentic RCA is a genuinely appealing idea: an incident fires, an LLM investigates with real
@@ -47,8 +59,9 @@ logs, filter to the failing requests, pull a trace, read the spans, and stitch t
 back together across three systems that don't share a query language.
 
 Wide events collapse that. The high-cardinality attribute is sitting in the same row as the
-latency and the status code, so the cohort falls out of a single aggregation. That's the
-thesis. The question I wanted answered wasn't whether it's _nicer_ (it obviously is) but
+latency and the status code, so the cohort falls out of a single aggregation.
+
+That's the thesis, anyway. The question I wanted answered wasn't whether it's _nicer_ (it obviously is) but
 whether it makes an _agent measurably better_, and by how much, on a test built to try and
 prove it wrong.
 
@@ -59,8 +72,9 @@ root causes at least as reliably as, and more efficiently than, the same agent d
 separate pillars.** If a narrower toolset wins on either axis, the claim is dead for that
 scenario, and I built the harness to make that outcome possible rather than to flatter the one
 I wanted. The whole thing (harness, trace generator, scenarios, fairness checks) is on GitHub
-at [github.com/jordan-simonovski/heatmap-panel](https://github.com/jordan-simonovski/heatmap-panel),
 under `eval/` and `trace-generator/`, if you want to run it or take it apart.
+
+<RepoCard repo="jordan-simonovski/heatmap-investigation" />
 
 The shape of it:
 
@@ -124,9 +138,14 @@ it turns out to be the whole result.
 
 ## The cost win I was sure about, and the audit that took it away
 
-The first run looked spectacular. Wide events reached the root cause using **4-20x fewer
+The first run looked _spectacular_. Wide events reached the root cause using **4-20x fewer
 tokens** than three pillars. That was the headline I wanted, and it was exactly the kind of
 number I'd have happily put in a talk.
+
+<Figure
+  src="hail-king-homer.gif"
+  alt="A jewel-encrusted golden Homer laughing maniacally."
+/>
 
 So before I published it, I did the thing you're supposed to do and tried to break it. Five
 adversarial audits (telemetry fidelity, scenario discriminability, tool fairness, the judge,
@@ -139,17 +158,23 @@ versus 4,608 bytes from Loki, a 12x tax on the same information, and because the
 history is re-fed as input on every turn, that verbose payload got _re-billed_ over and over.
 Most of my beautiful 4-20x was re-serialised JSON, not the agent doing less thinking.
 
-Worse, I'd crippled the pillars arm without noticing. Its trace tool returned no span
+To be clear, that is still real money: if you ran this stack in production you _would_ pay for every
+re-fed byte on every turn, and the compact side really is cheaper to operate. But it's a property
+of each backend's wire format, not of wide events versus pillars, point Loki at a terser encoding
+and the gap shrinks. It's a plumbing win, not a thesis win, and it isn't the number I set out to
+prove. So I stopped counting it as one.
+
+Worse, I'd made the pillars arm worse without noticing. Its trace tool returned no span
 attributes and had no fetch-by-ID, so trace-only root causes were literally unguessable. Its
 logs carried no status code, so it couldn't even filter to the failing requests. I'd built a
 strawman and then beaten it.
 
-So I fixed all of it. I gave the pillars arm a real `get_trace`, server-side trace metrics,
+So I fixed all of it. I gave the pillars a real `get_trace`, server-side trace metrics,
 status codes on its logs (every fix made my _opponent stronger_), and I added an output-only
 token column that measures reasoning effort without the serialisation tax. Then I re-ran the
 whole matrix.
 
-The cost win did not come back. Measured by output tokens, what the agent actually generated,
+The cost win on reasoning did not come back. Measured by output tokens, what the agent actually generated,
 the arms are comparable, and on several scenarios pillars is _cheaper_. One pillars trial spent
 353k total tokens but only 6.9k of them on output; the other ~98% was re-fed JSON. **I can't
 claim wide events use fewer tokens, and I won't.** Reporting the raw total as a cost win would be
@@ -167,7 +192,12 @@ just doing in public what the serious teams already do in private.
 
 ## What actually survived: accuracy
 
-The run that matters, pass-rate over scored trials:
+The run that matters, pass-rate over scored trials. I've split the scenarios into two groups.
+_Single-pivot_ scenarios turn on one discriminator you can reach with a single filter, spike in
+metrics, jump to logs, done. _Cross-surface stitching_ scenarios (S1, S4, S5) hinge on a
+_conjunction_ of two attributes that no single surface carries together, so the agent has to
+filter one surface, pivot to another, and hold the join in its head. That difference is the whole
+result:
 
 | arm       | overall | needs cross-surface stitching (S1 / S4 / S5) | single-pivot (S2/S3/S6/S7/S8) |
 | --------- | ------- | -------------------------------------------- | ----------------------------- |
@@ -178,10 +208,9 @@ The run that matters, pass-rate over scored trials:
 The wide-events arms are ~26 points more accurate overall, but the aggregate _understates_ the
 story, because the gap lives almost entirely in three scenarios, and they share something
 specific. S1 (a feature flag _and_ a region), S4 (a tenant _and_ a flag), and S5 (a build _and_
-a set of pods) each hinge on exactly that two-attribute conjunction. To land the answer the
-pillars agent has to filter one surface, pivot to another, and
-hold the join in its head, and even with its now-fully-armed trace tools it mostly failed to
-stitch that together, landing at 11-20%. Where both attributes sit in the same row the cohort
+a set of pods) each hinge on exactly that two-attribute conjunction. Even with its
+now-fully-armed trace tools, the pillars agent mostly failed to stitch the two surfaces
+together, landing at 11-20%. Where both attributes sit in the same row the cohort
 falls out of one `GROUP BY`, and the wide arms ran far ahead on all three: 100% on S4, 90% on S5,
 and even hard-for-everyone S1 at 56% against the pillars arm's 11%.
 
@@ -193,14 +222,17 @@ one query, and the gap opens precisely where that correlation is hardest.
 
 Turn it around and it's starker: the pillars agent reached a _wrong_ root cause about **39% of
 the time**, versus **12%** for wide events. This is why I stopped caring about the token
-question. The seductive framing of AI RCA is speed (cut your MTTR, resolve faster), but a
+question.
+
+The seductive framing of AI RCA is speed (cut your MTTR, resolve faster), but a
 confidently wrong root cause has effectively _infinite_ MTTR, because it sends a human down the
-wrong remediation path at the worst possible moment. incident.io put a cost on exactly this: a
+wrong remediation path at the worst possible moment.
+
+incident.io put a cost on exactly this: a
 wrong root cause at 3am burns 10 to 15 minutes of the on-call's time chasing and dismissing the
 false lead before the real investigation even starts, and the deeper tax is trust: feed engineers
 enough confident-but-wrong answers and they stop believing the tool, at which point you're paying
-for shelfware. Two out of five times, the metrics-first agent would have done exactly that. That's
-the real MTTR story, and it isn't about time.
+for shelfware. Two out of five times, the metrics-first agent would have done exactly that.
 
 The obvious objection is the judge: if it's lenient, the whole table is inflated. So I
 validated it against a human-reviewed gold set: **precision 1.00**, meaning it never once passed
@@ -215,12 +247,20 @@ properly. Please do.)
 
 ## Why it wins, and what it costs you
 
-The mechanism is almost boringly simple, which is how I know it's real. When latency, status,
-and `feature_flag` live in the same row, "which flag is slow?" is one aggregation. When they
-live in three systems, it's the same five-hop scavenger hunt from the top of this post, ending
-in a correlation the agent has to _hold in its head_ across all of it, and every one of those
-hops is a place to lose the thread. The agent is no smarter with wide events; it just
+The mechanism is almost boringly simple, which is how I know it's real.
+
+When latency, status, and `feature_flag` live in the same row, "which flag is slow?" is one aggregation.
+When they live in three systems, it's the same five-hop scavenger hunt from the top of this post, ending
+in a correlation the agent has to _hold in its head_ (do agents have a head?) across all of it, and every one of those
+hops is a place to lose the thread.
+
+The agent is no smarter with wide events; it just
 gets to answer the question in one step, and one step is a lot harder to get wrong than five.
+
+<Figure
+  src="down-with-three-pillars.png"
+  alt="Bart taking his sweater off exposing his t-shirt which says down with the three pillars."
+/>
 
 But that win has a hard prerequisite, and it's the same prerequisite the vendors quietly depend
 on: **the high-cardinality attribute has to actually be in your telemetry.** A wide event with
