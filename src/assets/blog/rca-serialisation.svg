@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 210" width="680" height="210" class="viz" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Bytes returned for one identical GROUP BY query. ClickHouse TSV 384 bytes, Loki JSON 4,608 bytes — 12 times more for the same information.">
+  <style>
+    .viz { --s1: #2a78d6; --s2: #1baf7a; --s3: #eda100; }
+    html[data-theme="dark"] .viz { --s1: #3987e5; --s2: #199e70; --s3: #c98500; }
+    .viz-title { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 18px; font-weight: 650; }
+    .viz-sub   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
+    .viz-foot  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 12px; }
+    .viz-cat   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 14px; }
+    .viz-val   { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .viz-base  { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .28; stroke-width: 1.5; }
+  </style>
+
+  <text x="40" y="30" class="viz-title">Bytes returned for one identical <tspan font-family="ui-monospace, monospace" font-weight="600">GROUP BY</tspan></text>
+  <text x="40" y="52" class="viz-sub">The message history is re-fed as input on every turn, so these bytes are billed again and again.</text>
+
+  <line x1="190" y1="66" x2="190" y2="162" class="viz-base"/>
+
+  <!-- bars: scale max 4700 over 330px from x=190 -->
+  <path d="M190 73 L213 73 Q217 73 217 77 L217 103 Q217 107 213 107 L190 107 Z" fill="var(--s1)"/>
+  <path d="M190 123 L509.6 123 Q513.6 123 513.6 127 L513.6 153 Q513.6 157 509.6 157 L190 157 Z" fill="var(--s3)"/>
+
+  <!-- category labels -->
+  <text x="180" y="95"  text-anchor="end" class="viz-cat">ClickHouse · TSV</text>
+  <text x="180" y="145" text-anchor="end" class="viz-cat">Loki · JSON</text>
+
+  <!-- value labels -->
+  <text x="225" y="95"  class="viz-val">384 B</text>
+  <text x="521" y="145" class="viz-val">4,608 B</text>
+
+  <text x="40" y="192" class="viz-foot">Same query, same information — Loki's JSON is 12× the bytes of ClickHouse's TSV.</text>
+</svg>

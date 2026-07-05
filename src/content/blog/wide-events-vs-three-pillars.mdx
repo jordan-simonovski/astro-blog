@@ -158,6 +158,11 @@ versus 4,608 bytes from Loki, a 12x tax on the same information, and because the
 history is re-fed as input on every turn, that verbose payload got _re-billed_ over and over.
 Most of my beautiful 4-20x was re-serialised JSON, not the agent doing less thinking.
 
+<Figure
+  src="rca-serialisation.svg"
+  alt="Horizontal bar chart of bytes returned for one identical GROUP BY query. ClickHouse TSV returns 384 bytes; Loki JSON returns 4,608 bytes, 12 times more for the same information, re-billed on every agent turn."
+/>
+
 To be clear, that is still real money: if you ran this stack in production you _would_ pay for every
 re-fed byte on every turn, and the compact side really is cheaper to operate. But it's a property
 of each backend's wire format, not of wide events versus pillars, point Loki at a terser encoding
@@ -199,11 +204,10 @@ _conjunction_ of two attributes that no single surface carries together, so the 
 filter one surface, pivot to another, and hold the join in its head. That difference is the whole
 result:
 
-| arm       | overall | needs cross-surface stitching (S1 / S4 / S5) | single-pivot (S2/S3/S6/S7/S8) |
-| --------- | ------- | -------------------------------------------- | ----------------------------- |
-| wide-sql  | **87%** | 33% / 100% / 78%                             | all 90-100%                   |
-| bubble-up | **89%** | 56% / 63% / 90%                              | all 100%                      |
-| pillars   | **61%** | **11%** / **20%** / **20%**                  | 78-100%                       |
+<Figure
+  src="rca-accuracy.svg"
+  alt="Grouped bar chart of root-cause accuracy. Overall pass-rate: wide-sql 87%, bubble-up 89%, pillars 61%. On the cross-surface stitching scenarios S1/S4/S5, wide-sql and bubble-up both reach 70% while pillars collapses to 17%."
+/>
 
 The wide-events arms are ~26 points more accurate overall, but the aggregate _understates_ the
 story, because the gap lives almost entirely in three scenarios, and they share something
@@ -233,6 +237,11 @@ wrong root cause at 3am burns 10 to 15 minutes of the on-call's time chasing and
 false lead before the real investigation even starts, and the deeper tax is trust: feed engineers
 enough confident-but-wrong answers and they stop believing the tool, at which point you're paying
 for shelfware. Two out of five times, the metrics-first agent would have done exactly that.
+
+<Figure
+  src="rca-wrong-rate.svg"
+  alt="Horizontal bar chart of how often each stack named the wrong root cause. Pillars was wrong 39% of the time; wide events 12%. Lower is better."
+/>
 
 The obvious objection is the judge: if it's lenient, the whole table is inflated. So I
 validated it against a human-reviewed gold set: **precision 1.00**, meaning it never once passed
