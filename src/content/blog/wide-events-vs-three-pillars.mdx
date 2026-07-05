@@ -224,6 +224,16 @@ them just as high-cardinality), and there the pillars arm keeps pace. So the win
 events beating metrics across the board. Colocation collapses a multi-surface correlation into
 one query, and the gap opens precisely where that correlation is hardest.
 
+Broken out per scenario, the aggregate resolves into two very different regimes it was only ever
+averaging: the three cross-surface stitching scenarios, where the pillars arm falls off a cliff
+(S1 11%, S4 20%, S5 20%) while the wide arms stay high, and the five single-pivot scenarios,
+where all three arms bunch back up.
+
+<Figure
+  src="rca-accuracy-by-scenario.svg"
+  alt="Heatmap of pass-rate: three arm rows (wide-sql, bubble-up, pillars) across eight scenario columns, with colour intensity encoding pass-rate. On the three cross-surface stitching scenarios the pillars row is pale — S1 11%, S4 20%, S5 20% — while the wide-sql and bubble-up rows stay saturated (33% to 100%). On the five single-pivot scenarios (S2, S3, S6, S7, S8) all three rows are competitive, with pillars between 78% and 100%."
+/>
+
 Turn it around and it's starker: the pillars agent reached a _wrong_ root cause about **39% of
 the time**, versus **12%** for wide events. This is why I stopped caring about the token
 question.
@@ -270,6 +280,27 @@ gets to answer the question in one step, and one step is a lot harder to get wro
   src="down-with-three-pillars.png"
   alt="Bart taking his sweater off exposing his t-shirt which says down with the three pillars."
 />
+
+There's an obvious objection here, and it's a tooling one: point a heavily optimised vendor MCP
+at the three pillars, hand the agent a purpose-built investigation skill, and surely it stitches
+the surfaces together fine. It can, partly. I held the prompt and tools generic and identical
+across arms on purpose, which means the harness deliberately under-tests exactly this: a
+pillars-specific runbook ("pull an exemplar trace, read its span attributes, re-aggregate the
+cohort before concluding") would sharpen the agent's stitching, and I'd expect it to win back a
+chunk of S1, S4, and S5. I don't want to pretend otherwise.
+
+But watch _how_ it wins them back. The only way a tool closes that gap is by rebuilding
+colocation at query time: take an exemplar trace, pull the correlated logs and metric series,
+join them on `trace_id` or `pod` or `tenant`. That is the wide-event `GROUP BY`, reassembled out
+of three stores with bespoke glue, and it hits the same wall my fairness invariant guards: you
+can only join on attributes that survived into the telemetry, and the RED metrics dropped the
+high-cardinality ones at aggregation time. So the optimised MCP has to bypass metrics and hit the
+raw rows directly, which is wide events done the hard way. The gap is closable, then, but only by
+paying (in engineering, in exemplar plumbing, in a hand-tuned skill) to reconstruct at query time
+what colocation hands you for free at storage time. The SQL arm needed none of it: it got value
+with almost no tuning because the data model had already done the join. That asymmetry (near-zero
+tuning on one side, a whole correlation layer to build and maintain on the other) is the real
+cost, and it's precisely where the vendors earn their keep.
 
 But that win has a hard prerequisite, and it's the same prerequisite the vendors quietly depend
 on: **the high-cardinality attribute has to actually be in your telemetry.** A wide event with
