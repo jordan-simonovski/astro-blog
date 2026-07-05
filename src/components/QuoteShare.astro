@@ -5,11 +5,7 @@ export interface Props {
   pageUrl: string;
 }
 
-const {
-  articleSelector = "#article",
-  pageTitle,
-  pageUrl,
-} = Astro.props;
+const { articleSelector = "#article", pageTitle, pageUrl } = Astro.props;
 ---
 
 <div id="quote-share-widget" class="quote-share-widget" aria-live="polite">
@@ -41,8 +37,10 @@ const {
 </div>
 
 <style>
+  @reference "../styles/base.css";
+
   .quote-share-widget {
-    @apply fixed z-50 hidden items-center gap-2 rounded-md border border-skin-line bg-skin-fill p-2 text-sm text-skin-base shadow-md;
+    @apply border-skin-line bg-skin-fill text-skin-base fixed z-50 hidden items-center gap-2 rounded-md border p-2 text-sm shadow-md;
     transform: translate(-50%, -120%);
   }
 
@@ -51,16 +49,16 @@ const {
   }
 
   .quote-share-widget.is-mobile {
-    @apply left-1/2 bottom-4 top-auto;
+    @apply top-auto bottom-4 left-1/2;
     transform: translateX(-50%);
   }
 
   .quote-share-btn {
-    @apply rounded border border-skin-line px-2 py-1 text-xs font-medium transition-colors hover:border-skin-accent hover:text-skin-accent;
+    @apply border-skin-line hover:border-skin-accent hover:text-skin-accent rounded border px-2 py-1 text-xs font-medium transition-colors;
   }
 
   .quote-share-status {
-    @apply ml-1 hidden text-xs text-skin-accent;
+    @apply text-skin-accent ml-1 hidden text-xs;
   }
 
   .quote-share-status.is-visible {
@@ -68,15 +66,14 @@ const {
   }
 </style>
 
-<script
-  is:inline
-  define:vars={{ articleSelector, pageTitle, pageUrl }}
->
+<script is:inline define:vars={{ articleSelector, pageTitle, pageUrl }}>
   const widget = document.getElementById("quote-share-widget");
   const statusEl = widget?.querySelector('[data-role="status"]');
   const article = document.querySelector(articleSelector);
   const actionButtons = widget?.querySelectorAll("[data-action]");
-  const mobileMediaQuery = window.matchMedia("(max-width: 768px), (pointer: coarse)");
+  const mobileMediaQuery = window.matchMedia(
+    "(max-width: 768px), (pointer: coarse)"
+  );
   let selectedQuote = "";
   let hideStatusTimeout = 0;
 
@@ -142,7 +139,11 @@ const {
 
     const updateFromSelection = () => {
       const selection = window.getSelection();
-      if (!selection || selection.isCollapsed || !isSelectionInsideArticle(selection)) {
+      if (
+        !selection ||
+        selection.isCollapsed ||
+        !isSelectionInsideArticle(selection)
+      ) {
         hideWidget();
         return;
       }
@@ -167,7 +168,11 @@ const {
         const shareText = `"${selectedQuote}"\n\n${pageTitle}\n${pageUrl}`;
 
         if (action === "bluesky") {
-          window.open(toBlueskyIntent(selectedQuote), "_blank", "noopener,noreferrer");
+          window.open(
+            toBlueskyIntent(selectedQuote),
+            "_blank",
+            "noopener,noreferrer"
+          );
           return;
         }
 
@@ -192,9 +197,15 @@ const {
       });
     });
 
-    document.addEventListener("mouseup", () => setTimeout(updateFromSelection, 0));
-    document.addEventListener("keyup", () => setTimeout(updateFromSelection, 0));
-    document.addEventListener("touchend", () => setTimeout(updateFromSelection, 0));
+    document.addEventListener("mouseup", () =>
+      setTimeout(updateFromSelection, 0)
+    );
+    document.addEventListener("keyup", () =>
+      setTimeout(updateFromSelection, 0)
+    );
+    document.addEventListener("touchend", () =>
+      setTimeout(updateFromSelection, 0)
+    );
     window.addEventListener("scroll", hideWidget, { passive: true });
     window.addEventListener("resize", hideWidget);
     document.addEventListener("selectionchange", () => {

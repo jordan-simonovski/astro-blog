@@ -55,7 +55,7 @@ const pageUrl = canonicalURL
   <Header />
   <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
     <button
-      class="focus-outline mb-2 mt-8 flex hover:opacity-75"
+      class="focus-outline mt-8 mb-2 flex hover:opacity-75"
       onclick="history.back()"
     >
       <svg xmlns="http://www.w3.org/2000/svg"
@@ -101,11 +101,13 @@ const pageUrl = canonicalURL
 </Layout>
 
 <style>
+  @reference "../styles/base.css";
+
   main {
     @apply mx-auto w-full max-w-3xl px-4 pb-12;
   }
   .post-title {
-    @apply text-2xl font-semibold text-skin-accent;
+    @apply text-skin-accent text-2xl font-semibold;
   }
   .tags-container {
     @apply my-8;
