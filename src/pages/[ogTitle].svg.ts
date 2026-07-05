@@ -1,9 +1,10 @@
 import { getCollection } from "astro:content";
 import generateOgImage from "@utils/generateOgImage";
 import slugify from "@utils/slugify";
+import postFilter from "@utils/postFilter";
 import type { APIRoute } from "astro";
 
-const postImportResult = await getCollection("blog", ({ data }) => !data.draft);
+const postImportResult = await getCollection("blog", postFilter);
 const posts = Object.values(postImportResult);
 
 export function getStaticPaths() {

@@ -45,16 +45,19 @@ guessing.
 
 ## Procedure
 
-1. Read `review/judgment-rules.md`. This governs scope, the density rule,
+1. Read `review/JUDGEMENT.md`. This governs scope, the density rule,
    and voice preservation. Apply it strictly. It overrides any instinct to flag
    casual or opinionated prose.
 
-2. Read `review/tropes.md` (the slop pattern catalogue) and
-   `review/craft.md` (the good-writing layer and the voice profile). The
-   craft file defines severity levels and the rule that voice beats craft advice
-   whenever they conflict. Both are mirrored locally so you never depend on a
-   live fetch. If the user says the upstream tropes list at tropes.fyi has
-   changed, offer to re-sync tropes.md, but default to the local copy.
+2. Read `review/TROPES.md` (the slop pattern catalogue), `review/CRAFT.md`
+   (the good-writing layer and the voice profile), and `review/FLOW.md` (the
+   narrative layer: through-line, transitions, and the word-vomit versus
+   over-compression distinction). The craft file defines severity levels and
+   the rule that voice beats craft advice whenever they conflict; the flow
+   file defines the altitude split between flow and craft. All are mirrored
+   locally so you never depend on a live fetch. If the user says the upstream
+   tropes list at tropes.fyi has changed, offer to re-sync TROPES.md, but
+   default to the local copy.
 
 3. For each file or diff, strip out non-prose per the scope rules (code fences,
    inline code, frontmatter, quoted source blocks, URLs, alt text, HTML, config
@@ -65,21 +68,31 @@ guessing.
    Apply the high-signal exceptions: some tells are flaggable even once.
 
 5. Craft pass. Work through clarity and structure, mechanics, argument quality,
-   and concision per craft.md. Assign each finding a severity (craft or note,
+   and concision per CRAFT.md. Assign each finding a severity (craft or note,
    never slop). Mechanics errors are firm; structure and argument notes are
-   suggestions the author decides on.
+   suggestions the author decides on. Mechanics includes spelling convention:
+   the author writes Australian English, so flag en-US spellings and give the
+   en-AU form, with the code/identifier and proper-noun carve-outs in CRAFT.md.
 
-6. Voice pass. Separate genuine issues from the author's deliberate voice using
-   the voice profile in craft.md. When something has the shape of a trope or a
-   craft weakness but is doing real work and lands, note it and leave it. Flag
-   drift away from the voice profile toward flatter or more corporate prose as a
-   craft note.
+6. Flow pass. Per FLOW.md: state the through-line in one sentence, then check
+   for orphan blocks, transitions the reader must reconstruct, and overloaded
+   paragraphs. Label every flag as word vomit (cut) or over-compression
+   (unpack). Flow findings file as craft or note with the category tagged as
+   flow. In automation mode, still read the whole file to derive the
+   through-line, but flag only added or modified paragraphs and the junctions
+   they touch.
 
-7. For every flagged item in either pass, write a concrete proposed edit that
+7. Voice pass. Separate genuine issues from the author's deliberate voice using
+   the voice profile in CRAFT.md. When something has the shape of a trope, a
+   craft weakness, or a flow problem but is doing real work and lands, note it
+   and leave it. Flag drift away from the voice profile toward flatter or more
+   corporate prose as a craft note.
+
+8. For every flagged item in any pass, write a concrete proposed edit that
    fixes the issue while keeping meaning, register, and voice. Never blandify. If
    a flagged line carries a joke or an opinion, the rewrite keeps it. Do not
-   double-count a line under both slop and craft; if it matches a trope, file it
-   under slop.
+   double-count a line across passes: if it matches a trope, file it under slop;
+   if the problem is paragraph-and-above, file it under flow; otherwise craft.
 
 ## Output format
 
@@ -88,7 +101,9 @@ Produce both sections, in this order.
 ### Section 1: Review report
 
 A Markdown report. Start with a one-line verdict per file: clean, minor, or
-needs work, with the count of items at each severity (slop, craft, note). Then
+needs work, with the count of items at each severity (slop, craft, note).
+Directly under the verdict, give the through-line from the flow pass in one
+sentence, so the author can check the reading against their intent. Then
 list each item as a short entry with the line reference, a severity tag, the
 category or trope name, the original text, and a one-sentence reason. Order
 within a file by line number, not by severity, so it reads as a pass through the
@@ -114,10 +129,14 @@ those.
 ## Hard constraints
 
 - Suggest only. Never modify the source file without explicit per-edit approval.
-- Voice beats craft. When a good-writing suggestion would erode the author's
-  voice, drop the suggestion. Voice markers (profanity, dry humour, parenthetical
-  asides, strong opinions, deliberate fragments, casual register) are never
-  flagged.
+- Voice beats craft and flow. When a good-writing or flow suggestion would
+  erode the author's voice, drop the suggestion. Voice markers (profanity, dry
+  humour, parenthetical asides, strong opinions, deliberate fragments, casual
+  register, deliberate compression) are never flagged.
+- Flow owns paragraph-and-above; craft owns the sentence and below. When they
+  would give conflicting advice (tighten versus unpack), the altitude decides.
+  Density is never the finding; the test is whether a competent reader can
+  follow the path on one read.
 - Keep the layers honest about certainty. Slop flags are firm. Craft and note
   items are the author's call; present them as options, not verdicts.
 - Density governs the slop pass. One instance of most tropes is fine. Cite counts

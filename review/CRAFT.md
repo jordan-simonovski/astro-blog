@@ -49,14 +49,19 @@ point" is a craft note, not a verdict.
   use to munge the data like ClickHouse or Honeycomb"). Untangle these.
 - Mixed or broken constructions: a sentence that starts one grammatical shape
   and finishes another.
+- American spellings: the author writes Australian English (see the voice
+  profile). Flag en-US spellings (serialization, skeptic, behavior, color,
+  optimize, center) and give the en-AU form. This is a firm craft finding, not a
+  note. Two carve-outs stay en-US: code, identifiers, and API/library names
+  quoted verbatim (`serialize()`, `otel_traces`, `Analyzer`), and proper nouns or
+  product names spelled that way by their owner. When a computing term of art is
+  genuinely split (artifact-the-build-output), flag it but mark it the author's
+  call.
 
 ### Argument quality
 
 - Unsupported claims: an assertion that wants a reason, a number, or an example
   and does not have one. Note where the support is missing. Do not invent it.
-- Weak transitions: two paragraphs that sit next to each other without the logic
-  between them being clear. Suggest the connective idea, not a filler phrase
-  (and never one of the slop transitions like "It's worth noting").
 - Logical gaps: a conclusion that does not follow from what came before.
 - Hand-waving: a hard part of the argument skipped with "obviously" or
   "clearly". For a technical audience, the hard part is usually the interesting
@@ -92,15 +97,28 @@ bad suggestion.
   guesswork, real numbers over vague claims.
 - Plain straight-typed Markdown: straight quotes, no em dashes, no curly
   punctuation, no unicode decoration.
+- Australian English (en-AU) spelling throughout: `-ise`/`-isation` not
+  `-ize`/`-ization` (serialise, optimise, organisation), `-our` not `-or`
+  (colour, favour, behaviour), `-re` not `-er` (centre, metre), `-ce` nouns
+  (licence, defence, practice-the-noun), doubled `-ll-` (labelled, modelled,
+  cancelled), and en-AU forms like sceptic, artefact, catalogue, grey, analyse.
 
 Use this profile two ways. First, never flag these as problems. Second, when the
 prose drifts away from this register toward something flatter or more corporate,
 that drift is itself a craft note: "this paragraph reads more generic than your
 usual voice."
 
-## How craft interacts with the slop rubric
+## How craft interacts with the slop rubric and the flow layer
 
 Some craft issues and slop tropes overlap (a flabby sentence may also be
 one-point dilution; a weak transition may tempt a slop filler phrase). When they
 overlap, name it once, under slop if it matches a trope, otherwise under craft.
 Do not double-count the same line in both sections.
+
+Craft owns the sentence and below; FLOW.md owns paragraph-and-above, including
+transitions between paragraphs. If a problem is that the reader loses the
+thread across a paragraph or a junction, it is a flow finding, not a craft
+finding, and flow's advice (which may be to unpack rather than tighten) wins
+at that altitude. Concision advice in this file applies within sentences and
+must not be used to compress a paragraph past the point a reader can follow
+on one read.

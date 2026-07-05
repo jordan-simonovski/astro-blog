@@ -7,6 +7,7 @@ import getSortedPosts from "@utils/getSortedPosts";
 import getPageNumbers from "@utils/getPageNumbers";
 import getPostsWithRT from "@utils/getPostsWithRT";
 import slugify from "@utils/slugify";
+import postFilter from "@utils/postFilter";
 import { SITE } from "@config";
 
 export interface Props {
@@ -14,7 +15,7 @@ export interface Props {
 }
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  const posts = await getCollection("blog", postFilter);
 
   const postsWithRT = await getPostsWithRT(posts);
 
