@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 210" width="640" height="210" class="viz" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Share of scored trials that named the wrong root cause. Pillars 39%, wide events 12%. Lower is better.">
+  <style>
+    .viz { --s1: #2a78d6; --s2: #1baf7a; --s3: #eda100; }
+    html[data-theme="dark"] .viz { --s1: #3987e5; --s2: #199e70; --s3: #c98500; }
+    .viz-title  { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 18px; font-weight: 650; }
+    .viz-sub    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
+    .viz-tick   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .55; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .viz-cat    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 14px; }
+    .viz-val    { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .viz-grid   { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .12; stroke-width: 1; }
+    .viz-base   { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .28; stroke-width: 1.5; }
+  </style>
+
+  <text x="40" y="30" class="viz-title">How often each stack named the wrong root cause</text>
+  <text x="40" y="52" class="viz-sub">Share of scored trials with a wrong answer — lower is better.</text>
+
+  <!-- gridlines 0/25/50/75/100 -->
+  <line x1="262.5" y1="70" x2="262.5" y2="168" class="viz-grid"/>
+  <line x1="375"   y1="70" x2="375"   y2="168" class="viz-grid"/>
+  <line x1="487.5" y1="70" x2="487.5" y2="168" class="viz-grid"/>
+  <line x1="600"   y1="70" x2="600"   y2="168" class="viz-grid"/>
+  <line x1="150"   y1="70" x2="150"   y2="168" class="viz-base"/>
+
+  <!-- bars -->
+  <path d="M150 78 L321.5 78 Q325.5 78 325.5 82 L325.5 104 Q325.5 108 321.5 108 L150 108 Z" fill="var(--s3)"/>
+  <path d="M150 128 L200 128 Q204 128 204 132 L204 154 Q204 158 200 158 L150 158 Z" fill="var(--s1)"/>
+
+  <!-- category labels -->
+  <text x="140" y="98"  text-anchor="end" class="viz-cat">pillars</text>
+  <text x="140" y="148" text-anchor="end" class="viz-cat">wide events</text>
+
+  <!-- value labels -->
+  <text x="333" y="98"  class="viz-val">39%</text>
+  <text x="212" y="148" class="viz-val">12%</text>
+
+  <!-- x ticks -->
+  <text x="150"   y="184" text-anchor="middle" class="viz-tick">0%</text>
+  <text x="262.5" y="184" text-anchor="middle" class="viz-tick">25%</text>
+  <text x="375"   y="184" text-anchor="middle" class="viz-tick">50%</text>
+  <text x="487.5" y="184" text-anchor="middle" class="viz-tick">75%</text>
+  <text x="600"   y="184" text-anchor="middle" class="viz-tick">100%</text>
+</svg>

@@ -11,45 +11,72 @@ export interface Props {
 
 const { src, alt, eager = false } = Astro.props;
 
-// Eager glob so the lookup is a static map, resolved at build time. Keys are
-// absolute project paths: "/src/assets/blog/<src>".
-const assets = import.meta.glob<{ default: ImageMetadata }>(
+const isSvg = /\.svg$/i.test(src);
+const key = `/src/assets/blog/${src}`;
+
+// Two eager globs, resolved to static maps at build time. SVGs are inlined (see
+// below) so they need their raw source; everything raster goes through
+// astro:assets. Keys are absolute project paths: "/src/assets/blog/<src>".
+const rawSvgs = import.meta.glob<string>("/src/assets/blog/**/*.{svg,SVG}", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const rasters = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/blog/**/*.{jpeg,jpg,png,webp,gif,JPG,JPEG,PNG}",
   { eager: true }
 );
 
-const key = `/src/assets/blog/${src}`;
-const mod = assets[key];
-if (!mod) {
-  throw new Error(
-    `<Figure src="${src}"> not found at ${key}. Put the file under src/assets/blog/.`
-  );
-}
-const image = mod.default;
+const notFound = `<Figure src="${src}"> not found at ${key}. Put the file under src/assets/blog/.`;
+
+// A data-viz SVG is inlined rather than <img>-embedded on purpose: the blog
+// themes via a manual `data-theme` toggle on <html>, and an <img>-embedded SVG
+// is an isolated document that can't see that attribute (it would desync from
+// the site theme whenever a reader overrides their OS preference). Inlined, the
+// page's `html[data-theme="dark"]` rules and `--color-*` vars reach inside it,
+// so the chart tracks the toggle exactly. No srcset/WebP: it's already vector.
+const rawSvg = isSvg ? rawSvgs[key] : undefined;
+if (isSvg && rawSvg === undefined) throw new Error(notFound);
+
+const mod = isSvg ? undefined : rasters[key];
+if (!isSvg && !mod) throw new Error(notFound);
+const image = mod?.default;
 
 // Article column is max-w-3xl (768px). Cap the display srcset at 2x that so we
 // never ship the multi-megapixel original into the page. getImage() builds a
 // single full-resolution WebP for the lightbox, generated but not downloaded
 // until the user clicks.
-const displayMax = Math.min(image.width, 1536);
+const displayMax = image ? Math.min(image.width, 1536) : 0;
 const widths = [360, 540, 768, 1100, 1536].filter(w => w < displayMax);
-widths.push(displayMax);
+if (displayMax) widths.push(displayMax);
 
-const full = await getImage({
-  src: image,
-  width: image.width,
-  format: "webp",
-  quality: 82,
-});
+const full = image
+  ? await getImage({
+      src: image,
+      width: image.width,
+      format: "webp",
+      quality: 82,
+    })
+  : null;
 ---
 
-<Image
-  src={image}
-  alt={alt}
-  layout="constrained"
-  widths={widths}
-  sizes="(max-width: 768px) 100vw, 768px"
-  loading={eager ? "eager" : "lazy"}
-  decoding="async"
-  data-full={full.src}
-/>
+{
+  isSvg ? (
+    <figure
+      class="not-prose mx-auto my-4 [&_svg]:h-auto [&_svg]:w-full [&_svg]:max-w-full"
+      aria-label={alt}
+      set:html={rawSvg}
+    />
+  ) : (
+    <Image
+      src={image!}
+      alt={alt}
+      layout="constrained"
+      widths={widths}
+      sizes="(max-width: 768px) 100vw, 768px"
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      data-full={full!.src}
+    />
+  )
+}
