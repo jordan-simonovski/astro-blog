@@ -133,11 +133,13 @@ const showOwnStats =
 </div>
 
 <style>
+  @reference "../styles/base.css";
+
   .repo-card {
-    @apply my-6 rounded-md border border-skin-line bg-skin-card p-4;
+    @apply border-skin-line bg-skin-card my-6 rounded-md border p-4;
   }
   .repo-card__title {
-    @apply flex items-center gap-2 text-base font-semibold text-skin-base no-underline;
+    @apply text-skin-base flex items-center gap-2 text-base font-semibold no-underline;
   }
   .repo-card__title svg {
     @apply shrink-0 opacity-70;
@@ -146,21 +148,21 @@ const showOwnStats =
     @apply underline;
   }
   .repo-card__forked {
-    @apply mt-1 flex items-center gap-1 text-xs text-skin-base no-underline opacity-80 hover:opacity-100;
+    @apply text-skin-base mt-1 flex items-center gap-1 text-xs no-underline opacity-80 hover:opacity-100;
   }
   .repo-card__desc {
-    @apply my-2 text-sm leading-relaxed text-skin-base opacity-80;
+    @apply text-skin-base my-2 text-sm leading-relaxed opacity-80;
   }
   .repo-card__quote {
-    @apply mt-3 block rounded-md border border-skin-line bg-skin-fill p-3 no-underline transition-opacity hover:opacity-90;
+    @apply border-skin-line bg-skin-fill mt-3 block rounded-md border p-3 no-underline transition-opacity hover:opacity-90;
   }
   .repo-card__quote-title {
-    @apply flex items-center gap-1.5 text-sm font-semibold text-skin-accent;
+    @apply text-skin-accent flex items-center gap-1.5 text-sm font-semibold;
   }
   .repo-card__quote-title svg {
     @apply shrink-0 opacity-70;
   }
   .repo-card__quote-desc {
-    @apply mb-2 mt-1 block text-sm leading-snug text-skin-base opacity-80;
+    @apply text-skin-base mt-1 mb-2 block text-sm leading-snug opacity-80;
   }
 </style>

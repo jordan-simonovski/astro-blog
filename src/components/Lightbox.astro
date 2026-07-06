@@ -39,6 +39,8 @@ const { articleSelector = "#article" } = Astro.props;
 </div>
 
 <style>
+  @reference "../styles/base.css";
+
   .lb {
     @apply fixed inset-0 z-[100] hidden;
   }
@@ -66,20 +68,20 @@ const { articleSelector = "#article" } = Astro.props;
     cursor: grabbing;
   }
   .lb-toolbar {
-    @apply fixed right-3 top-3 flex items-center gap-2 rounded-md border border-skin-line p-1.5 text-skin-base shadow-md;
+    @apply border-skin-line text-skin-base fixed top-3 right-3 flex items-center gap-2 rounded-md border p-1.5 shadow-md;
     background-color: rgb(var(--color-fill));
   }
   .lb-btn {
-    @apply flex h-8 min-w-[2rem] items-center justify-center rounded border border-skin-line px-2 text-lg leading-none transition-colors hover:border-skin-accent hover:text-skin-accent;
+    @apply border-skin-line hover:border-skin-accent hover:text-skin-accent flex h-8 min-w-[2rem] items-center justify-center rounded border px-2 text-lg leading-none transition-colors;
   }
   .lb-btn-text {
     @apply text-xs font-medium;
   }
   .lb-pct {
-    @apply min-w-[3.5rem] select-none text-center text-xs tabular-nums opacity-80;
+    @apply min-w-[3.5rem] text-center text-xs tabular-nums opacity-80 select-none;
   }
   .lb-caption {
-    @apply fixed inset-x-0 bottom-3 mx-auto max-w-2xl px-4 text-center text-sm text-skin-base opacity-80;
+    @apply text-skin-base fixed inset-x-0 bottom-3 mx-auto max-w-2xl px-4 text-center text-sm opacity-80;
   }
   .lb-caption:empty {
     @apply hidden;

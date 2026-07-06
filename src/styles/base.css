@@ -1,6 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Themeable skin palette. Each token resolves an rgb() around the raw
+   `--color-*` triplets defined in :root below, so the light/dark toggle and
+   the `/opacity` modifiers both keep working. One token per underlying
+   variable; utility prefixes (bg-/text-/border-/fill-/outline-) come for free
+   from the `--color-*` namespace. */
+@theme {
+  --color-skin-fill: rgb(var(--color-fill));
+  --color-skin-base: rgb(var(--color-text-base));
+  --color-skin-accent: rgb(var(--color-accent));
+  --color-skin-card: rgb(var(--color-card));
+  --color-skin-card-muted: rgb(var(--color-card-muted));
+  --color-skin-line: rgb(var(--color-border));
+}
+
+/* Fonts are supplied by Astro's font integration as `--font-mono` /
+   `--font-content`. `inline` references those vars without re-emitting (and
+   colliding with) them. */
+@theme inline {
+  --font-mono: var(--font-mono), monospace;
+  --font-content: var(--font-content), Georgia, Cambria, serif;
+}
 
 @layer base {
   :root,
@@ -29,15 +50,15 @@
     display: block;
   }
   body {
-    @apply flex min-h-screen flex-col bg-skin-fill font-content text-skin-base 
-    selection:bg-skin-accent selection:bg-opacity-70 selection:text-skin-inverted;
+    @apply flex min-h-screen flex-col bg-skin-fill font-content text-skin-base
+    selection:bg-skin-accent/70 selection:text-skin-fill;
   }
   section,
   footer {
     @apply mx-auto max-w-3xl px-4;
   }
   a {
-    @apply outline-2 outline-offset-1 outline-skin-fill 
+    @apply outline-2 outline-offset-1 outline-skin-accent 
     focus-visible:no-underline focus-visible:outline-dashed;
   }
   svg {
@@ -49,25 +70,23 @@
     sm:scale-110;
   }
   .prose {
-    @apply font-content prose-headings:!mb-3 prose-headings:!text-skin-base 
-    prose-h3:italic prose-p:!text-skin-base 
-    prose-a:!text-skin-base prose-a:!decoration-dashed prose-a:underline-offset-8
-    hover:prose-a:text-skin-accent prose-blockquote:!border-l-skin-accent
-    prose-blockquote:border-opacity-50 prose-blockquote:opacity-80
-    prose-figcaption:!text-skin-base prose-figcaption:opacity-70
-    prose-strong:!text-skin-base
-
-    
-    prose-code:rounded prose-code:bg-skin-card 
-    prose-code:bg-opacity-75 prose-code:p-1 prose-code:!text-skin-base 
-    prose-code:before:!content-[''] prose-code:after:!content-['']
-    prose-pre:!text-skin-base prose-ol:!text-skin-base 
-    prose-ul:overflow-x-clip prose-ul:!text-skin-base prose-li:marker:!text-skin-accent
+    @apply font-content prose-headings:mb-3! prose-headings:text-skin-base!
+    prose-h3:italic prose-p:text-skin-base!
+    prose-a:text-skin-base! prose-a:decoration-dashed! prose-a:underline-offset-8
+    hover:prose-a:text-skin-accent prose-blockquote:border-l-skin-accent/50!
+    prose-blockquote:opacity-80
+    prose-figcaption:text-skin-base! prose-figcaption:opacity-70
+    prose-strong:text-skin-base!
+    prose-code:rounded prose-code:bg-skin-card/75
+    prose-code:p-1 prose-code:text-skin-base!
+    prose-code:before:content-['']! prose-code:after:content-['']!
+    prose-pre:text-skin-base! prose-ol:text-skin-base!
+    prose-ul:overflow-x-clip prose-ul:text-skin-base! prose-li:marker:text-skin-accent!
     prose-table:text-skin-base prose-th:border
-    prose-th:border-skin-line prose-td:border 
-    prose-td:border-skin-line prose-img:mx-auto 
-    prose-img:!mt-2 prose-img:border-2 
-    prose-img:border-skin-line prose-hr:!border-skin-line;
+    prose-th:border-skin-line prose-td:border
+    prose-td:border-skin-line prose-img:mx-auto
+    prose-img:mt-2! prose-img:border-2
+    prose-img:border-skin-line prose-hr:border-skin-line!;
   }
   .prose a {
     @apply hover:!text-skin-accent;
@@ -100,7 +119,7 @@
     @apply inline-block max-w-full cursor-pointer select-none text-skin-base;
   }
   .prose summary {
-    @apply focus-outline;
+    @apply outline-2 outline-offset-1 outline-skin-accent focus-visible:no-underline focus-visible:outline-dashed;
   }
   .prose h2#table-of-contents + p {
     @apply hidden;
@@ -176,6 +195,6 @@
     @apply hidden;
   }
   .focus-outline {
-    @apply outline-2 outline-offset-1 outline-skin-fill focus-visible:no-underline focus-visible:outline-dashed;
+    @apply outline-2 outline-offset-1 outline-skin-accent focus-visible:no-underline focus-visible:outline-dashed;
   }
 }
