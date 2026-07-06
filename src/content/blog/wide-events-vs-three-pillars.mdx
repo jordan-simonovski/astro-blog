@@ -77,7 +77,7 @@ under `eval/` and `trace-generator/`, if you want to run it or take it apart.
 The shape of it:
 
 - A telemetry generator I tuned to emit real outage scenarios: eight of them (S1-S8),
-  each a plausible production incident with a known ground-truth root cause. Some are
+  each a plausible production incident with a known root cause. Some are
   high-cardinality (a feature flag tanking one region's checkout, a bad build throwing 503s on
   a subset of pods); some deliberately aren't (a region-only slowdown that metrics _can_ see).
   The mix matters. A benchmark that's all softballs for your thesis isn't a benchmark.
