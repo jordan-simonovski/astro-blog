@@ -408,11 +408,6 @@ const toc = headings.filter(
       );
 
       for (const target of targets) observer.observe(target);
-      document.addEventListener(
-        "astro:before-swap",
-        () => observer.disconnect(),
-        { once: true }
-      );
     }
 
     // ===== Bottom-sheet open/close wiring =====
@@ -453,5 +448,4 @@ const toc = headings.filter(
   }
 
   initToc();
-  document.addEventListener("astro:page-load", initToc);
 </script>

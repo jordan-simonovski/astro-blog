@@ -1,6 +1,5 @@
 import { defineConfig, envField, fontProviders } from "astro/config";
 import { unified } from "@astrojs/markdown-remark";
-import react from "@astrojs/react";
 import expressiveCode from "astro-expressive-code";
 import mdx from "@astrojs/mdx";
 import remarkToc from "remark-toc";
@@ -15,7 +14,6 @@ import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs";
 export default defineConfig({
   site: SITE.website,
   integrations: [
-    react(),
     // expressiveCode must run before mdx() so it owns code-block rendering.
     expressiveCode({
       themes: ["one-light", "one-dark-pro"],
@@ -56,11 +54,6 @@ export default defineConfig({
   vite: {
     optimizeDeps: {
       exclude: ["@resvg/resvg-js"],
-      // `Comments` is behind `client:visible`, so giscus isn't seen in Vite's
-      // initial dep scan. Pre-bundle it (and React) so Vite doesn't re-optimize
-      // at runtime, which would invalidate the dev-toolbar entrypoint and throw
-      // NS_ERROR_CORRUPTED_CONTENT / 504. See withastro/astro#16766.
-      include: ["@giscus/react", "react", "react-dom/client"],
     },
   },
   image: {

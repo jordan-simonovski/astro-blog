@@ -90,8 +90,8 @@ const { articleSelector = "#article" } = Astro.props;
 
 <script is:inline define:vars={{ articleSelector }}>
   (() => {
-    // A fresh page load is never "open"; clear any scroll lock left over from
-    // navigating away (view transitions swap <body> but keep <html>).
+    // A fresh page load is never "open"; clear any scroll lock left over if
+    // this page comes back from the back/forward cache.
     document.documentElement.classList.remove("lb-open");
 
     const root = document.querySelector("[data-lightbox]");
