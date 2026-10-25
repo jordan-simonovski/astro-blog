@@ -1,0 +1,71 @@
+---
+import { GISCUS } from "@config";
+
+// giscus' own embed is a single <script> tag; no framework needed. It is
+// injected only when the reader scrolls near the comments, with the theme read
+// from `html[data-theme]` at that moment, then kept in sync with the toggle.
+const config = {
+  "data-repo": GISCUS.repo,
+  "data-repo-id": GISCUS.repoId,
+  "data-category": GISCUS.category,
+  "data-category-id": GISCUS.categoryId,
+  "data-mapping": GISCUS.mapping,
+  "data-reactions-enabled": GISCUS.reactionsEnabled,
+  "data-emit-metadata": "0",
+  "data-input-position": GISCUS.inputPosition,
+  "data-lang": GISCUS.lang,
+  "data-loading": "lazy",
+};
+---
+
+<div
+  class="giscus-wrapper min-h-[148px]"
+  data-giscus-config={JSON.stringify(config)}
+>
+  <div class="giscus"></div>
+</div>
+
+<script is:inline>
+  (() => {
+    const wrapper = document.querySelector("[data-giscus-config]");
+    if (!wrapper) return;
+
+    const theme = () =>
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "dark"
+        : "light";
+
+    const load = () => {
+      const s = document.createElement("script");
+      s.src = "https://giscus.app/client.js";
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      const config = JSON.parse(wrapper.dataset.giscusConfig);
+      for (const [k, v] of Object.entries(config)) s.setAttribute(k, v);
+      s.setAttribute("data-theme", theme());
+      wrapper.appendChild(s);
+
+      new MutationObserver(() => {
+        const frame = wrapper.querySelector("iframe.giscus-frame");
+        frame?.contentWindow?.postMessage(
+          { giscus: { setConfig: { theme: theme() } } },
+          "https://giscus.app"
+        );
+      }).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+    };
+
+    const io = new IntersectionObserver(
+      entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          io.disconnect();
+          load();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    io.observe(wrapper);
+  })();
+</script>

@@ -1,0 +1,27 @@
+---
+import Datetime from "./Datetime.astro";
+import type { BlogFrontmatter } from "@content/_schemas";
+
+export interface Props {
+  href?: string;
+  frontmatter: BlogFrontmatter;
+  secHeading?: boolean;
+}
+
+const { href, frontmatter, secHeading = true } = Astro.props;
+const { title, pubDatetime, description, readingTime } = frontmatter;
+const Heading = secHeading ? "h2" : "h3";
+---
+
+<li class="my-6">
+  <a
+    href={href}
+    class="text-skin-accent inline-block text-lg font-medium decoration-dashed underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
+  >
+    <Heading class="text-lg font-medium decoration-dashed hover:underline">
+      {title}
+    </Heading>
+  </a>
+  <Datetime datetime={pubDatetime} readingTime={readingTime} />
+  <p>{description}</p>
+</li>

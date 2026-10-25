@@ -23,6 +23,22 @@
   --font-content: var(--font-content), Georgia, Cambria, serif;
 }
 
+/* Cross-document view transitions: the browser cross-fades between plain page
+   loads, no client-side router involved. The opt-in stays unconditional because
+   wrapping it in a media query breaks it for prerendered pages (see the
+   speculation rules in Layout.astro); reduced motion drops the animation
+   instead. */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 @layer base {
   :root,
   html[data-theme="light"] {
@@ -33,13 +49,30 @@
     --color-card-muted: 205, 205, 205;
     --color-border: 236, 233, 233;
   }
+  :root {
+    color-scheme: light;
+  }
   html[data-theme="dark"] {
+    color-scheme: dark;
     --color-fill: 33, 39, 55;
     --color-text-base: 234, 237, 243;
     --color-accent: 255, 107, 1;
     --color-card: 52, 63, 96;
     --color-card-muted: 138, 51, 2;
     --color-border: 171, 75, 8;
+  }
+  /* Same dark palette for readers without JS (toggle-theme.js never sets
+     data-theme), following the OS setting. */
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme]) {
+      color-scheme: dark;
+      --color-fill: 33, 39, 55;
+      --color-text-base: 234, 237, 243;
+      --color-accent: 255, 107, 1;
+      --color-card: 52, 63, 96;
+      --color-card-muted: 138, 51, 2;
+      --color-border: 171, 75, 8;
+    }
   }
   .sun-svg,
   html[data-theme="dark"] .moon-svg {
@@ -50,43 +83,23 @@
     display: block;
   }
   body {
-    @apply flex min-h-screen flex-col bg-skin-fill font-content text-skin-base
-    selection:bg-skin-accent/70 selection:text-skin-fill;
+    @apply bg-skin-fill font-content text-skin-base selection:bg-skin-accent/70 selection:text-skin-fill flex min-h-screen flex-col;
   }
   section,
   footer {
     @apply mx-auto max-w-3xl px-4;
   }
   a {
-    @apply outline-offset-1 outline-skin-accent
-    focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
+    @apply outline-skin-accent outline-offset-1 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
   }
   svg {
-    @apply inline-block h-6 w-6 fill-skin-base group-hover:fill-skin-accent;
+    @apply fill-skin-base group-hover:fill-skin-accent inline-block h-6 w-6;
   }
   svg.icon-tabler {
-    @apply inline-block h-6 w-6 scale-125 fill-transparent 
-    stroke-current stroke-2 opacity-90 group-hover:fill-transparent 
-    sm:scale-110;
+    @apply inline-block h-6 w-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110;
   }
   .prose {
-    @apply font-content prose-headings:mb-3! prose-headings:text-skin-base!
-    prose-h3:italic prose-p:text-skin-base!
-    prose-a:text-skin-base! prose-a:decoration-dashed! prose-a:underline-offset-8
-    hover:prose-a:text-skin-accent prose-blockquote:border-l-skin-accent/50!
-    prose-blockquote:opacity-80
-    prose-figcaption:text-skin-base! prose-figcaption:opacity-70
-    prose-strong:text-skin-base!
-    prose-code:rounded prose-code:bg-skin-card/75
-    prose-code:p-1 prose-code:text-skin-base!
-    prose-code:before:content-['']! prose-code:after:content-['']!
-    prose-pre:text-skin-base! prose-ol:text-skin-base!
-    prose-ul:overflow-x-clip prose-ul:text-skin-base! prose-li:marker:text-skin-accent!
-    prose-table:text-skin-base prose-th:border
-    prose-th:border-skin-line prose-td:border
-    prose-td:border-skin-line prose-img:mx-auto
-    prose-img:mt-2! prose-img:border-2
-    prose-img:border-skin-line prose-hr:border-skin-line!;
+    @apply font-content prose-headings:mb-3! prose-headings:text-skin-base! prose-h3:italic prose-p:text-skin-base! prose-a:text-skin-base! prose-a:decoration-dashed! prose-a:underline-offset-8 hover:prose-a:text-skin-accent prose-blockquote:border-l-skin-accent/50! prose-blockquote:opacity-80 prose-figcaption:text-skin-base! prose-figcaption:opacity-70 prose-strong:text-skin-base! prose-code:rounded prose-code:bg-skin-card/75 prose-code:p-1 prose-code:text-skin-base! prose-code:before:content-['']! prose-code:after:content-['']! prose-pre:text-skin-base! prose-ol:text-skin-base! prose-ul:overflow-x-clip prose-ul:text-skin-base! prose-li:marker:text-skin-accent! prose-table:text-skin-base prose-th:border prose-th:border-skin-line prose-td:border prose-td:border-skin-line prose-img:mx-auto prose-img:mt-2! prose-img:border-2 prose-img:border-skin-line prose-hr:border-skin-line!;
   }
   .prose a {
     @apply hover:!text-skin-accent;
@@ -116,10 +129,10 @@
     @apply mb-2;
   }
   .prose details {
-    @apply inline-block max-w-full cursor-pointer select-none text-skin-base;
+    @apply text-skin-base inline-block max-w-full cursor-pointer select-none;
   }
   .prose summary {
-    @apply outline-offset-1 outline-skin-accent focus-visible:outline-2 focus-visible:no-underline focus-visible:outline-dashed;
+    @apply outline-skin-accent outline-offset-1 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
   }
   .prose h2#table-of-contents + p {
     @apply hidden;
@@ -195,6 +208,6 @@
     @apply hidden;
   }
   .focus-outline {
-    @apply outline-offset-1 outline-skin-accent focus-visible:outline-2 focus-visible:no-underline focus-visible:outline-dashed;
+    @apply outline-skin-accent outline-offset-1 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
   }
 }

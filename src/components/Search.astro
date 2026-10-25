@@ -1,0 +1,107 @@
+---
+import Card from "@components/Card.astro";
+import slugify from "@utils/slugify";
+import type { BlogFrontmatter } from "@content/_schemas";
+
+export interface Props {
+  posts: BlogFrontmatter[];
+}
+
+const { posts } = Astro.props;
+const index = posts.map(({ title, description }) => ({ title, description }));
+---
+
+<form action="/search" method="get" role="search" data-search>
+  <label class="relative block">
+    <span class="sr-only">Search</span>
+    <span class="absolute inset-y-0 left-0 flex items-center pl-2 opacity-75">
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path
+          d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"
+        ></path>
+      </svg>
+    </span>
+    <input
+      class="border-skin-base/40 bg-skin-fill placeholder:text-skin-base/75 focus:border-skin-accent block w-full rounded border py-3 pr-3 pl-10 placeholder:italic focus:outline-none"
+      placeholder="Search for anything..."
+      type="search"
+      name="q"
+      autocomplete="off"
+      autofocus
+    />
+  </label>
+</form>
+
+<p class="mt-8" aria-live="polite" data-search-status hidden></p>
+
+<!-- Every post is server-rendered here. Without JS the reader gets the full
+     list; with JS the script below filters and re-orders it in place. -->
+<ul data-search-results>
+  {
+    posts.map(data => (
+      <Card href={`/posts/${slugify(data)}`} frontmatter={data} />
+    ))
+  }
+</ul>
+
+<script
+  is:inline
+  type="application/json"
+  data-search-index
+  set:html={JSON.stringify(index)}
+/>
+
+<script>
+  import Fuse from "fuse.js";
+
+  type Entry = { title: string; description: string };
+
+  const form = document.querySelector<HTMLFormElement>("[data-search]")!;
+  const input = form.querySelector<HTMLInputElement>("input[name=q]")!;
+  const status = document.querySelector<HTMLElement>("[data-search-status]")!;
+  const list = document.querySelector<HTMLUListElement>(
+    "[data-search-results]"
+  )!;
+  const items = [...list.children] as HTMLLIElement[];
+  const index: Entry[] = JSON.parse(
+    document.querySelector("[data-search-index]")!.textContent!
+  );
+
+  const fuse = new Fuse(index, {
+    keys: ["title", "description"],
+    minMatchCharLength: 2,
+    threshold: 0.3,
+    // Match anywhere in the description, not just near the start.
+    ignoreLocation: true,
+  });
+
+  const render = () => {
+    const q = input.value.trim();
+    history.replaceState(
+      null,
+      "",
+      q ? `${location.pathname}?q=${encodeURIComponent(q)}` : location.pathname
+    );
+
+    if (q.length < 2) {
+      status.hidden = true;
+      list.replaceChildren();
+      return;
+    }
+
+    const results = fuse.search(q);
+    status.hidden = false;
+    status.textContent = `Found ${results.length} result${results.length === 1 ? "" : "s"} for '${q}'`;
+    list.replaceChildren(...results.map(r => items[r.refIndex]));
+  };
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    render();
+  });
+  input.addEventListener("input", render);
+
+  input.value = new URLSearchParams(location.search).get("q") ?? "";
+  input.setSelectionRange(input.value.length, input.value.length);
+  render();
+</script>

@@ -1,10 +1,8 @@
 const primaryColorScheme = ""; // "light" | "dark"
 
-// Get theme data from local storage
-const currentTheme = localStorage.getItem("theme");
-
 function getPreferTheme() {
   // return theme value in local storage if it is set
+  const currentTheme = localStorage.getItem("theme");
   if (currentTheme) return currentTheme;
 
   // return primary color scheme if it is set
@@ -50,11 +48,18 @@ window.onload = () => {
   }
 
   setThemeFeature();
-
-  // Re-bind after every view-transition swap. window.onload does not fire on
-  // client-side navigations, so without this the toggle dies after the first nav.
-  document.addEventListener("astro:after-swap", setThemeFeature);
 };
+
+// A page restored from the back/forward cache, or prerendered before the
+// reader toggled the theme, can hold a stale value. Re-read on show.
+window.addEventListener("pageshow", () => {
+  themeValue = getPreferTheme();
+  reflectPreference();
+});
+document.addEventListener("prerenderingchange", () => {
+  themeValue = getPreferTheme();
+  reflectPreference();
+});
 
 // sync with system changes
 window

@@ -5,24 +5,17 @@ import Layout from "@layouts/Layout.astro";
 import Main from "@layouts/Main.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
-import SearchComponent from "@components/Search";
+import Search from "@components/Search.astro";
 import postFilter from "@utils/postFilter";
+import getSortedPosts from "@utils/getSortedPosts";
 
-// Retrieve all articles
-const posts = await getCollection("blog", postFilter);
-
-// List of items to search in
-const searchList = posts.map(({ data }) => ({
-  title: data.title,
-  description: data.description,
-  data,
-}));
+const posts = await getSortedPosts(await getCollection("blog", postFilter));
 ---
 
 <Layout title={`Search | ${SITE.title}`}>
   <Header activeNav="search" />
   <Main pageTitle="Search" pageDesc="Search any article ...">
-    <SearchComponent client:load searchList={searchList} />
+    <Search posts={posts.map(({ data }) => data)} />
   </Main>
   <Footer />
 </Layout>
