@@ -9,6 +9,11 @@ frontend:
     build:
       commands:
         - npm run build
+    postBuild:
+      commands:
+        # Standard.site records in the Bluesky account, only when ATPROTO_APP_PASSWORD is set in
+        # Amplify's environment variables. A failure here never stops the deploy.
+        - '[ -z "$ATPROTO_APP_PASSWORD" ] || node scripts/standard-site.mjs || echo "Standard.site records not updated"'
   artifacts:
     baseDirectory: dist
     files:

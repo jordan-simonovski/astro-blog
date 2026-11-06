@@ -1,5 +1,6 @@
 ---
-import { SITE } from "@config";
+import { SITE, WEBMENTION } from "@config";
+import { publicationUri } from "@utils/standardSite";
 import { Font } from "astro:assets";
 import Analytics from "@vercel/analytics/astro";
 import "@styles/base.css";
@@ -19,6 +20,8 @@ export interface Props {
   publishedTime?: Date;
   tags?: string[];
   structuredData?: Record<string, unknown>;
+  /** The post's Standard.site document record, on a post page. */
+  standardDocument?: string;
 }
 
 const {
@@ -33,6 +36,7 @@ const {
   ogType = "website",
   publishedTime,
   tags = [],
+  standardDocument,
 } = Astro.props;
 
 const socialImageURL = new URL(
@@ -103,6 +107,19 @@ const speculationRules = {
     <meta name="description" content={description} />
     <meta name="author" content={author} />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.title}
+      href={new URL("rss.xml", Astro.site)}
+    />
+    <link rel="site.standard.publication" href={publicationUri} />
+    {
+      standardDocument && (
+        <link rel="site.standard.document" href={standardDocument} />
+      )
+    }
+    {WEBMENTION.enabled && <link rel="webmention" href={WEBMENTION.endpoint} />}
 
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content={title} />

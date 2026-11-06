@@ -11,6 +11,7 @@ import TableOfContents from "@components/TableOfContents.astro";
 import { GISCUS, SITE } from "@config";
 import { render, type CollectionEntry } from "astro:content";
 import slugify, { slugifyStr } from "@utils/slugify";
+import { documentUri } from "@utils/standardSite";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -75,6 +76,7 @@ const structuredData = {
   publishedTime={pubDatetime}
   tags={tags}
   structuredData={structuredData}
+  standardDocument={post.data.draft ? undefined : documentUri(post.data)}
 >
   <Header />
   <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
@@ -91,9 +93,16 @@ const structuredData = {
   </div>
   <TableOfContents headings={headings} />
   <main id="main-content">
-    <article>
+    <article class="h-entry">
+      {
+        /* Microformats for Bridgy Fed and other IndieWeb readers: the post's address and author. */
+      }
+      <data class="u-url" value={pageUrl} hidden></data>
+      <a class="p-author h-card" href={SITE.website} hidden
+        >{author ?? SITE.author}</a
+      >
       <header>
-        <h1 class="post-title">{title}</h1>
+        <h1 class="post-title p-name">{title}</h1>
         <Datetime
           datetime={pubDatetime}
           size="lg"
@@ -101,7 +110,7 @@ const structuredData = {
           readingTime={readingTime}
         />
       </header>
-      <div id="article" class="prose mx-auto mt-8 max-w-3xl">
+      <div id="article" class="e-content prose mx-auto mt-8 max-w-3xl">
         <Content />
       </div>
       <footer class="tags-container">

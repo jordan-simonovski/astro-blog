@@ -17,7 +17,8 @@
     "prepare": "husky install",
     "lint": "eslint . && markdownlint-cli2 \"**/*.md\"",
     "lint:fix": "eslint . --fix && markdownlint-cli2 --fix \"**/*.md\"",
-    "a11y": "astro build && node scripts/a11y.mjs"
+    "a11y": "astro build && node scripts/a11y.mjs",
+    "standard-site": "node scripts/standard-site.mjs"
   },
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.11",
