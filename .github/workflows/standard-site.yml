@@ -1,0 +1,29 @@
+name: standard-site
+
+# Writes the blog's Standard.site records to Bluesky once a production deploy is live, from that
+# deploy's own manifest, so every record's page is already up to confirm it. Preview deploys never
+# run it. Needs the repository secret ATPROTO_APP_PASSWORD (a Bluesky app password).
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: standard-site
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Publish Standard.site records
+        run: node scripts/standard-site.mjs
+        env:
+          ATPROTO_APP_PASSWORD: ${{ secrets.ATPROTO_APP_PASSWORD }}

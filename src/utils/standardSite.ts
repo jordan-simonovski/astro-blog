@@ -27,8 +27,9 @@ export const publicationUri = `at://${STANDARD_SITE.did}/site.standard.publicati
 export const postPath = (data: CollectionEntry<"blog">["data"]) =>
   `/posts/${slugify(data)}/`;
 
-export const documentRkey = (data: CollectionEntry<"blog">["data"]) =>
-  tid(data.pubDatetime, slugify(data));
+/** Keyed by the post's file, not its title, so fixing a title keeps the same record. */
+export const documentRkey = (post: CollectionEntry<"blog">) =>
+  tid(post.data.pubDatetime, post.id);
 
-export const documentUri = (data: CollectionEntry<"blog">["data"]) =>
-  `at://${STANDARD_SITE.did}/site.standard.document/${documentRkey(data)}`;
+export const documentUri = (post: CollectionEntry<"blog">) =>
+  `at://${STANDARD_SITE.did}/site.standard.document/${documentRkey(post)}`;
