@@ -28,6 +28,22 @@ export const GISCUS = {
   lang: "en",
 };
 
+// Standard.site (atproto): this blog as a publication in the author's Bluesky account, so readers on
+// the open network (PaperWing, Leaflet and others) can find and follow it. The record key is fixed:
+// /.well-known/site.standard.publication and every page link to it. scripts/standard-site.mjs writes
+// the records after each production deploy (.github/workflows/standard-site.yml).
+export const STANDARD_SITE = {
+  did: "did:plc:ho5shcsntliyqgorqxqt6gsu",
+  publicationRkey: "3k5dxsqds22lg",
+};
+
+// Webmentions through webmention.io: replies from other sites, and from the fediverse through
+// Bridgy Fed. Stays off until the domain is signed in at webmention.io (fail closed, like GISCUS).
+export const WEBMENTION = {
+  enabled: false,
+  endpoint: "https://webmention.io/blog.jordansimonov.ski/webmention",
+};
+
 export const LOCALE = ["en-EN"]; // set to [] to use the environment default
 
 export const LOGO_IMAGE = {

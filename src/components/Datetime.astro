@@ -40,7 +40,7 @@ const time = myDatetime.toLocaleTimeString(LOCALE, {
   </svg>
   <span class="sr-only">Posted on:</span>
   <span class:list={["italic", size === "sm" ? "text-sm" : "text-base"]}>
-    <time datetime={myDatetime.toISOString()}>
+    <time class="dt-published" datetime={myDatetime.toISOString()}>
       {date}
       <span aria-hidden="true"> | </span>
       <span class="sr-only">&nbsp;at&nbsp;</span>
