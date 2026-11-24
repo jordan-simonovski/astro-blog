@@ -1,7 +1,6 @@
 ---
 title: My Sunday Project — Static S3 Hosting
 pubDatetime: 2018-06-04T12:50:20Z
-series: lab
 author: Jordan Simonovski
 description: Make the good way of serving your front-end the easy way."
 tags:

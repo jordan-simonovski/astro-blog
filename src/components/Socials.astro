@@ -1,51 +1,36 @@
 ---
 import { SOCIALS } from "@config";
+import LinkButton from "./LinkButton.astro";
+import socialIcons from "@assets/socialIcons";
 
 export interface Props {
-  rss?: boolean;
+  centered?: boolean;
 }
 
-const { rss = false } = Astro.props;
-// CV already sits in the masthead.
-const links = SOCIALS.filter(s => s.active && s.name !== "CV");
+const { centered = false } = Astro.props;
 ---
 
-<ul class="socials">
+<div class={`social-icons ${centered ? "flex" : ""}`}>
   {
-    rss && (
-      <li>
-        <a href="/rss.xml">RSS</a>
-      </li>
-    )
-  }
-  {
-    links.map(s => (
-      <li>
-        <a href={s.href} rel="me noopener" title={s.linkTitle}>
-          {s.name === "Github" ? "GitHub" : s.name}
-        </a>
-      </li>
+    SOCIALS.filter(social => social.active).map(social => (
+      <LinkButton
+        href={social.href}
+        className="link-button"
+        title={social.linkTitle}
+      >
+        <Fragment set:html={socialIcons[social.name]} />
+      </LinkButton>
     ))
   }
-</ul>
+</div>
 
 <style>
-  .socials {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1.25rem;
-    font-weight: 500;
+  @reference "../styles/base.css";
+
+  .social-icons {
+    @apply flex-wrap justify-center gap-1;
   }
-  .socials a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    text-decoration: underline;
-    text-decoration-color: rgb(var(--color-card-muted));
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 0.25em;
-  }
-  .socials a:hover {
-    text-decoration-color: currentColor;
+  .link-button {
+    @apply p-2 hover:rotate-6 sm:p-1;
   }
 </style>

@@ -23,9 +23,8 @@ export default defineConfig({
       themeCssSelector: theme => `[data-theme="${theme.type}"]`,
       useDarkModeMediaQuery: false,
       styleOverrides: {
-        borderRadius: "0.125rem",
+        borderRadius: "0.375rem",
         codeFontFamily: "inherit",
-        frames: { frameBoxShadowCssValue: "none" },
       },
     }),
     mdx(),
@@ -67,27 +66,19 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.google(),
-      name: "Cabin",
-      cssVariable: "--font-ui",
+      name: "IBM Plex Mono",
+      cssVariable: "--font-mono",
       weights: [400, 500, 600, 700],
       styles: ["normal", "italic"],
-      fallbacks: ["sans-serif"],
-    },
-    {
-      provider: fontProviders.google(),
-      name: "Libre Baskerville",
-      cssVariable: "--font-content",
-      weights: [400, 700],
-      styles: ["normal", "italic"],
-      fallbacks: ["Georgia", "serif"],
-    },
-    {
-      provider: fontProviders.google(),
-      name: "JetBrains Mono",
-      cssVariable: "--font-mono",
-      weights: [400, 600],
-      styles: ["normal"],
       fallbacks: ["monospace"],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Literata",
+      cssVariable: "--font-content",
+      weights: [400, 500, 600, 700],
+      styles: ["normal", "italic"],
+      fallbacks: ["Georgia", "Cambria", "serif"],
     },
   ],
   env: {

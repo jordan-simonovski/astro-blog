@@ -62,17 +62,12 @@ const full = image
 
 {
   isSvg ? (
-    // Charts scroll sideways on phones; a scrollable region must be keyboard
-    // reachable (WCAG 2.1.1), so the figure takes focus despite being static.
-    /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
     <figure
-      class="viz-figure not-prose"
+      class="not-prose mx-auto my-4 [&_svg]:h-auto [&_svg]:w-full [&_svg]:max-w-full"
       aria-label={alt}
-      tabindex="0"
       set:html={rawSvg}
     />
   ) : (
-    /* eslint-enable jsx-a11y/no-noninteractive-tabindex */
     <Image
       src={image!}
       alt={alt}
@@ -85,18 +80,3 @@ const full = image
     />
   )
 }
-
-<style>
-  /* Charts hold a minimum width so their labels stay readable on phones; the
-     figure scrolls sideways instead of shrinking the type. */
-  .viz-figure {
-    margin-block: 2rem;
-    overflow-x: auto;
-  }
-  .viz-figure :global(svg) {
-    display: block;
-    width: 100%;
-    height: auto;
-    min-width: 40rem;
-  }
-</style>

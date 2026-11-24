@@ -14,7 +14,7 @@ const index = posts.map(({ title, description }) => ({ title, description }));
 <form action="/search" method="get" role="search" data-search>
   <label class="relative block">
     <span class="sr-only">Search</span>
-    <span class="search-icon">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-2 opacity-75">
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path
           d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"
@@ -22,8 +22,8 @@ const index = posts.map(({ title, description }) => ({ title, description }));
       </svg>
     </span>
     <input
-      class="search-input"
-      placeholder="Wide events, espresso, error budgets…"
+      class="border-skin-base/40 bg-skin-fill placeholder:text-skin-base/75 focus:border-skin-accent block w-full rounded border py-3 pr-3 pl-10 placeholder:italic focus:outline-none"
+      placeholder="Search for anything..."
       type="search"
       name="q"
       autocomplete="off"
@@ -32,7 +32,7 @@ const index = posts.map(({ title, description }) => ({ title, description }));
   </label>
 </form>
 
-<p class="meta search-status" aria-live="polite" data-search-status hidden></p>
+<p class="mt-8" aria-live="polite" data-search-status hidden></p>
 
 <!-- Every post is server-rendered here. Without JS the reader gets the full
      list; with JS the script below filters and re-orders it in place. -->
@@ -43,45 +43,6 @@ const index = posts.map(({ title, description }) => ({ title, description }));
     ))
   }
 </ul>
-
-<style>
-  .search-icon {
-    position: absolute;
-    inset-block: 0;
-    left: 0.75rem;
-    display: flex;
-    align-items: center;
-    color: rgb(var(--color-text-muted));
-  }
-  .search-icon svg {
-    fill: currentColor;
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-  .search-input {
-    display: block;
-    width: 100%;
-    max-width: 38rem;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
-    font-size: 1.0625rem;
-    background-color: rgb(var(--color-raised));
-    color: rgb(var(--color-text-base));
-    border: 1px solid rgb(var(--color-card-muted));
-    border-bottom: 3px solid rgb(var(--color-text-base));
-    border-radius: 0;
-    caret-color: rgb(var(--color-text-base));
-  }
-  .search-input::placeholder {
-    color: rgb(var(--color-text-muted));
-  }
-  .search-input:focus-visible {
-    outline: 2px solid rgb(var(--color-text-base));
-    outline-offset: 2px;
-  }
-  .search-status {
-    margin-top: 1.5rem;
-  }
-</style>
 
 <script
   is:inline

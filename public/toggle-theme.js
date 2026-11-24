@@ -26,12 +26,7 @@ function reflectPreference() {
 
   document
     .querySelectorAll(".theme-btn")
-    .forEach(btn =>
-      btn.setAttribute(
-        "aria-label",
-        themeValue === "dark" ? "Switch to light theme" : "Switch to dark theme"
-      )
-    );
+    .forEach(btn => btn.setAttribute("aria-label", themeValue));
 }
 
 // set early so no page flashes / CSS is made aware

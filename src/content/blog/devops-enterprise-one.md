@@ -1,7 +1,6 @@
 ---
 title: DevOps & Enterprise — Introducing Cultural Change to Big Organisations
 pubDatetime: 2017-03-12T11:50:20Z
-series: leadership
 author: Jordan Simonovski
 description: "How introducing DevOps and SRE within the constraints of your organisation can help you win battles in your fight for better IT Operations."
 postSlug: devops-enterprise-one

@@ -8,8 +8,8 @@
        data-theme toggle automatically. Fallback = light theme for standalone view. */
     .viz-title  { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 19px; font-weight: 650; }
     .viz-sub    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
-    .viz-foot   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 13px; }
-    .viz-tick   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .55; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .viz-foot   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 11.5px; }
+    .viz-tick   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .55; font-size: 12px; font-variant-numeric: tabular-nums; }
     .viz-glabel { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .78; font-size: 13px; font-weight: 550; }
     .viz-val    { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; }
     .viz-leg    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .78; font-size: 13px; }
