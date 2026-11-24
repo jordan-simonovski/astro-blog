@@ -3,150 +3,251 @@ import { getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
-import LinkButton from "@components/LinkButton.astro";
-import Hr from "@components/Hr.astro";
 import Card from "@components/Card.astro";
+import Datetime from "@components/Datetime.astro";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
 import slugify from "@utils/slugify";
-import { SOCIALS } from "@config";
+import {
+  SERIES,
+  SERIES_KEYS,
+  postsInSeries,
+  seriesNumber,
+} from "@utils/series";
+import smartQuotes from "@utils/smartQuotes";
 
-const posts = await getCollection("blog");
+const posts = await getSortedPosts(await getCollection("blog"));
+const latest = posts[0];
 
-const sortedPosts = await getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-
-const socialCount = SOCIALS.filter(social => social.active).length;
+// The shelf: every series, newest title first, the series of the latest post
+// leading.
+const order = [
+  latest.data.series,
+  ...SERIES_KEYS.filter(k => k !== latest.data.series),
+];
+const shelves = order.map(key => ({
+  key,
+  info: SERIES[key],
+  titles: postsInSeries(posts, key)
+    .map((post, i) => ({ post, number: String(i + 1).padStart(2, "0") }))
+    .reverse(),
+}));
 ---
 
 <Layout>
   <Header />
   <main id="main-content">
-    <section id="hero">
-      <h1>Jordan's Blog</h1>
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="rss-link"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon"
-          ><path
-            d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"
-          ></path><path
-            d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"
-          ></path><circle cx="6" cy="18" r="2"></circle>
-        </svg>
-      </a>
+    <section class="title-band">
+      <div class="frame frame-grid">
+        <div class="intro">
+          <h1>Jordan’s Blog</h1>
+          <p class="lede">
+            Hi 👋 I'm Jordan! I sit somewhere between software development and
+            SRE. I've been writing about various topics, but my current
+            interests are SRE, Observability, and systems. May or may not use
+            this as a place to dump my recipes alongside my thoughts.
+          </p>
+          <Socials rss />
+        </div>
+      </div>
+    </section>
+    <div class="band-rule" aria-hidden="true"></div>
 
-      <p>
-        Hi 👋 I'm Jordan! I sit somewhere between sofware development and SRE.
-        I've been writing about various topics, but my current interests are
-        SRE, Observability, and systems. May or may not use this as a place to
-        dump my recipes alongside my thoughts.
-      </p>
-      {
-        // only display if at least one social link is enabled
-        socialCount > 0 && (
-          <div class="social-wrapper">
-            <div class="social-links">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
+    <section
+      class="latest"
+      data-series={latest.data.series}
+      aria-labelledby="latest-heading"
+    >
+      <div class="frame frame-grid">
+        <h2 id="latest-heading" class="shelf-label latest-label">
+          <span>Latest</span>
+          <span class="series-code"
+            >{SERIES[latest.data.series].name}
+            {seriesNumber(posts, latest)}</span
+          >
+        </h2>
+        <div>
+          <h3 class="latest-title">
+            <a href={`/posts/${slugify(latest.data)}`}
+              >{smartQuotes(latest.data.title)}</a
+            >
+          </h3>
+          <p class="latest-deck">{latest.data.description}</p>
+          <p class="meta latest-meta">
+            <span class="series-code latest-code"
+              >{SERIES[latest.data.series].name}
+              {seriesNumber(posts, latest)}</span
+            >
+            <Datetime
+              datetime={latest.data.pubDatetime}
+              readingTime={latest.data.readingTime}
+            />
+          </p>
+        </div>
+      </div>
     </section>
 
-    <Hr />
-
     {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured">
-            <h2>Featured</h2>
+      shelves.map(({ key, info, titles }) => (
+        <section
+          class="shelf"
+          data-series={key}
+          aria-labelledby={`shelf-${key}`}
+        >
+          <div class="shelf-rule" aria-hidden="true" />
+          <div class="frame frame-grid">
+            <h2 id={`shelf-${key}`} class="shelf-label">
+              <a href={`/series/${key}`}>{info.name}</a>
+              <span class="shelf-count">
+                {titles.length} {titles.length === 1 ? "title" : "titles"}
+              </span>
+            </h2>
             <ul>
-              {featuredPosts.map(({ data }) => (
+              {titles.map(({ post, number }) => (
                 <Card
-                  href={`/posts/${slugify(data)}`}
-                  frontmatter={data}
+                  href={`/posts/${slugify(post.data)}`}
+                  frontmatter={post.data}
+                  number={number}
                   secHeading={false}
                 />
               ))}
             </ul>
-          </section>
-          <Hr />
-        </>
-      )
+          </div>
+        </section>
+      ))
     }
-
-    <section id="recent-posts">
-      <h2>Recent Posts</h2>
-      <ul>
-        {
-          sortedPosts.map(
-            ({ data }, index) =>
-              index < 4 && (
-                <Card
-                  href={`/posts/${slugify(data)}`}
-                  frontmatter={data}
-                  secHeading={false}
-                />
-              )
-          )
-        }
-      </ul>
-      <div class="all-posts-btn-wrapper">
-        <LinkButton href="/posts">
-          All Posts
-          <svg xmlns="http://www.w3.org/2000/svg"
-            ><path
-              d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-            ></path>
-          </svg>
-        </LinkButton>
-      </div>
-    </section>
   </main>
 
   <Footer />
 </Layout>
 
 <style>
-  @reference "../styles/base.css";
+  .title-band {
+    background-color: rgb(var(--color-raised));
+    padding-block: 2.5rem 2rem;
+  }
+  @media (min-width: 1024px) {
+    .title-band {
+      padding-block: 3.5rem 2.75rem;
+    }
+    .intro {
+      grid-column: 2;
+    }
+  }
+  h1 {
+    font-size: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .lede {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 38rem;
+    font-family: var(--font-content);
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
 
-  /* ===== Hero Section ===== */
-  #hero {
-    @apply pt-8 pb-6;
+  /* ===== Latest: the newest title, set large in its series ink ===== */
+  .latest {
+    padding-block: 2.5rem 3rem;
   }
-  #hero h1 {
-    @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
+  .latest-title {
+    font-size: clamp(1.625rem, 1.2rem + 1.6vw, 2.25rem);
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -0.012em;
+    max-width: 26ch;
   }
-  #hero .rss-link {
-    @apply mb-6;
+  .latest-title a {
+    text-decoration: none;
   }
-  #hero .rss-icon {
-    @apply fill-skin-accent mb-2 h-6 w-6 scale-110 sm:mb-3 sm:scale-125;
+  .latest-title a:hover {
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--color-accent));
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.15em;
   }
-  #hero p {
-    @apply my-2;
+  .latest-deck {
+    margin-top: 0.75rem;
+    max-width: 38rem;
+    font-family: var(--font-content);
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgb(var(--color-text-muted));
   }
-  .social-wrapper {
-    @apply mt-4 flex flex-col sm:flex-row sm:items-center;
+  .latest-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.5em;
+    margin-top: 0.75rem;
   }
-  .social-links {
-    @apply mr-2 mb-1 whitespace-nowrap sm:mb-0;
+  .latest-code::after {
+    content: "·";
+    margin-left: 0.5em;
+    color: rgb(var(--color-text-muted));
+  }
+  /* The "Latest" label lives in the margin; without a margin it would be an
+     eyebrow over the title, so narrow screens drop it (the heading stays for
+     screen readers) and carry the series code in the meta line. */
+  @media (max-width: 1023px) {
+    .latest-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+  @media (min-width: 1024px) {
+    .latest-code {
+      display: none;
+    }
   }
 
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
-  #recent-posts {
-    @apply pt-12 pb-6;
+  /* ===== The shelf: one band of series ink per series ===== */
+  .shelf {
+    padding-bottom: 2.5rem;
   }
-  #featured h2,
-  #recent-posts h2 {
-    @apply text-2xl font-semibold tracking-wide;
+  .shelf-rule {
+    height: 0.5rem;
+    background-color: rgb(var(--color-band));
+    margin-bottom: 1.5rem;
   }
-  .all-posts-btn-wrapper {
-    @apply my-8 text-center;
+  .shelf-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--color-accent));
+    padding-block: 1.25rem 0.75rem;
+  }
+  .shelf-label a {
+    display: inline-block;
+    padding-block: 0.25rem;
+    text-decoration: none;
+  }
+  .shelf-label a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  .shelf-label .series-code,
+  .shelf-count {
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+  .shelf-count {
+    color: rgb(var(--color-text-muted));
+  }
+  .latest .shelf-label > span:first-child {
+    color: rgb(var(--color-text-muted));
   }
 </style>

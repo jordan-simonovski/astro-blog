@@ -22,6 +22,8 @@ export interface Props {
   structuredData?: Record<string, unknown>;
   /** The post's Standard.site document record, on a post page. */
   standardDocument?: string;
+  /** Paperback series that tints the band and accent; house ink when absent. */
+  series?: string;
 }
 
 const {
@@ -37,6 +39,7 @@ const {
   publishedTime,
   tags = [],
   standardDocument,
+  series,
 } = Astro.props;
 
 const socialImageURL = new URL(
@@ -93,7 +96,7 @@ const speculationRules = {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-series={series}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -178,10 +181,17 @@ const speculationRules = {
       set:html={JSON.stringify(structuredData)}
     />
 
-    <!-- Self-hosted IBM Plex Mono via Astro's Fonts API -->
-    <Font cssVariable="--font-mono" preload />
-    <!-- Literata: book-style reading serif for article prose -->
-    <Font cssVariable="--font-content" preload />
+    <!-- Self-hosted via Astro's Fonts API. Preload only what the first
+         viewport paints: Cabin bold (band, titles) and the reading serif. -->
+    <Font
+      cssVariable="--font-ui"
+      preload={[{ weight: "700", style: "normal" }]}
+    />
+    <Font
+      cssVariable="--font-content"
+      preload={[{ weight: "400", style: "normal" }]}
+    />
+    <Font cssVariable="--font-mono" />
 
     {
       // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,

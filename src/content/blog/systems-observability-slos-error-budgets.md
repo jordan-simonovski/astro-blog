@@ -1,6 +1,7 @@
 ---
 title: Systems Observability - Determining SLIs, SLOs, and Introducing Error Budgets
 pubDatetime: 2019-05-21T19:30:20Z
+series: observability
 author: Jordan Simonovski
 description: "Monitoring isn't just a 'finger in the air' way of determining the health of our applications. It also needs to be an actionable indicator of the reliability of our systems."
 tags:

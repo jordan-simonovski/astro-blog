@@ -1,52 +1,37 @@
 ---
-import Hr from "./Hr.astro";
 import Socials from "./Socials.astro";
 import { SITE } from "@config";
 
 const currentYear = new Date().getFullYear();
-
-export interface Props {
-  noMarginTop?: boolean;
-}
-
-const { noMarginTop = false } = Astro.props;
 ---
 
-<footer class={`${noMarginTop ? "" : "mt-auto"}`}>
-  <Hr noPadding />
-  <div class="footer-wrapper">
-    <Socials centered />
-    <div class="copyright-wrapper">
-      <!-- The site's h-card: who it belongs to, for Bridgy Fed and other IndieWeb readers. -->
-      <span
-        >Copyright &#169; {currentYear}
-        <a class="h-card" href={SITE.website}>{SITE.author}</a></span
-      >
-      <span class="separator">&nbsp;|&nbsp;</span>
-      <span>All rights reserved.</span>
-    </div>
+<footer class="site-footer">
+  <div class="frame frame-grid">
+    <!-- The site's h-card: who it belongs to, for Bridgy Fed and other IndieWeb readers. -->
+    <p class="colophon">
+      &#169; {currentYear}
+      <a class="h-card" href={SITE.website}>{SITE.author}</a>
+    </p>
+    <Socials rss />
   </div>
 </footer>
 
 <style>
-  @reference "../styles/base.css";
-
-  footer {
-    @apply w-full;
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid rgb(var(--color-border));
+    padding-block: 1.5rem 2.5rem;
+    color: rgb(var(--color-text-muted));
+    font-size: 0.9375rem;
   }
-  .footer-wrapper {
-    @apply flex flex-col items-center justify-between py-6 sm:flex-row-reverse sm:py-4;
+  .colophon {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
   }
-  .link-button {
-    @apply my-1 p-2 hover:rotate-6;
-  }
-  .link-button svg {
-    @apply scale-125;
-  }
-  .copyright-wrapper {
-    @apply my-2 flex flex-col items-center whitespace-nowrap sm:flex-row;
-  }
-  .separator {
-    @apply hidden sm:inline;
+  .colophon a {
+    text-decoration: none;
+    color: rgb(var(--color-text-base));
+    margin-left: 0.3em;
   }
 </style>

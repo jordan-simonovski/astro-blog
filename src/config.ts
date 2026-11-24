@@ -44,7 +44,7 @@ export const WEBMENTION = {
   endpoint: "https://webmention.io/blog.jordansimonov.ski/webmention",
 };
 
-export const LOCALE = ["en-EN"]; // set to [] to use the environment default
+export const LOCALE = ["en-GB"]; // day-month-year: "4 July 2026"
 
 export const LOGO_IMAGE = {
   enable: false,

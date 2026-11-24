@@ -1,6 +1,4 @@
 ---
-import Breadcrumbs from "@components/Breadcrumbs.astro";
-
 export interface Props {
   pageTitle: string;
   pageDesc?: string;
@@ -9,23 +7,54 @@ export interface Props {
 const { pageTitle, pageDesc } = Astro.props;
 ---
 
-<Breadcrumbs />
 <main id="main-content">
-  <h1>{pageTitle}</h1>
-  <p>{pageDesc}</p>
-  <slot />
+  <header class="title-band">
+    <div class="frame frame-grid">
+      <slot name="margin" />
+      <div class="title-col">
+        <h1>{pageTitle}</h1>
+        {pageDesc && <p class="desc">{pageDesc}</p>}
+      </div>
+    </div>
+  </header>
+  <div class="band-rule" aria-hidden="true"></div>
+  <div class="frame frame-grid page-body">
+    <div class="body-col">
+      <slot />
+    </div>
+  </div>
 </main>
 
 <style>
-  @reference "../styles/base.css";
-
-  #main-content {
-    @apply mx-auto w-full max-w-3xl px-4 pb-12;
+  .title-band {
+    background-color: rgb(var(--color-raised));
+    padding-block: 2.25rem 2rem;
   }
-  #main-content h1 {
-    @apply text-2xl font-semibold sm:text-3xl;
+  @media (min-width: 1024px) {
+    .title-band {
+      padding-block: 3rem 2.5rem;
+    }
+    .title-col,
+    .body-col {
+      grid-column: 2;
+    }
   }
-  #main-content p {
-    @apply mt-2 mb-6 italic;
+  h1 {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .desc {
+    margin-top: 0.75rem;
+    max-width: 38rem;
+    font-family: var(--font-content);
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgb(var(--color-text-muted));
+  }
+  .page-body {
+    padding-block: 1.5rem 4rem;
   }
 </style>

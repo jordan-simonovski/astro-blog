@@ -4,7 +4,7 @@
     html[data-theme="dark"] .viz { --s1: #3987e5; --s2: #199e70; --s3: #c98500; }
     .viz-title  { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 18px; font-weight: 650; }
     .viz-sub    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
-    .viz-tick   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .55; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .viz-tick   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .55; font-size: 13px; font-variant-numeric: tabular-nums; }
     .viz-cat    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 14px; }
     .viz-val    { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
     .viz-grid   { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .12; stroke-width: 1; }

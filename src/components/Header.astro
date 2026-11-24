@@ -1,142 +1,104 @@
 ---
-import { LOGO_IMAGE, SITE } from "@config";
-import LinkButton from "./LinkButton.astro";
-
-const logoPNG = "/assets/logo.png";
-const logoSVG = "/assets/logo.svg";
+import { SITE } from "@config";
+import { SERIES, SERIES_KEYS, type SeriesKey } from "@utils/series";
 
 export interface Props {
-  activeNav?: "posts" | "tags" | "about" | "search";
+  activeNav?: SeriesKey | "posts" | "tags" | "about" | "search";
 }
 
 const { activeNav } = Astro.props;
+
+const themeButton = SITE.lightAndDarkMode;
 ---
 
-<header>
+<header class="band">
   <a id="skip-to-content" href="#main-content">Skip to content</a>
-  <div class="nav-container">
-    <div class="top-nav-wrap">
-      <div class="top-row">
-        <a href="/" class="logo">
+  <div class="frame frame-grid band-inner">
+    <a href="/" class="wordmark">{SITE.title}</a>
+    <div class="band-right">
+      <nav id="nav-menu" aria-label="Site">
+        <ul id="menu-items" class="menu">
           {
-            LOGO_IMAGE.enable ? (
-              <img
-                src={LOGO_IMAGE.svg ? logoSVG : logoPNG}
-                alt="AstroPaper Logo"
-                width={LOGO_IMAGE.width}
-                height={LOGO_IMAGE.height}
-              />
-            ) : (
-              SITE.title
-            )
+            SERIES_KEYS.map(key => (
+              <li>
+                <a
+                  href={`/series/${key}`}
+                  aria-current={activeNav === key ? "page" : undefined}
+                >
+                  {SERIES[key].name}
+                </a>
+              </li>
+            ))
           }
-        </a>
-        <button
-          class="hamburger-menu focus-outline"
-          aria-label="Open Menu"
-          aria-expanded="false"
-          aria-controls="menu-items"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" id="menu-icon">
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            id="close-icon"
-            class="display-none"
-          >
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-          </svg>
-        </button>
-        {
-          SITE.lightAndDarkMode && (
-            <button
-              class="theme-btn theme-btn-mobile focus-outline"
-              title="Toggles light & dark"
-              aria-label="auto"
-              aria-live="polite"
+          <li>
+            <a
+              href="/about"
+              aria-current={activeNav === "about" ? "page" : undefined}>About</a
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="moon-svg">
-                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z" />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" class="sun-svg">
-                <path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.993c1.658 0 3.007 1.349 3.007 3.007S13.658 15.007 12 15.007 8.993 13.658 8.993 12 10.342 8.993 12 8.993zM10.998 19h2v3h-2zm0-17h2v3h-2zm-9 9h3v2h-3zm17 0h3v2h-3zM4.219 18.363l2.12-2.122 1.415 1.414-2.12 2.122zM16.24 6.344l2.122-2.122 1.414 1.414-2.122 2.122zM6.342 7.759 4.22 5.637l1.415-1.414 2.12 2.122zm13.434 10.605-1.414 1.414-2.122-2.122 1.414-1.414z" />
-              </svg>
-            </button>
-          )
-        }
-      </div>
-      <nav id="nav-menu">
-        <ul
-          id="menu-items"
-          class="hidden w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex sm:w-auto sm:justify-end sm:gap-x-5"
-        >
-          <li>
-            <a href="/posts" class={activeNav === "posts" ? "active" : ""}>
-              Posts
-            </a>
           </li>
           <li>
-            <a href="/tags" class={activeNav === "tags" ? "active" : ""}>
-              Tags
-            </a>
-          </li>
-          <li>
-            <a href="/about" class={activeNav === "about" ? "active" : ""}>
-              About
-            </a>
+            <a href="https://cv.jordansimonov.ski" rel="me noopener">CV</a>
           </li>
           <li>
             <a
-              href="https://cv.jordansimonov.ski"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              CV
-            </a>
-          </li>
-          <li>
-            <LinkButton
               href="/search"
-              className={`focus-outline p-2 sm:p-1 ${
-                activeNav === "search" ? "active" : ""
-              }`}
-              ariaLabel="search"
-              title="Search"
+              class="icon-link"
+              aria-label="Search"
+              aria-current={activeNav === "search" ? "page" : undefined}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="scale-110 sm:scale-100"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
                 ><path
                   d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"
                 ></path>
               </svg>
-            </LinkButton>
-          </li>
-          <li class="theme-menu-item">
-            {
-              SITE.lightAndDarkMode && (
-                <button
-                  class="theme-btn focus-outline"
-                  title="Toggles light & dark"
-                  aria-label="auto"
-                  aria-live="polite"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="moon-svg">
-                    <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z" />
-                  </svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="sun-svg">
-                    <path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.993c1.658 0 3.007 1.349 3.007 3.007S13.658 15.007 12 15.007 8.993 13.658 8.993 12 10.342 8.993 12 8.993zM10.998 19h2v3h-2zm0-17h2v3h-2zm-9 9h3v2h-3zm17 0h3v2h-3zM4.219 18.363l2.12-2.122 1.415 1.414-2.12 2.122zM16.24 6.344l2.122-2.122 1.414 1.414-2.122 2.122zM6.342 7.759 4.22 5.637l1.415-1.414 2.12 2.122zm13.434 10.605-1.414 1.414-2.122-2.122 1.414-1.414z" />
-                  </svg>
-                </button>
-              )
-            }
+            </a>
           </li>
         </ul>
       </nav>
+      {
+        themeButton && (
+          <button
+            class="theme-btn icon-link"
+            type="button"
+            aria-label="Switch theme"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              class="moon-svg"
+              aria-hidden="true"
+            >
+              <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z" />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              class="sun-svg"
+              aria-hidden="true"
+            >
+              <path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.993c1.658 0 3.007 1.349 3.007 3.007S13.658 15.007 12 15.007 8.993 13.658 8.993 12 10.342 8.993 12 8.993zM10.998 19h2v3h-2zm0-17h2v3h-2zm-9 9h3v2h-3zm17 0h3v2h-3zM4.219 18.363l2.12-2.122 1.415 1.414-2.12 2.122zM16.24 6.344l2.122-2.122 1.414 1.414-2.122 2.122zM6.342 7.759 4.22 5.637l1.415-1.414 2.12 2.122zm13.434 10.605-1.414 1.414-2.122-2.122 1.414-1.414z" />
+            </svg>
+          </button>
+        )
+      }
+      <button
+        class="menu-btn icon-link"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="menu-items"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
@@ -144,92 +106,128 @@ const { activeNav } = Astro.props;
 <style>
   @reference "../styles/base.css";
 
+  /* The masthead is the series band itself: flat ink, white type, no shadow. */
+  .band {
+    background-color: rgb(var(--color-band));
+    color: #fff;
+  }
+  .band-inner {
+    min-height: 4rem;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    column-gap: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    .band-inner {
+      display: grid;
+    }
+  }
+  .wordmark {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.005em;
+    text-decoration: none;
+    padding-block: 1rem;
+  }
+  .band-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .band :focus-visible {
+    outline-color: #fff;
+  }
+  .band svg {
+    fill: currentColor;
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem 1.75rem;
+    font-weight: 500;
+  }
+  .menu a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    padding-top: 3px;
+  }
+  .menu a:hover {
+    border-bottom-color: rgb(255 255 255 / 0.45);
+  }
+  /* Where you are is a printed mark, not a colour. */
+  .menu a[aria-current="page"] {
+    border-bottom-color: #fff;
+  }
+  .icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+  .menu-btn {
+    display: none;
+  }
+
+  /* Narrow screens: wordmark, theme and menu on the band; the menu opens as
+     a full-width list inside the band. */
+  @media (max-width: 767px) {
+    .band-right {
+      display: contents;
+    }
+    .wordmark {
+      margin-right: auto;
+    }
+    .menu-btn {
+      display: inline-flex;
+    }
+    #nav-menu {
+      order: 3;
+      flex-basis: 100%;
+    }
+    .menu {
+      display: none;
+      flex-direction: column;
+      align-items: stretch;
+      padding-bottom: 0.75rem;
+      font-size: 1.0625rem;
+    }
+    .menu.is-open {
+      display: flex;
+    }
+    .menu a {
+      border-bottom-width: 1px;
+      border-bottom-color: rgb(255 255 255 / 0.2);
+      width: 100%;
+    }
+    .menu a[aria-current="page"] {
+      border-bottom: 3px solid #fff;
+    }
+    .menu .icon-link {
+      justify-content: flex-start;
+    }
+  }
+
   #skip-to-content {
-    @apply bg-skin-accent text-skin-fill absolute -top-full left-16 z-50 px-3 py-2 transition-all focus:top-4;
-  }
-
-  header {
-    @apply sticky top-0 z-40;
-  }
-  .nav-container {
-    @apply mx-auto max-w-3xl px-4 pt-3 sm:pt-4;
-  }
-  .top-nav-wrap {
-    @apply border-skin-line bg-skin-fill/80 relative flex w-full flex-col gap-y-2 rounded-xl border px-4 py-3 shadow-md backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:gap-y-0 sm:px-6 sm:py-4;
-  }
-  .top-row {
-    @apply relative flex w-full items-center justify-center sm:w-auto sm:justify-start;
-  }
-  .logo {
-    @apply py-1 text-lg font-semibold whitespace-nowrap sm:text-2xl;
-  }
-
-  .hamburger-menu {
-    @apply absolute top-1/2 left-0 -translate-y-1/2 p-1 sm:hidden;
-  }
-  .hamburger-menu svg {
-    @apply h-6 w-6 scale-110 fill-transparent stroke-current stroke-2;
-  }
-  .theme-btn-mobile {
-    @apply absolute top-1/2 right-0 -translate-y-1/2 sm:hidden;
-  }
-  .theme-btn-mobile svg {
-    @apply fill-skin-base hover:fill-skin-accent h-6 w-6;
-  }
-
-  nav {
-    @apply w-full sm:w-auto;
-  }
-  nav ul li {
-    @apply flex items-center justify-center;
-  }
-  /* Theme lives next to the title on mobile, so hide the menu copy there.
-     Needs class-level specificity to beat the scoped `nav ul li` rule. */
-  nav ul li.theme-menu-item {
-    @apply hidden sm:flex;
-  }
-  nav ul li a {
-    @apply hover:text-skin-accent px-2 py-2 text-center font-medium sm:px-2 sm:py-1;
-  }
-  nav a.active {
-    @apply underline decoration-wavy decoration-2 underline-offset-4;
-  }
-  nav a.active svg {
-    @apply fill-skin-accent;
-  }
-
-  nav button {
-    @apply p-1;
-  }
-  nav button svg {
-    @apply fill-skin-base hover:fill-skin-accent h-6 w-6;
-  }
-  .theme-btn {
-    @apply p-2 sm:p-1;
-  }
-  .theme-btn svg {
-    @apply scale-110 hover:rotate-12 sm:scale-100;
+    @apply absolute -top-full left-4 z-50 bg-white px-3 py-2 text-black focus:top-3;
   }
 </style>
 
 <script>
-  function setupMobileMenu() {
-    const btn = document.querySelector<HTMLButtonElement>(".hamburger-menu");
-    const items = document.querySelector<HTMLUListElement>("#menu-items");
-    const menuIcon = document.querySelector("#menu-icon");
-    const closeIcon = document.querySelector("#close-icon");
-    if (!btn || !items) return;
-
-    btn.addEventListener("click", () => {
-      const expanded = btn.getAttribute("aria-expanded") === "true";
-      btn.setAttribute("aria-expanded", String(!expanded));
-      btn.setAttribute("aria-label", expanded ? "Open Menu" : "Close Menu");
-      items.classList.toggle("hidden");
-      items.classList.toggle("flex");
-      menuIcon?.classList.toggle("display-none");
-      closeIcon?.classList.toggle("display-none");
-    });
-  }
-
-  setupMobileMenu();
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const items = document.querySelector<HTMLUListElement>("#menu-items");
+  btn?.addEventListener("click", () => {
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    items?.classList.toggle("is-open", open);
+  });
 </script>

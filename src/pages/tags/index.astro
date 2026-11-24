@@ -15,10 +15,19 @@ let tags = getUniqueTags(posts);
 
 <Layout title={`Tags | ${SITE.title}`}>
   <Header activeNav="tags" />
-  <Main pageTitle="Tags" pageDesc="All the tags used in posts.">
-    <ul>
-      {tags.map(tag => <Tag name={tag} size="lg" />)}
+  <Main pageTitle="Tags" pageDesc="Every tag across the three series.">
+    <ul class="tag-cloud">
+      {tags.map(tag => <Tag name={tag} />)}
     </ul>
   </Main>
   <Footer />
 </Layout>
+
+<style>
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.25rem;
+    font-size: 1.0625rem;
+  }
+</style>
