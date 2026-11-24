@@ -3,7 +3,6 @@ import generateOgImage from "@utils/generateOgImage";
 import slugify from "@utils/slugify";
 import postFilter from "@utils/postFilter";
 import type { APIRoute } from "astro";
-import { seriesNumber } from "@utils/series";
 
 const postImportResult = await getCollection("blog", postFilter);
 const posts = Object.values(postImportResult);
@@ -11,21 +10,19 @@ const posts = Object.values(postImportResult);
 export function getStaticPaths() {
   return posts
     .filter(({ data }) => !data.ogImage)
-    .map(post => ({ data: post.data, number: seriesNumber(posts, post) }))
-    .map(({ data, number }) => ({
+    .map(({ data }) => ({
       // Use the slug, not the raw title, so the og:image URL has no spaces,
       // parentheses or emoji — those break unfurlers on Slack/X/LinkedIn.
       params: { ogTitle: slugify(data) },
-      props: { title: data.title, series: data.series, number },
+      props: { title: data.title },
     }));
 }
 
 export const GET: APIRoute = async ({ params, props }) => {
-  const svg = await generateOgImage(params.ogTitle as string, {
-    title: props.title,
-    series: props.series,
-    number: props.number,
-  });
+  const svg = await generateOgImage(
+    props.title as string,
+    params.ogTitle as string
+  );
   return new Response(svg, {
     headers: {
       "Content-Type": "image/svg+xml",

@@ -3,125 +3,115 @@ import type { SatoriOptions } from "satori";
 import { SITE } from "@config";
 import { writeFile } from "node:fs/promises";
 import { Resvg } from "@resvg/resvg-js";
-import { SERIES, type SeriesKey } from "./series";
-import smartQuotes from "./smartQuotes";
 
-// Satori can't read woff2, so fetch the site's faces as woff from a pinned
-// fontsource release.
-const font = (file: string) =>
-  fetch(
-    `https://cdn.jsdelivr.net/npm/@fontsource/cabin@5.3.0/files/${file}`
-  ).then(res => {
-    if (!res.ok) throw new Error(`OG font fetch failed: ${file}`);
-    return res.arrayBuffer();
-  });
+const fetchFonts = async () => {
+  // Regular Font
+  const fontFileRegular = await fetch(
+    "https://www.1001fonts.com/download/font/ibm-plex-mono.regular.ttf"
+  );
+  const fontRegular: ArrayBuffer = await fontFileRegular.arrayBuffer();
 
-const [cabinBold, cabinMedium] = await Promise.all([
-  font("cabin-latin-700-normal.woff"),
-  font("cabin-latin-500-normal.woff"),
-]);
+  // Bold Font
+  const fontFileBold = await fetch(
+    "https://www.1001fonts.com/download/font/ibm-plex-mono.bold.ttf"
+  );
+  const fontBold: ArrayBuffer = await fontFileBold.arrayBuffer();
 
-const INK = "#16181D";
-const MUTED = "#545A65";
+  return { fontRegular, fontBold };
+};
 
-export interface OgCard {
-  title: string;
-  series?: SeriesKey;
-  number?: string;
-  /** Line under the title on the site card (no series). */
-  subtitle?: string;
-}
+const { fontRegular, fontBold } = await fetchFonts();
 
-// The post page's first viewport as a card: series band with the wordmark, a
-// white title sheet with the series mark in the margin, and the closing rule.
-const ogImage = ({ title, series, number, subtitle }: OgCard) => {
-  const info = series ? SERIES[series] : undefined;
-  const band = info?.band ?? INK;
+const ogImage = (text: string) => {
   return (
     <div
       style={{
+        background: "#fefbfb",
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        background: "#FFFFFF",
-        fontFamily: "Cabin",
-        color: INK,
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <div
         style={{
-          height: 96,
-          background: band,
-          color: "#FFFFFF",
+          position: "absolute",
+          top: "-1px",
+          right: "-1px",
+          border: "4px solid #000",
+          background: "#ecebeb",
+          opacity: "0.9",
+          borderRadius: "4px",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 72px",
-          fontSize: 34,
-          fontWeight: 700,
+          justifyContent: "center",
+          margin: "2.5rem",
+          width: "88%",
+          height: "80%",
+        }}
+      />
+
+      <div
+        style={{
+          border: "4px solid #000",
+          background: "#fefbfb",
+          borderRadius: "4px",
+          display: "flex",
+          justifyContent: "center",
+          margin: "2rem",
+          width: "88%",
+          height: "80%",
         }}
       >
-        <span>{SITE.title}</span>
-        {info && (
-          <span style={{ fontSize: 26, fontWeight: 500 }}>{info.name}</span>
-        )}
-      </div>
-
-      <div style={{ flex: 1, display: "flex", padding: "64px 72px 0" }}>
-        {info && (
-          <div
-            style={{
-              width: 260,
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 20,
-                fontWeight: 700,
-                letterSpacing: 2,
-                textTransform: "uppercase",
-                color: band,
-              }}
-            >
-              {info.name}
-            </span>
-            <span style={{ fontSize: 112, fontWeight: 700, lineHeight: 1 }}>
-              {number}
-            </span>
-          </div>
-        )}
         <div
           style={{
-            flex: 1,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            paddingBottom: 40,
+            margin: "20px",
+            width: "90%",
+            height: "90%",
           }}
         >
-          <span
+          <p
             style={{
-              fontSize: info ? 64 : 88,
-              fontWeight: 700,
-              lineHeight: 1.08,
-              letterSpacing: -1,
-              maxHeight: 300,
+              fontSize: 72,
+              fontWeight: "bold",
+              maxHeight: "84%",
               overflow: "hidden",
             }}
           >
-            {smartQuotes(title)}
-          </span>
-          <span style={{ fontSize: 28, fontWeight: 500, color: MUTED }}>
-            {smartQuotes(subtitle ?? SITE.author)}
-          </span>
+            {text}
+          </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+              marginBottom: "8px",
+              fontSize: 28,
+            }}
+          >
+            <span>
+              by{" "}
+              <span
+                style={{
+                  color: "transparent",
+                }}
+              >
+                "
+              </span>
+              <span style={{ overflow: "hidden", fontWeight: "bold" }}>
+                {SITE.author}
+              </span>
+            </span>
+
+            <span style={{ overflow: "hidden", fontWeight: "bold" }}>
+              {SITE.title}
+            </span>
+          </div>
         </div>
       </div>
-
-      <div style={{ height: 16, background: band }} />
     </div>
   );
 };
@@ -131,18 +121,32 @@ const options: SatoriOptions = {
   height: 630,
   embedFont: true,
   fonts: [
-    { name: "Cabin", data: cabinBold, weight: 700, style: "normal" },
-    { name: "Cabin", data: cabinMedium, weight: 500, style: "normal" },
+    {
+      name: "IBM Plex Mono",
+      data: fontRegular,
+      weight: 400,
+      style: "normal",
+    },
+    {
+      name: "IBM Plex Mono",
+      data: fontBold,
+      weight: 600,
+      style: "normal",
+    },
   ],
 };
 
-const generateOgImage = async (fileName: string, card: OgCard) => {
-  const svg = await satori(ogImage(card), options);
+const generateOgImage = async (mytext = SITE.title, fileName = "og") => {
+  const svg = await satori(ogImage(mytext), options);
 
   // render png in production mode
   if (import.meta.env.MODE === "production") {
-    const pngBuffer = new Resvg(svg).render().asPng();
+    const resvg = new Resvg(svg);
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+
     console.info("Output PNG Image  :", `${fileName}.png`);
+
     await writeFile(`./dist/${fileName}.png`, pngBuffer);
   }
 

@@ -1,7 +1,6 @@
 ---
 title: There and Back Again
 pubDatetime: 2018-04-23T12:50:20Z
-series: leadership
 author: Jordan Simonovski
 description: "How my move out of a product team to an infrastructure team, and back again changed my view on DevOps and end-to-end ownership of products."
 tags:

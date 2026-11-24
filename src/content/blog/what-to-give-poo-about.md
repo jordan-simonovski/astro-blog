@@ -1,7 +1,6 @@
 ---
 title: DevOps - What to Give a 💩 About
 pubDatetime: 2019-02-24T17:00:00Z
-series: leadership
 author: Jordan Simonovski
 description: What makes DevOps successful?
 tags:

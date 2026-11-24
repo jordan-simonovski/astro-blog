@@ -14,7 +14,7 @@ const posts = await getSortedPosts(await getCollection("blog", postFilter));
 
 <Layout title={`Search | ${SITE.title}`}>
   <Header activeNav="search" />
-  <Main pageTitle="Search" pageDesc="Search titles and summaries.">
+  <Main pageTitle="Search" pageDesc="Search any article ...">
     <Search posts={posts.map(({ data }) => data)} />
   </Main>
   <Footer />

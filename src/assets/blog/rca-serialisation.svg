@@ -4,13 +4,13 @@
     html[data-theme="dark"] .viz { --s1: #3987e5; --s2: #199e70; --s3: #c98500; }
     .viz-title { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 18px; font-weight: 650; }
     .viz-sub   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
-    .viz-foot  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 13px; }
+    .viz-foot  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 12px; }
     .viz-cat   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 14px; }
     .viz-val   { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
     .viz-base  { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .28; stroke-width: 1.5; }
   </style>
 
-  <text x="40" y="30" class="viz-title">Bytes returned for one identical&#160;<tspan font-family="ui-monospace, monospace" font-weight="600">GROUP BY</tspan></text>
+  <text x="40" y="30" class="viz-title">Bytes returned for one identical <tspan font-family="ui-monospace, monospace" font-weight="600">GROUP BY</tspan></text>
   <text x="40" y="52" class="viz-sub">The message history is re-fed as input on every turn, so these bytes are billed again and again.</text>
 
   <line x1="190" y1="66" x2="190" y2="162" class="viz-base"/>

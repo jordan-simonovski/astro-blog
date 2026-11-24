@@ -1,7 +1,6 @@
 ---
 title: DevOps & Enterprise — Reference List
 pubDatetime: 2017-03-12T13:50:20Z
-series: leadership
 author: Jordan Simonovski
 postSlug: devops-enterprise-references
 tags:
@@ -21,6 +20,6 @@ I didn’t just make a lot of this stuff up. I did some pretty extensive reading
 
 [**Site Reliability Engineering**](https://landing.google.com/sre/book.html) —  Is a great book by the Google SRE Team which really focuses and enforces the ideas of building resilient systems, and what it means to put a lot of engineering thought and design behind the systems that you run.
 
-[**Continuous Delivery**](https://www.amazon.com/Continuous-Delivery-Deployment-Automation-Addison-Wesley/dp/0321601912) —  Is an awesome book by [Jez Humble](https://medium.com/@jezhumble) and David Farley that you see a lot of people quoting or referencing when trying to enforce the legitimacy of their claims (kind of like The Bible). Jokes aside, this is a great read!
+[**Continuous Delivery**](https://www.amazon.com/Continuous-Delivery-Deployment-Automation-Addison-Wesley/dp/0321601912)  —  Is an awesome book by [Jez Humble](https://medium.com/@jezhumble) and David Farley that you see a lot of people quoting or referencing when trying to enforce the legitimacy of their claims (kind of like The Bible). Jokes aside, this is a great read!
 
 [**Kanban Automotive Revolution (Boardgame)**](https://www.amazon.com/Stronghold-Games-2010SG-Automotive-Revolution/dp/B00OMXW2MU/ref=sr_1_cc_1?s=aps&ie=UTF8&qid=1489308824&sr=1-1-catcorr&keywords=kanban+the+board+game) —  If you can’t get anyone at work to read a book because they’re too busy, maybe try a boardgame!
