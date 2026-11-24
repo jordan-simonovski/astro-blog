@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Main from "@layouts/Main.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Card from "@components/Card.astro";
+import getPostsWithRT from "@utils/getPostsWithRT";
+import postFilter from "@utils/postFilter";
+import slugify from "@utils/slugify";
+import {
+  SERIES,
+  SERIES_KEYS,
+  postsInSeries,
+  type SeriesKey,
+} from "@utils/series";
+import { SITE } from "@config";
+
+export function getStaticPaths() {
+  return SERIES_KEYS.map(series => ({ params: { series } }));
+}
+
+const series = Astro.params.series as SeriesKey;
+const info = SERIES[series];
+const posts = await getPostsWithRT(await getCollection("blog", postFilter));
+// Numbered oldest-first; listed newest-first.
+const shelf = postsInSeries(posts, series)
+  .map((post, i) => ({ post, number: String(i + 1).padStart(2, "0") }))
+  .reverse();
+const count = `${shelf.length} ${shelf.length === 1 ? "title" : "titles"}`;
+---
+
+<Layout title={`${info.name} | ${SITE.title}`} series={series}>
+  <Header activeNav={series} />
+  <Main pageTitle={info.name} pageDesc={`${count} in the ${info.name} series.`}>
+    <ul>
+      {
+        shelf.map(({ post, number }) => (
+          <Card
+            href={`/posts/${slugify(post.data)}`}
+            frontmatter={post.data}
+            number={number}
+          />
+        ))
+      }
+    </ul>
+  </Main>
+  <Footer />
+</Layout>

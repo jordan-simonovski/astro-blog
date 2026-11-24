@@ -9,6 +9,7 @@ export const blogSchema = z
     featured: z.boolean().optional(),
     draft: z.boolean().optional(),
     tags: z.array(z.string()).default(["others"]),
+    series: z.enum(["observability", "leadership", "lab"]),
     ogImage: z.string().optional(),
     ogImageWidth: z.number().optional(),
     ogImageHeight: z.number().optional(),

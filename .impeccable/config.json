@@ -1,0 +1,22 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [".impeccable/mocks/decision/model-pick.html"],
+        "createdAt": "2026-11-24T01:35:58.034Z",
+        "reason": "agent decided: unchosen decision-round sketch for a rejected direction; its fonts belong to that direction by design and it never ships"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [".impeccable/mocks/decision/canon.html"],
+        "createdAt": "2026-11-24T01:35:58.064Z",
+        "reason": "agent decided: unchosen decision-round sketch for a rejected direction; its fonts belong to that direction by design and it never ships"
+      }
+    ]
+  }
+}

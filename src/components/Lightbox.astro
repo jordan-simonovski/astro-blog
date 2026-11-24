@@ -19,11 +19,15 @@ const { articleSelector = "#article" } = Astro.props;
   </div>
   <div class="lb-toolbar" role="toolbar" aria-label="Image controls">
     <button type="button" class="lb-btn" data-zoom-out aria-label="Zoom out">
-      &minus;
+      <svg viewBox="0 0 24 24" aria-hidden="true"
+        ><path d="M5 11h14v2H5z"></path></svg
+      >
     </button>
     <span class="lb-pct" data-pct aria-live="polite">100%</span>
     <button type="button" class="lb-btn" data-zoom-in aria-label="Zoom in">
-      &plus;
+      <svg viewBox="0 0 24 24" aria-hidden="true"
+        ><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg
+      >
     </button>
     <button type="button" class="lb-btn lb-btn-text" data-reset>Reset</button>
     <button
@@ -32,7 +36,11 @@ const { articleSelector = "#article" } = Astro.props;
       data-close
       aria-label="Close image viewer"
     >
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"
+        ><path
+          d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"
+        ></path></svg
+      >
     </button>
   </div>
   <p class="lb-caption" data-caption></p>
@@ -68,20 +76,26 @@ const { articleSelector = "#article" } = Astro.props;
     cursor: grabbing;
   }
   .lb-toolbar {
-    @apply border-skin-line text-skin-base fixed top-3 right-3 flex items-center gap-2 rounded-md border p-1.5 shadow-md;
-    background-color: rgb(var(--color-fill));
+    @apply text-skin-base fixed top-3 right-3 flex items-center gap-1 p-1;
+    background-color: rgb(var(--color-raised));
+    border-bottom: 3px solid rgb(var(--color-band));
   }
   .lb-btn {
-    @apply border-skin-line hover:border-skin-accent hover:text-skin-accent flex h-8 min-w-[2rem] items-center justify-center rounded border px-2 text-lg leading-none transition-colors;
+    @apply hover:bg-skin-card flex h-11 min-w-11 items-center justify-center px-2 leading-none;
+  }
+  .lb-btn svg {
+    @apply h-5 w-5;
+    fill: currentColor;
   }
   .lb-btn-text {
-    @apply text-xs font-medium;
+    @apply text-sm font-semibold;
   }
   .lb-pct {
-    @apply min-w-[3.5rem] text-center text-xs tabular-nums opacity-80 select-none;
+    @apply text-skin-muted min-w-[3.5rem] text-center text-sm tabular-nums select-none;
   }
   .lb-caption {
-    @apply text-skin-base fixed inset-x-0 bottom-3 mx-auto max-w-2xl px-4 text-center text-sm opacity-80;
+    @apply fixed inset-x-0 bottom-3 mx-auto max-w-2xl px-4 text-center text-sm;
+    color: #e8eaee;
   }
   .lb-caption:empty {
     @apply hidden;

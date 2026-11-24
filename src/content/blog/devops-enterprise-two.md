@@ -1,6 +1,7 @@
 ---
 title: DevOps & Enterprise — Part Deux
 pubDatetime: 2017-03-12T12:50:20Z
+series: leadership
 author: Jordan Simonovski
 description: Determining the teams you need to work with, understanding your constraints, and building something to try and solve the operational issues of an organisation.
 postSlug: devops-enterprise-two

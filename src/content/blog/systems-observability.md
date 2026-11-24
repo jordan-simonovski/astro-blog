@@ -1,6 +1,7 @@
 ---
 title: Systems Observability - What To Consider Before Writing Your First Line of Code
 pubDatetime: 2019-04-07T11:30:20Z
+series: observability
 author: Jordan Simonovski
 description: "Before even beginning to set things up, we should understand what makes good monitoring, logging, and alerting."
 tags:

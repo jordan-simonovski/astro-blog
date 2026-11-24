@@ -4,21 +4,21 @@
     html[data-theme="dark"] .viz { --s1: #3987e5; --s2: #199e70; --s3: #c98500; }
     .viz-title  { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 19px; font-weight: 650; }
     .viz-sub    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .62; font-size: 13px; }
-    .viz-foot   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 11.5px; }
-    .viz-col    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .72; font-size: 12.5px; font-weight: 550; font-variant-numeric: tabular-nums; }
-    .viz-block  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 12.5px; font-weight: 600; }
+    .viz-foot   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5;  font-size: 13px; }
+    .viz-col    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .72; font-size: 13px; font-weight: 550; font-variant-numeric: tabular-nums; }
+    .viz-block  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 13px; font-weight: 600; }
     .viz-arm    { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .82; font-size: 13px; font-weight: 550; }
     .viz-num    { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; pointer-events: none; }
     .viz-div    { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: .16; stroke-width: 1; stroke-dasharray: 3 4; }
-    .viz-hint   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5; font-size: 12.5px; }
+    .viz-hint   { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .5; font-size: 13px; }
 
     .viz-cellrect { stroke: rgb(var(--color-text-base, 40, 39, 40)); stroke-opacity: 0; stroke-width: 2; transition: stroke-opacity .08s; }
     .viz-cell:hover .viz-cellrect { stroke-opacity: .6; }
     .viz-readout { opacity: 0; pointer-events: none; }
     .viz-cell:hover .viz-readout { opacity: 1; }
     .viz-readbg { fill: rgb(var(--color-fill, 250, 249, 245)); }
-    .viz-readlabel { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .viz-readdesc  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .6; font-size: 12.5px; }
+    .viz-readlabel { fill: rgb(var(--color-text-base, 40, 39, 40)); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .viz-readdesc  { fill: rgb(var(--color-text-base, 40, 39, 40)); fill-opacity: .6; font-size: 13px; }
   </style>
 
   <text x="56" y="32" class="viz-title">Where the pillars arm collapses: pass-rate heatmap</text>

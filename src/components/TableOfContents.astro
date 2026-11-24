@@ -17,8 +17,11 @@ const toc = headings.filter(
 {
   toc.length > 0 && (
     <>
-      {/* Desktop: Notion-style hover rail pinned to the right edge. */}
-      <nav class="toc-rail group/toc" aria-label="On this page">
+      {/* Desktop: a contents list in the margin column, sticky beside the text. */}
+      <nav class="toc-margin" aria-labelledby="toc-heading">
+        <h2 id="toc-heading" class="toc-heading">
+          Contents
+        </h2>
         <ul class="toc-list">
           {toc.map(h => (
             <li>
@@ -28,17 +31,16 @@ const toc = headings.filter(
                 data-toc-link
                 data-target={h.slug}
                 data-depth={h.depth}
-                aria-label={h.text}
               >
-                <span class="toc-text">{h.text}</span>
-                <span class="toc-dash" aria-hidden="true" />
+                {h.text}
               </a>
             </li>
           ))}
         </ul>
       </nav>
 
-      {/* Mobile / narrow: floating button that opens a bottom sheet. */}
+      {/* Mobile / narrow: a sticky running head naming the current section;
+          it opens the contents as a bottom sheet. */}
       <div class="toc-mobile">
         <button
           type="button"
@@ -46,12 +48,11 @@ const toc = headings.filter(
           data-toc-toggle
           aria-expanded="false"
           aria-controls="toc-sheet"
-          aria-label="On this page"
         >
+          <span class="toc-fab-label">Contents</span>
+          <span class="toc-fab-current" data-toc-current />
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="4" y="6" width="12" height="2" rx="1" />
-            <rect x="4" y="11" width="16" height="2" rx="1" />
-            <rect x="4" y="16" width="9" height="2" rx="1" />
+            <path d="M7 10l5 5 5-5z" />
           </svg>
         </button>
 
@@ -100,162 +101,125 @@ const toc = headings.filter(
 }
 
 <style>
-  /* ===== Desktop rail ===== */
-  .toc-rail {
-    position: fixed;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 40;
+  /* ===== Desktop margin contents ===== */
+  .toc-margin {
     display: none;
   }
-
-  /* Only show when the viewport is wide enough to sit clear of the 3xl column. */
-  @media (min-width: 1280px) {
-    .toc-rail {
+  @media (min-width: 1024px) {
+    .toc-margin {
       display: block;
+      position: sticky;
+      top: 2rem;
+      max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+      padding-bottom: 1rem;
     }
   }
-
+  .toc-heading {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+    margin-bottom: 0.5rem;
+  }
   .toc-list {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.4rem;
     margin: 0;
-    padding: 0.5rem;
+    padding: 0;
     list-style: none;
-    max-width: 3rem;
-    border: 1px solid transparent;
-    border-radius: 0.5rem;
-    transition:
-      max-width 0.2s ease,
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+    font-size: 0.9375rem;
+    line-height: 1.35;
   }
-
-  .toc-rail:hover .toc-list,
-  .toc-rail:focus-within .toc-list {
-    align-items: stretch;
-    max-width: 18rem;
-    background-color: rgb(var(--color-fill));
-    border-color: rgba(var(--color-border), 0.6);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
-  }
-
-  .toc-list li {
-    margin: 0;
-  }
-
   .toc-link {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    text-decoration: none;
-    border-radius: 0.25rem;
-  }
-
-  .toc-rail:hover .toc-link,
-  .toc-rail:focus-within .toc-link {
-    justify-content: flex-start;
-    padding: 0.15rem 0.35rem;
-  }
-
-  .toc-dash {
+    position: relative;
     display: block;
-    height: 2px;
-    border-radius: 2px;
-    background-color: rgba(var(--color-text-base), 0.35);
-    transition:
-      width 0.2s ease,
-      background-color 0.2s ease;
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    color: rgb(var(--color-text-muted));
+    text-decoration: none;
   }
-
-  .toc-link[data-depth="2"] .toc-dash {
-    width: 1.4rem;
+  .toc-link[data-depth="3"] {
+    padding-left: 2.25rem;
+    font-size: 0.875rem;
   }
-  .toc-link[data-depth="3"] .toc-dash {
-    width: 1rem;
+  .toc-link[data-depth="4"] {
+    padding-left: 3rem;
+    font-size: 0.875rem;
   }
-  .toc-link[data-depth="4"] .toc-dash {
-    width: 0.7rem;
+  /* The position mark: a short printed rule that lengthens and takes the
+     series ink on the section you're reading. */
+  .toc-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.95em;
+    width: 0.625rem;
+    height: 1px;
+    background-color: rgb(var(--color-card-muted));
   }
-
-  .toc-link.is-active .toc-dash {
-    width: 1.6rem;
-    background-color: rgb(var(--color-accent));
+  .toc-link:hover {
+    color: rgb(var(--color-text-base));
   }
-
-  /* Hide the dashes once the panel is open; labels take over. */
-  .toc-rail:hover .toc-dash,
-  .toc-rail:focus-within .toc-dash {
-    display: none;
-  }
-
-  .toc-text {
-    display: none;
-    font-size: 0.8rem;
-    line-height: 1.4;
-    color: rgba(var(--color-text-base), 0.75);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.2s ease;
-  }
-
-  .toc-rail:hover .toc-text,
-  .toc-rail:focus-within .toc-text {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  .toc-link[data-depth="3"] .toc-text {
-    padding-left: 0.85rem;
-  }
-  .toc-link[data-depth="4"] .toc-text {
-    padding-left: 1.7rem;
-  }
-
-  .toc-link:hover .toc-text {
-    color: rgb(var(--color-accent));
-  }
-
-  .toc-link.is-active .toc-text {
-    color: rgb(var(--color-accent));
+  .toc-link.is-active {
+    color: rgb(var(--color-text-base));
     font-weight: 600;
+  }
+  .toc-link.is-active::before {
+    width: 1.125rem;
+    height: 3px;
+    top: calc(0.95em - 1px);
+    background-color: rgb(var(--color-accent));
   }
 
   /* ===== Mobile FAB + bottom sheet ===== */
   .toc-mobile {
     display: block;
   }
-  @media (min-width: 1280px) {
+  @media (min-width: 1024px) {
     .toc-mobile {
       display: none;
     }
   }
 
+  .toc-mobile {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin-inline: calc(-1 * clamp(1.25rem, 5vw, 4.5rem));
+    margin-top: -2.5rem;
+    margin-bottom: 2rem;
+  }
   .toc-fab {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 45;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgba(var(--color-border), 0.6);
-    box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+    background-color: rgb(var(--color-raised));
+    border-bottom: 1px solid rgb(var(--color-border));
+    font-size: 0.875rem;
+    text-align: left;
+  }
+  .toc-fab-label {
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--color-accent));
+    font-size: 0.8125rem;
+  }
+  .toc-fab-current {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgb(var(--color-text-muted));
   }
   .toc-fab svg {
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 1.25rem;
+    height: 1.25rem;
     fill: rgb(var(--color-text-base));
+    flex-shrink: 0;
   }
 
   .toc-sheet {
@@ -287,9 +251,7 @@ const toc = headings.filter(
     display: flex;
     flex-direction: column;
     background-color: rgb(var(--color-fill));
-    border-top: 1px solid rgba(var(--color-border), 0.6);
-    border-radius: 0.75rem 0.75rem 0 0;
-    box-shadow: 0 -10px 30px -10px rgba(0, 0, 0, 0.45);
+    border-top: 0.5rem solid rgb(var(--color-band));
     transform: translateY(100%);
     transition: transform 0.25s ease;
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -303,10 +265,12 @@ const toc = headings.filter(
     align-items: center;
     justify-content: space-between;
     padding: 0.85rem 1rem;
-    font-weight: 600;
-    border-bottom: 1px solid rgba(var(--color-border), 0.4);
+    font-weight: 700;
+    border-bottom: 1px solid rgb(var(--color-border));
   }
   .toc-sheet-close {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -329,7 +293,6 @@ const toc = headings.filter(
   .toc-sheet-link {
     display: block;
     padding: 0.6rem 0.75rem;
-    border-radius: 0.4rem;
     font-size: 0.95rem;
     text-decoration: none;
     color: rgb(var(--color-text-base));
@@ -337,22 +300,22 @@ const toc = headings.filter(
   .toc-sheet-link[data-depth="3"] {
     padding-left: 1.6rem;
     font-size: 0.9rem;
-    opacity: 0.9;
+    color: rgb(var(--color-text-muted));
   }
   .toc-sheet-link[data-depth="4"] {
     padding-left: 2.4rem;
     font-size: 0.9rem;
-    opacity: 0.85;
+    color: rgb(var(--color-text-muted));
   }
   .toc-sheet-link.is-active {
     color: rgb(var(--color-accent));
     font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .toc-list,
-    .toc-dash,
-    .toc-text,
     .toc-sheet-backdrop,
     .toc-sheet-panel {
       transition: none;
@@ -393,6 +356,9 @@ const toc = headings.filter(
         for (const link of links) link.classList.remove("is-active");
         for (const link of linksBySlug.get(slug) ?? [])
           link.classList.add("is-active");
+        const current = document.querySelector("[data-toc-current]");
+        const label = linksBySlug.get(slug)?.[0]?.textContent?.trim();
+        if (current && label) current.textContent = label;
       };
 
       const observer = new IntersectionObserver(

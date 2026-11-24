@@ -9,9 +9,12 @@ import Lightbox from "@components/Lightbox.astro";
 import Comments from "@components/Comments.astro";
 import TableOfContents from "@components/TableOfContents.astro";
 import { GISCUS, SITE } from "@config";
-import { render, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import slugify, { slugifyStr } from "@utils/slugify";
 import { documentUri } from "@utils/standardSite";
+import { SERIES, postsInSeries, seriesNumber } from "@utils/series";
+import postFilter from "@utils/postFilter";
+import smartQuotes from "@utils/smartQuotes";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -30,7 +33,17 @@ const {
   pubDatetime,
   tags,
   readingTime,
+  series,
 } = post.data;
+
+// Where this title sits in its series, and the titles either side of it.
+const allPosts = await getCollection("blog", postFilter);
+const seriesInfo = SERIES[series];
+const number = seriesNumber(allPosts, post);
+const shelf = postsInSeries(allPosts, series);
+const at = shelf.findIndex(p => p.id === post.id);
+const prevPost = shelf[at - 1];
+const nextPost = shelf[at + 1];
 
 const { Content, headings } = await render(post);
 
@@ -77,21 +90,9 @@ const structuredData = {
   tags={tags}
   structuredData={structuredData}
   standardDocument={post.data.draft ? undefined : documentUri(post)}
+  series={series}
 >
-  <Header />
-  <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
-    <button
-      class="focus-outline mt-8 mb-2 flex hover:opacity-75"
-      onclick="history.back()"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg"
-        ><path
-          d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
-        ></path>
-      </svg><span>Go back</span>
-    </button>
-  </div>
-  <TableOfContents headings={headings} />
+  <Header activeNav={series} />
   <main id="main-content">
     <article class="h-entry">
       {
@@ -101,50 +102,258 @@ const structuredData = {
       <a class="p-author h-card" href={SITE.website} hidden
         >{author ?? SITE.author}</a
       >
-      <header>
-        <h1 class="post-title p-name">{title}</h1>
-        <Datetime
-          datetime={pubDatetime}
-          size="lg"
-          class="my-2"
-          readingTime={readingTime}
-        />
+      <header class="title-band">
+        <div class="frame frame-grid">
+          <a
+            href={`/series/${series}`}
+            class="series-mark"
+            aria-label={`${seriesInfo.name} series, number ${Number(number)}`}
+          >
+            <span class="series-name">{seriesInfo.name}</span>
+            <span class="series-num">{number}</span>
+          </a>
+          <div>
+            <h1 class="post-title p-name">{smartQuotes(title)}</h1>
+            <p class="deck p-summary">{description}</p>
+            <p class="meta post-meta">
+              <a href={`/series/${series}`} class="series-code"
+                >{seriesInfo.name} {number}</a
+              >
+              <Datetime datetime={pubDatetime} readingTime={readingTime} />
+            </p>
+          </div>
+        </div>
       </header>
-      <div id="article" class="e-content prose mx-auto mt-8 max-w-3xl">
-        <Content />
-      </div>
-      <footer class="tags-container">
-        <ul>
-          {tags.map(tag => <Tag name={slugifyStr(tag)} />)}
-        </ul>
-      </footer>
-    </article>
-    <QuoteShare pageTitle={title} pageUrl={pageUrl} />
-    <Lightbox />
+      <div class="band-rule" aria-hidden="true"></div>
 
-    {
-      GISCUS.enabled && (
-        <section class="mt-8">
-          {/* Below the fold: Comments.astro only injects giscus once the reader
+      <div class="frame frame-grid post-body">
+        <aside>
+          <TableOfContents headings={headings} />
+        </aside>
+        <div>
+          <div id="article" class="e-content prose">
+            <Content />
+          </div>
+
+          <footer class="post-footer">
+            <ul class="tags meta" aria-label="Tags">
+              {tags.map(tag => <Tag name={slugifyStr(tag)} />)}
+            </ul>
+
+            <nav class="series-nav" aria-label={`More in ${seriesInfo.name}`}>
+              <h2 class="series-nav-title">
+                <a href={`/series/${series}`}>More in {seriesInfo.name}</a>
+              </h2>
+              <div class="series-nav-grid">
+                {
+                  prevPost && (
+                    <a
+                      href={`/posts/${slugify(prevPost.data)}`}
+                      class="series-step"
+                      rel="prev"
+                    >
+                      <span class="series-code">
+                        Previous · {seriesInfo.code}{" "}
+                        {seriesNumber(allPosts, prevPost)}
+                      </span>
+                      <span class="step-title">
+                        {smartQuotes(prevPost.data.title)}
+                      </span>
+                    </a>
+                  )
+                }
+                {
+                  nextPost && (
+                    <a
+                      href={`/posts/${slugify(nextPost.data)}`}
+                      class="series-step"
+                      rel="next"
+                    >
+                      <span class="series-code">
+                        Next · {seriesInfo.code}{" "}
+                        {seriesNumber(allPosts, nextPost)}
+                      </span>
+                      <span class="step-title">
+                        {smartQuotes(nextPost.data.title)}
+                      </span>
+                    </a>
+                  )
+                }
+              </div>
+            </nav>
+          </footer>
+
+          <QuoteShare pageTitle={title} pageUrl={pageUrl} />
+          <Lightbox />
+
+          {
+            GISCUS.enabled && (
+              <section class="comments">
+                {/* Below the fold: Comments.astro only injects giscus once the reader
               scrolls near here. */}
-          <Comments />
-        </section>
-      )
-    }
+                <Comments />
+              </section>
+            )
+          }
+        </div>
+      </div>
+    </article>
   </main>
   <Footer />
 </Layout>
 
 <style>
-  @reference "../styles/base.css";
-
-  main {
-    @apply mx-auto w-full max-w-3xl px-4 pb-12;
+  /* ===== Title band: white sheet on the frame grid ===== */
+  .title-band {
+    background-color: rgb(var(--color-raised));
+    padding-block: 2.25rem 2rem;
+  }
+  @media (min-width: 1024px) {
+    .title-band {
+      padding-block: 3rem 2.75rem;
+    }
+  }
+  /* Desktop carries the series in the margin; narrow screens carry it in the
+     meta line instead, so it is never shown twice. */
+  .series-mark {
+    display: none;
+    flex-direction: column;
+    text-decoration: none;
+    color: rgb(var(--color-accent));
+    padding-top: 0.5rem;
+  }
+  .series-name {
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .series-num {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: rgb(var(--color-text-base));
+    margin-top: 0.25rem;
+  }
+  @media (min-width: 1024px) {
+    .series-mark {
+      display: flex;
+    }
+    .post-meta .series-code {
+      display: none !important;
+    }
+  }
+  .series-mark:hover .series-name {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
   }
   .post-title {
-    @apply text-skin-accent text-2xl font-semibold;
+    font-size: clamp(2rem, 1.25rem + 2.6vw, 3.25rem);
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    max-width: 24ch;
   }
-  .tags-container {
-    @apply my-8 px-0;
+  .deck {
+    margin-top: 1rem;
+    max-width: 38rem;
+    font-family: var(--font-content);
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgb(var(--color-text-muted));
+  }
+  .post-meta {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.5em;
+  }
+  .post-meta .series-code {
+    display: inline-block;
+    padding-block: 0.15rem;
+    text-decoration: none;
+  }
+  .post-meta .series-code::after {
+    content: "·";
+    margin-left: 0.5em;
+    color: rgb(var(--color-text-muted));
+  }
+
+  /* ===== Body ===== */
+  /* Narrow screens: the aside dissolves so the contents running head can
+     stick across the whole article. */
+  @media (max-width: 1023px) {
+    .post-body aside {
+      display: contents;
+    }
+  }
+  .post-body {
+    padding-top: 2.5rem;
+    padding-bottom: 4rem;
+  }
+
+  .post-footer {
+    max-width: 38rem;
+    margin-top: 3.5rem;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+  }
+  .series-nav {
+    margin-top: 2rem;
+    border-top: 3px solid rgb(var(--color-band));
+    padding-top: 1rem;
+  }
+  .series-nav-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+  .series-nav-title a {
+    text-decoration: none;
+  }
+  .series-nav-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .series-nav-grid {
+    display: grid;
+    gap: 1rem 2rem;
+    margin-top: 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .series-nav-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .series-step[rel="next"] {
+      grid-column: 2;
+    }
+  }
+  .series-step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-decoration: none;
+    padding-block: 0.25rem;
+  }
+  .series-step .series-code {
+    font-size: 0.875rem;
+  }
+  .step-title {
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .series-step:hover .step-title {
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--color-accent));
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+  .comments {
+    margin-top: 3rem;
+    max-width: 46rem;
   }
 </style>

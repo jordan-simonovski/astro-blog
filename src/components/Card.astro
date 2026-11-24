@@ -1,27 +1,78 @@
 ---
 import Datetime from "./Datetime.astro";
 import type { BlogFrontmatter } from "@content/_schemas";
+import { SERIES } from "@utils/series";
+import smartQuotes from "@utils/smartQuotes";
 
 export interface Props {
   href?: string;
   frontmatter: BlogFrontmatter;
+  /** Series number ("07"); shown with the series code when given. */
+  number?: string;
   secHeading?: boolean;
 }
 
-const { href, frontmatter, secHeading = true } = Astro.props;
-const { title, pubDatetime, description, readingTime } = frontmatter;
+const { href, frontmatter, number, secHeading = true } = Astro.props;
+const { title, pubDatetime, description, readingTime, series } = frontmatter;
 const Heading = secHeading ? "h2" : "h3";
 ---
 
-<li class="my-6">
-  <a
-    href={href}
-    class="text-skin-accent inline-block text-lg font-medium decoration-dashed underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
-  >
-    <Heading class="text-lg font-medium decoration-dashed hover:underline">
-      {title}
+<li class="entry" data-series={series}>
+  <span class="series-code code">
+    {SERIES[series].code}
+    {number && <span class="num">{number}</span>}
+  </span>
+  <div>
+    <Heading class="entry-title">
+      <a href={href}>{smartQuotes(title)}</a>
     </Heading>
-  </a>
-  <Datetime datetime={pubDatetime} readingTime={readingTime} />
-  <p>{description}</p>
+    <p class="entry-desc">{description}</p>
+    <Datetime datetime={pubDatetime} readingTime={readingTime} class="meta" />
+  </div>
 </li>
+
+<style>
+  .entry {
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    column-gap: 1rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid rgb(var(--color-border));
+  }
+  .code {
+    font-size: 0.9375rem;
+    padding-top: 0.2rem;
+  }
+  .num {
+    margin-left: 0.15em;
+  }
+  .entry-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .entry-title a {
+    text-decoration: none;
+  }
+  .entry-title a:hover {
+    color: rgb(var(--color-accent));
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+  }
+  /* Visited titles get a muted mark, so the shelf shows what you've read. */
+  .entry-title a:visited {
+    color: rgb(var(--color-text-muted));
+  }
+  .entry-desc {
+    font-family: var(--font-content);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-top: 0.4rem;
+    max-width: 38rem;
+  }
+  .entry :global(.meta) {
+    margin-top: 0.5rem;
+  }
+</style>
